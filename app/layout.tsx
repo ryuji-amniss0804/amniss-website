@@ -17,15 +17,12 @@ export const metadata: Metadata = {
   title: "富山の出張買取・不用品回収なら re'vive（リバイブ）",
   description: "富山県全域対応。古いカメラ、PC、ジャンクPC、ゲーム機から押し入れのガラクタまで、出張・査定0円で即日現金買取！あなたがゴミだと思っているモノに世界基準の価値を見出します。",
   keywords: ["富山 買取", "出張買取 富山", "不用品回収 富山", "カメラ 買取 富山", "パソコン 処分 富山", "ジャンクPC 買取 富山", "リバイブ 富山"],
-  
-  // スマホのズーム無効化や表示の最適化
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 
   // LINEやSNSでURLを貼ったときにリッチに表示させる設定（OGP）
   openGraph: {
     title: "富山の出張買取・不用品回収なら re'vive（リバイブ）",
     description: "古いカメラ、PC、壊れたゲーム機まで出張査定0円で即日現金買取！押し入れのガラクタ、実はお宝かも？！",
-    url: "https://revive-lp.vercel.app", // ※将来、独自のドメインを取得したらここを書き換えます
+    url: "https://revive-lp-eight.vercel.app/", // ※実際の公開URLに合わせて最適化しておきました
     siteName: "re'vive（リバイブ）",
     images: [
       {
@@ -38,7 +35,15 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     type: "website",
   },
+
+  // 👇 【ココを追加！】Googleサーチコンソールの認証設定
+  verification: {
+    google: "_pNUoPPmmA1sI3aZLNk07IiSAD5PKyi0UGmhT5oMvwg",
+  },
 };
+
+// 💡 画面の表示最適化（viewportはmetadataの外に出すのが最新のNext.jsのルールなのでここに移動しました）
+export const viewport = "width=device-width, initial-scale=1, maximum-scale=1";
 
 export default function RootLayout({
   children,
