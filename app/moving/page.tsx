@@ -89,12 +89,41 @@ export default function MovingLP() {
   const optionPrice = stairs + (noVehicleAccess ? 3300 : 0) + (addWorker ? 11000 : 0);
   const totalPrice = basePrice + distPrice + realCost + optionPrice;
 
-  // 💡 不要になった generateLineText をきれいに削除し、ボタン処理だけにスッキリ統一！
-  const handleBooking = (e: React.MouseEvent) => {
+  // 💡 【アップデート！】ボタンを押した時に裏方APIへ非同期でシミュレーション内容を自動送信
+  const handleBooking = async (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // 予約番号（4桁のランダムな数字）を発行
     const randNum = Math.floor(1000 + Math.random() * 9000).toString();
     setBookingNumber(randNum);
     setIsBooked(true);
+
+    try {
+      // 💡 呼び出し先URLを本番フルパスにして、確実に裏方を叩かせます！
+      await fetch("https://revive-lp-eight.vercel.app/api/send-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingNumber: randNum,
+          totalPrice: totalPrice,
+          autoPlan: autoPlan,
+          boxCount: boxCount,
+          hasFridge: hasFridge,
+          hasWashing: hasWashing,
+          hasBed: hasBed,
+          hasFuton: hasFuton,
+          selectedRoute: selectedRoute?.name,
+          customDistance: isCustomDistance ? customDistance : null,
+          stairs: stairs,
+          noVehicleAccess: noVehicleAccess,
+          addWorker: addWorker,
+          pcSetup: pcSetup,
+          purchaseOption: purchaseOption
+        }),
+      });
+    } catch (error) {
+      console.error("見積もりメールの送信に失敗しました:", error);
+    }
   };
 
   // メールフォーム送信ハンドラ
