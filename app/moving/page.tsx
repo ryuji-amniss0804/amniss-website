@@ -114,7 +114,7 @@ export default function MovingLP() {
           hasFuton: hasFuton,
           selectedRoute: selectedRoute?.name,
           customDistance: isCustomDistance ? customDistance : null,
-          stairs: stairs,
+          stairs: Number(stairs),
           noVehicleAccess: noVehicleAccess,
           addWorker: addWorker,
           pcSetup: pcSetup,
