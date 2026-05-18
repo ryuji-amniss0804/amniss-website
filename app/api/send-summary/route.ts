@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
     // 💡 届くメールの本文を組み立て
     const emailHtml = `
-      <h2>【DWPC 単身引越しLP】新しい見積もりシミュレーション（予約番号発行）がありました！</h2>
+      <h2>【A.P.C LOGISTICS 単身引越しLP】新しい見積もりシミュレーション（予約番号発行）がありました！</h2>
       <p><strong>予約番号：</strong> #${data.bookingNumber}</p>
       <hr />
       <h3>■ 見積もり内容</h3>
@@ -36,10 +36,10 @@ export async function POST(request: Request) {
       <p>※このメールはシミュレーターで「予約番号を発行する」が押された際に自動送信されました。</p>
     `;
 
-    // 💡 ここで1度だけAPIキーを宣言（これでエラーを完全撃破！）
+    // 💡 APIキーの宣言
     const resendApiKey = 're_X4r7hgtU_9CjP7CqX11NXoH8CjjLx7P6J';
 
-    // 💡 Resend公式の初期ドメインで送信処理を実行
+    // 💡 送信元の表示名を A.P.C LOGISTICS に変更しました！
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from: 'DWPC Simulator <onboarding@resend.dev>', // 公式の初期ドメイン（認証スキップ用）
-        to: 'airyu011005@outlook.jp', // 小川さんの宛先アドレス
+        from: 'A.P.C LOGISTICS <onboarding@resend.dev>', // 👈 表示名を修正
+        to: 'airyu011005@outlook.jp',
         subject: `【予約番号 #${data.bookingNumber}】単身引越し概算見積もり通知`,
         html: emailHtml,
       }),
