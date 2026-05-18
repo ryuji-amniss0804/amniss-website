@@ -4,11 +4,11 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // 1️⃣ プラン基本料金の計算
+    // 1️⃣ プラン基本料金の計算（軽バン：15,000円 / 2tトラック：35,000円）
     const planBasePrice = data.autoPlan === "subaru" ? 15000 : 35000;
     const planName = data.autoPlan === "subaru" ? "軽バン（エブリイ）プラン" : "2tアルミトラックプラン";
 
-    // 2️⃣ セレクトボックスの値（追加料金）から、メール用のテキストを判定する
+    // 2️⃣ 階数・階段移動のテキスト判定（画面のセレクトボックスのvalue [2200, 4400, 6600] をそのまま使用）
     const stairsPrice = Number(data.stairs) || 0;
     let stairsText = '';
 
@@ -21,14 +21,12 @@ export async function POST(request: Request) {
     } else if (stairsPrice >= 6600) {
       stairsText = `4階以上（階段のみ） (+${stairsPrice.toLocaleString()}円〜)`;
     } else {
-      // 万が一その他の数値が来た場合の予備表示
       stairsText = `階段移動あり (+${stairsPrice.toLocaleString()}円)`;
     }
 
-    // 3️⃣ 各種オプション料金
-    const noVehicleAccessPrice = data.noVehicleAccess ? 5000 : 0;
-    const addWorkerPrice = data.addWorker ? 12000 : 0;
-    const pcSetupPrice = data.pcSetup ? 3000 : 0;
+    // 3️⃣ 各種オプション料金（使っていない無料特典の変数宣言を削除して警告をクリア！）
+    const noVehicleAccessPrice = data.noVehicleAccess ? 3300 : 0;
+    const addWorkerPrice = data.addWorker ? 11000 : 0;
 
     // 💡 届くメールの本文を組み立て
     const emailHtml = `
@@ -62,8 +60,12 @@ export async function POST(request: Request) {
           <td style="padding: 8px 0; text-align: right;">${data.addWorker ? `✅ あり (+${addWorkerPrice.toLocaleString()}円)` : '❌ なし (+0円)'}</td>
         </tr>
         <tr style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 8px 0;"><strong>PC・周辺機器配線設置：</strong></td>
-          <td style="padding: 8px 0; text-align: right;">${data.pcSetup ? `✅ あり (+${pcSetupPrice.toLocaleString()}円)` : '❌ なし (+0円)'}</td>
+          <td style="padding: 8px 0;"><strong>プレミアム特典①（Wi-Fi・PC設定）：</strong></td>
+          <td style="padding: 8px 0; text-align: right;">${data.pcSetup ? '✅ 希望する (0円)' : '❌ なし'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 8px 0;"><strong>プレミアム特典②（不用品丸ごと査定）：</strong></td>
+          <td style="padding: 8px 0; text-align: right;">${data.purchaseOption ? '✅ 希望する (0円)' : '❌ なし'}</td>
         </tr>
       </table>
 
@@ -71,7 +73,6 @@ export async function POST(request: Request) {
       <ul>
         <li><strong>選択ルート：</strong> ${data.selectedRoute || '（未選択・カスタム入力）'}</li>
         ${data.customDistance ? `<li><strong>カスタム走行距離：</strong> ${data.customDistance} km</li>` : ''}
-        <li><strong>不要品買取・引取査定：</strong> ${data.purchaseOption ? '✅ 希望する' : '❌ 希望しない'}</li>
       </ul>
 
       <h3>■ お荷物の目安</h3>
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
       <p>※このメールはシミュレーターで「予約番号を発行する」が押された際に自動送信されました。</p>
     `;
 
-    // APIキー
+    // Resend APIキー
     const resendApiKey = 're_X4r7hgtU_9CjP7CqX11NXoH8CjjLx7P6J';
 
     // 送信処理
