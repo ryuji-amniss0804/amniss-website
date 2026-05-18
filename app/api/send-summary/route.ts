@@ -4,7 +4,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // 💡 Resend用のAPIキー設定（本番公開時にVercel側でセットします）
+    // 💡 Resend用のAPIキー設定（Vercelの環境変数から読み込みます）
     const resendApiKey = process.env.RESEND_API_KEY || 're_mock_key';
 
     // 届くメールの本文を組み立て
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       <p>※このメールはシミュレーターで「予約番号を発行する」が押された際に自動送信されました。</p>
     `;
 
-    // 💡 エラーの原因だった箇所を完全に美しく修正しました
+    // 💡 2重になっていた部分をきれいスッキリ1つに修正しました！
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from: 'DWPC Moving Simulator <onboarding@resend.dev>',
-        to: 'airyu011005@outlook.jp', // 👈 アドレスの設定完了！
+        from: 'DWPC Moving Simulator <airyu011005@outlook.jp>',
+        to: 'airyu011005@outlook.jp',
         subject: `【予約番号 #${data.bookingNumber}】単身引越し概算見積もり通知`,
         html: emailHtml,
       }),
