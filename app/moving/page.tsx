@@ -32,7 +32,7 @@ export default function MovingLP() {
   const [routeIdx, setRouteIdx] = useState<number>(0); // ルート選択
   const [customDistance, setCustomDistance] = useState<number>(10); // 手動入力の距離
   const [stairs, setStairs] = useState<number>(0); // 階段オプション料金
-  const [noVehicleAccess, setNoVehicleAccess] = useState<boolean>(false); // 車両進入不可
+  const [noVehicleAccess, setNoVehicleAccess] = useState<boolean>(false); // 車良進入不可
   const [addWorker, setAddWorker] = useState<boolean>(false); // 作業員追加
   const [pcSetup, setPcSetup] = useState<boolean>(false); // PC初期設定
   const [purchaseOption, setPurchaseOption] = useState<boolean>(false); // 不用品査定希望
@@ -52,44 +52,30 @@ export default function MovingLP() {
   if (hasBed) loadPoints += 35; // ベッド＝35pt
   if (hasFuton) loadPoints += 15; // 布団＝15pt
 
-  // 💡 積載ポイントが95を超えたら、自動的に2tトラックプランに強制切り替え！
-  const autoPlan = loadPoints > 95 ? "truck" : "subaru";
-
   // 選択ルートの情報を取得
   const selectedRoute = ROUTE_DISTANCES[routeIdx];
   const isCustomDistance = selectedRoute?.distance === -1;
   const currentDistance = isCustomDistance ? customDistance : (selectedRoute?.distance || 0);
   const isLongDistance = selectedRoute?.isLongDist || (isCustomDistance && currentDistance >= 100);
 
-  // 金額のリアルタイム計算
+  // 料金のリアルタイム計算（軽バン一律ロジック）
   let basePrice = 0;
   let distPrice = 0;
   let realCost = 0;
 
-  if (autoPlan === "subaru") {
-    if (isLongDistance) {
-      basePrice = 25000;
-      if (currentDistance > 100) distPrice = (currentDistance - 100) * 165;
-      realCost = (currentDistance * 2 * 15) + (currentDistance * 2 * 20);
-    } else {
-      basePrice = 12100;
-      if (currentDistance > 10) distPrice = (currentDistance - 10) * 220;
-    }
+  if (isLongDistance) {
+    basePrice = 25000;
+    if (currentDistance > 100) distPrice = (currentDistance - 100) * 165;
+    realCost = (currentDistance * 2 * 15) + (currentDistance * 2 * 20); // 往復実費目安
   } else {
-    if (isLongDistance) {
-      basePrice = 55000;
-      if (currentDistance > 100) distPrice = (currentDistance - 100) * 220;
-      realCost = (currentDistance * 2 * 25) + (currentDistance * 2 * 30);
-    } else {
-      basePrice = 33000;
-      if (currentDistance > 10) distPrice = (currentDistance - 10) * 330;
-    }
+    basePrice = 12100;
+    if (currentDistance > 10) distPrice = (currentDistance - 10) * 220;
   }
 
   const optionPrice = stairs + (noVehicleAccess ? 3300 : 0) + (addWorker ? 11000 : 0);
   const totalPrice = basePrice + distPrice + realCost + optionPrice;
 
-  // 💡 【アップデート！】ボタンを押した時に裏方APIへ非同期でシミュレーション内容を自動送信
+  // 💡 ボタンを押した時に裏方APIへ非同期でシミュレーション内容を自動送信
   const handleBooking = async (e: React.MouseEvent) => {
     e.preventDefault();
     
@@ -99,14 +85,15 @@ export default function MovingLP() {
     setIsBooked(true);
 
     try {
-      // 💡 呼び出し先URLを本番フルパスにして、確実に裏方を叩かせます！
-      await fetch("https://revive-lp-eight.vercel.app/api/send-summary", {
+      // 💡 URLのドメイン部分を削って、スラッシュから始める
+      await fetch("/api/send-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // ...以下省略
         body: JSON.stringify({
           bookingNumber: randNum,
           totalPrice: totalPrice,
-          autoPlan: autoPlan,
+          autoPlan: "subaru", // 軽バンプラン固定
           boxCount: boxCount,
           hasFridge: hasFridge,
           hasWashing: hasWashing,
@@ -167,14 +154,14 @@ export default function MovingLP() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] bg-size-[16px_16px]"></div>
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
           <span className="inline-block bg-blue-900/50 text-blue-400 border border-blue-700/50 text-xs sm:text-sm font-bold px-3 py-1 rounded-full mb-6 tracking-wide">
-            富山県発着・単身引っ越し専門
+            富山県発着・軽バン単身引っ越し専門
           </span>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-6">
             富山の単身引っ越しを、<br />
             <span className="text-blue-400">どこよりも安く、スマートに。</span>
           </h1>
           <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-            軽バンを活用した格安プランから、県外への長距離便まで完全対応。<br />
+            軽バン（スズキ・エブリイ）に特化した圧倒的な格安プランから、県外への長距離運送まで完全対応。<br />
             あとからの不当な追加請求は一切ない【完全明朗会計】をお約束します。
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto">
@@ -188,23 +175,23 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 料金プランセクション ─── */}
-      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mb-4">
             完全明朗会計の料金プラン
           </h2>
           <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
-            「基本運賃」＋「距離料金」＋「実費（長距離便のみ）」のクリアな構造です。
+            「基本運賃」＋「距離料金」＋「実費（長距離便のみ）」のクリアな軽バンプランです。
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12利">
           {/* 1. 軽バン（エブリイ）プラン */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between">
             <div className="p-6 sm:p-8">
               <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded">PLAN 01</span>
-              <h3 className="text-xl font-bold text-slate-900 mt-3 mb-2">軽バン（エブリイ）プラン</h3>
-              <p className="text-sm text-slate-500 mb-6">ワンルームの一人暮らし、荷物少なめの学生・単身赴任の方に最適！</p>
+              <h3 className="text-xl font-bold text-slate-900 mt-3 mb-2">軽バン（エブリイ）近距離プラン</h3>
+              <p className="text-sm text-slate-500 mb-6">富山県内のお引越しに！ワンルームの一人暮らし、荷物少なめの学生・単身赴任の方に最適です。</p>
               <div className="bg-slate-50 p-4 rounded-xl mb-6">
                 <div className="text-xs text-slate-500">基本料金（最初の10kmまで込み）</div>
                 <div className="text-2xl font-black text-slate-900 mt-1">12,100円<span className="text-sm font-normal text-slate-500">（税込）</span></div>
@@ -223,65 +210,33 @@ export default function MovingLP() {
             </div>
           </div>
 
-          {/* 2. 2tアルミトラックプラン */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between">
-            <div className="p-6 sm:p-8">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded">PLAN 02</span>
-              <h3 className="text-xl font-bold text-slate-900 mt-3 mb-2">2tアルミトラックプラン【県内】</h3>
-              <p className="text-sm text-slate-500 mb-6">ベッド、大型冷蔵庫、洗濯機、タンスなど、エブリイに入らない大型家具がある場合。</p>
-              <div className="bg-slate-50 p-4 rounded-xl mb-6">
-                <div className="text-xs text-slate-500">2t車基本料金（最初の10kmまで込み）</div>
-                <div className="text-2xl font-black text-slate-900 mt-1">33,000円<span className="text-sm font-normal text-slate-500">（税込）</span></div>
-                <div className="text-xs text-slate-500 mt-3 border-t border-slate-200 pt-2">
-                  10km以降の加算：<span className="font-bold text-slate-700">1kmにつき 330円（税込）</span>
-                </div>
-              </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">富山県内コミコミ料金目安</h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 mb-6">
-                <li className="flex justify-between border-b border-slate-100 pb-1"><span>富山市内 ⇔ 富山市内（10km内）</span><span className="font-bold text-slate-900">33,000円</span></li>
-                <li className="flex justify-between border-b border-slate-100 pb-1"><span>富山市 ⇔ 射水市（約15km）</span><span className="font-bold text-slate-900">34,650円</span></li>
-                <li className="flex justify-between border-b border-slate-100 pb-1"><span>富山市 ⇔ 高岡市（約25km）</span><span className="font-bold text-slate-900">37,950円</span></li>
-                <li className="flex justify-between border-b border-slate-100 pb-1"><span>富山市 ⇔ 砺波市・魚津市（約35km）</span><span className="font-bold text-slate-900">41,250円</span></li>
-                <li className="flex justify-between pb-1"><span>富山市 ⇔ 氷見市・黒部市（約45km）</span><span className="font-bold text-slate-900">44,550円</span></li>
-              </ul>
-              <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl text-xs sm:text-sm text-blue-900 leading-relaxed">
-                💡 <strong>面倒な手配はすべてお任せ！</strong><br />
-                提携レンタカー会社からの車両手配・回送まですべて当店が代行します。
-              </div>
-            </div>
-          </div>
-
-          {/* 3. 【県外対応】長距離引越しプラン */}
+          {/* 2. 【県外対応】長距離引越しプラン */}
           <div className="bg-slate-950 text-white border border-slate-800 rounded-2xl shadow-lg overflow-hidden flex flex-col justify-between relative p-6 sm:p-8">
             <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-bl">県外対応</div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-950 px-2.5 py-1 rounded">PLAN 03</span>
-              <h3 className="text-xl font-bold mt-3 mb-2">長距離引越しプラン</h3>
-              <p className="text-sm text-slate-400 mb-6">富山⇔県外の長距離移動専用。往復ガソリン代・高速代の実費精算で大手より圧倒的安さを実現！</p>
-              <div className="space-y-4 mb-6">
-                <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[11px] text-blue-400 font-bold">① エブリイ長距離便（荷物少なめ）</div>
-                  <div className="text-lg font-bold mt-0.5">25,000円〜<span className="text-xs text-slate-400 font-normal">（100kmまで一律）</span></div>
-                  <div className="text-[11px] text-slate-400 mt-1">以降1km毎+165円 ＋ 往復実費（ガソリン@15円＋軽自動車高速代）</div>
-                </div>
-                <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[11px] text-blue-400 font-bold">② 2tトラック長距離便（荷物多め・大型有）</div>
-                  <div className="text-lg font-bold mt-0.5">55,000円〜<span className="text-xs text-slate-400 font-normal">（100kmまで一律）</span></div>
-                  <div className="text-[11px] text-slate-400 mt-1">以降1km毎+220円 ＋ 往復実費（ガソリン@25円＋中型車高速代）</div>
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-950 px-2.5 py-1 rounded">PLAN 02</span>
+              <h3 className="text-xl font-bold mt-3 mb-2">軽バン長距離引越しプラン</h3>
+              <p className="text-sm text-slate-400 mb-6">富山 ⇔ 県外の長距離移動専用。往復ガソリン代・高速代の実費精算で大手引越し会社より圧倒的な安さを実現！</p>
+              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6">
+                <div className="text-xs text-blue-400 font-bold">軽バン長距離運賃（片道100kmまで一律）</div>
+                <div className="text-2xl font-black text-white mt-1">25,000円<span className="text-sm font-normal text-slate-400">（税込）〜</span></div>
+                <div className="text-xs text-slate-400 mt-3 border-t border-slate-800 pt-2 font-medium">
+                  100km以降の加算：<span className="text-slate-200 font-bold">1km毎 +165円（税込）</span><br />
+                  ※別途、往復実費（ガソリン目安@15円＋軽自動車高速代）が加算されます。
                 </div>
               </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">県外コミコミ目安（運賃＋実費総額）</h4>
-              <ul className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800 pt-3">
-                <li className="flex justify-between"><span>富山 ⇔ 金沢（約65km）</span><span>軽: 約3.1万 / 2t: 約6.3万</span></li>
-                <li className="flex justify-between"><span>富山 ⇔ 新潟（約160km）</span><span>軽: 約4.8万 / 2t: 約9.2万</span></li>
-                <li className="flex justify-between"><span>富山 ⇔ 名古屋（約240km）</span><span>軽: 約6.7万 / 2t: 約12万</span></li>
-                <li className="flex justify-between"><span>富山 ⇔ 東京（約370km）</span><span>軽: 約9.7万 / 2t: 約16.8万</span></li>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">県外コミコミ総額目安（運賃＋実費）</h4>
+              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3固定">
+                <li className="flex justify-between border-b border-slate-900 pb-1"><span>富山 ⇔ 金沢（約65km）</span><span className="font-bold text-white">約31,000円</span></li>
+                <li className="flex justify-between border-b border-slate-900 pb-1"><span>富山 ⇔ 新潟（約160km）</span><span className="font-bold text-white">約48,000円</span></li>
+                <li className="flex justify-between border-b border-slate-900 pb-1"><span>富山 ⇔ 名古屋（約240km）</span><span className="font-bold text-white">約67,000円</span></li>
+                <li className="flex justify-between pb-1"><span>富山 ⇔ 東京（約370km）</span><span className="font-bold text-white">約97,000円</span></li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* 4. 建物・環境オプション */}
+        {/* 3. 建物・環境オプション */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
             <span className="bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded mr-2">OPTION</span> 建物・環境オプション（階段割増など）
@@ -318,7 +273,7 @@ export default function MovingLP() {
               <div className="text-yellow-400 font-extrabold text-lg mb-2">🎁 特典①：Wi-Fi・PC初期設定（1台）</div>
               <div className="text-3xl font-black my-1 text-white">0円 <span className="text-xs font-normal text-blue-200">（完全無料）</span></div>
               <p className="text-xs text-blue-100 leading-relaxed mt-2 border-t border-white/10 pt-2">
-                元PCショップ店長の知識を活かし、新居での面倒なインターネットのWi-Fi接続、パソコンの初期設定などを引越し当日に代行！すぐにネットが使えます。
+                新居での面倒なインターネットのWi-Fi接続、パソコンの初期設定などを引越し当日に代行！すぐに快適にネットが使えます。
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm border border-white/10 p-6 rounded-2xl">
@@ -389,26 +344,27 @@ export default function MovingLP() {
                   <div className="pt-2 border-t border-slate-200">
                     <div className="flex justify-between items-center text-xs font-bold mb-1">
                       <span className="text-slate-600">🚚 軽バン（エブリイ）積載率シミュレート</span>
-                      <span className={loadPoints > 95 ? "text-red-600" : "text-blue-600"}>
+                      <span className={loadPoints > 95 ? "text-amber-600" : "text-blue-600"}>
                         {Math.min(100, Math.round(loadPoints))}%
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 h-4 rounded-full overflow-hidden">
                       <div
-                        className={`h-full transition-all duration-300 ${loadPoints > 95 ? "bg-red-500" : loadPoints > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
+                        className={`h-full transition-all duration-300 ${loadPoints > 95 ? "bg-amber-500" : loadPoints > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
                         style={{ width: `${Math.min(100, loadPoints)}%` }}
                       ></div>
                     </div>
 
                     {/* 判定メッセージ */}
                     <div className="mt-3 text-center">
-                      {autoPlan === "subaru" ? (
+                      {loadPoints <= 95 ? (
                         <div className="bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold p-2.5 rounded-lg">
-                          🚙 <strong>軽バン（エブリイ）プランにスッポリ収まります！</strong> 最安値での引っ越しが可能です。
+                          🚙 <strong>軽バン（エブリイ）にスッポリ収まります！</strong> 格安プランでの引っ越しが可能です。
                         </div>
                       ) : (
-                        <div className="bg-red-50 border border-red-200 text-red-800 text-xs font-bold p-2.5 rounded-lg">
-                          🚨 <strong>軽バンの積載限界を超えました！</strong> 家具・家電が多いため、自動的に<strong>「2tアルミトラックプラン」</strong>として計算しています。
+                        <div className="bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold p-2.5 rounded-lg">
+                          ⚠️ <strong>軽バンの積載目安（100%）に近づいています！</strong><br />
+                          家具や小物のサイズによっては、1回で載りきらない可能性があります。2往復プランや荷物量の調整を、公式LINEからお気軽に店長までご相談ください！
                         </div>
                       )}
                     </div>
@@ -472,7 +428,7 @@ export default function MovingLP() {
                       <input type="checkbox" checked={noVehicleAccess} onChange={(e) => setNoVehicleAccess(e.target.checked)} className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
                       <div className="ml-3">
                         <div className="text-xs sm:text-sm font-bold text-slate-800">車両進入不可 (+3,300円)</div>
-                        <p className="text-[10px] text-slate-500">トラックやバンが建物の前に横付けできない場合</p>
+                        <p className="text-[10px] text-slate-500">軽バンが建物の前に横付けできない場合</p>
                       </div>
                     </label>
 
@@ -519,10 +475,10 @@ export default function MovingLP() {
                     {totalPrice.toLocaleString()}<span className="text-base sm:text-xl text-white font-normal ml-1">円（税込）</span>
                   </div>
                   <p className="text-xs text-slate-400 mb-6 max-w-md mx-auto leading-relaxed">
-                    ※長距離便の概算金額には、判定された車種に応じた往復のガソリン代・高速道路料金の目安が自動加算されています。
+                    * 長距離便の概算金額には、往復のガソリン代・高速道路料金の目安が自動加算されています。
                   </p>
                   <p className="text-xs text-slate-400 mb-6 max-w-md mx-auto">
-                    ※上記は選んだ条件に基づく概算価格です。LINEでのヒアリング時に確定料金を提示し、以降の追加請求は一切行いません。
+                    * 上記は選んだ条件に基づく概算価格です。LINEでのヒアリング時に確定料金を提示し、以降の追加請求は一切行いません。
                   </p>
                   <div className="max-w-md mx-auto">
                     <button
@@ -531,7 +487,7 @@ export default function MovingLP() {
                     >
                       💬 この概算内容で予約番号を発行する
                     </button>
-                    <span className="text-[10px] text-slate-500 mt-2 block">ボタンを押すと、あなた専用の予約番号がその場でパッと発行されます。</span>
+                    <span className="text-[10px] text-slate-500 mt-2 block">ボタンを押すと、あなた専用 of 予約番号がその場でパッと発行されます。</span>
                   </div>
                 </>
               ) : (
@@ -734,10 +690,8 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 9. 最終お問い合わせフォーム ─── */}
-      {/* 💡 背景を横幅いっぱいにせず、2大特典のように最大幅を絞ってカード型に囲うデザインに変更 */}
       <section id="contact" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-16">
         <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
-          {/* 特典セクションのようなうっすらとしたグリッド背景線をアクセントに配置 */}
           <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-size-[24px_24px]"></div>
           
           <div className="max-w-3xl mx-auto relative z-10">
@@ -749,7 +703,7 @@ export default function MovingLP() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:gap-8">
-              {/* LINEボタン：URL反映済み */}
+              {/* LINEボタン */}
               <a 
                 href="https://line.me/R/ti/p/@022lhymn" 
                 target="_blank"
@@ -763,7 +717,7 @@ export default function MovingLP() {
                 </div>
               </a>
 
-              {/* メールフォーム（その場で完了メッセージ版） */}
+              {/* メールフォーム */}
               <div className="bg-slate-800/40 p-6 sm:p-10 rounded-3xl border border-slate-800">
                 <h4 className="text-white text-base sm:text-lg font-bold mb-6 flex items-center gap-3">
                   <span className="text-xl">📧</span> メールフォームで問い合わせ
