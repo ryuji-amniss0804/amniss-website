@@ -649,45 +649,52 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 8. 代表紹介（Profile）セクション ─── */}
-      <section id="profile" className="w-full bg-slate-100 py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-10 items-center">
-            <div className="w-full md:w-1/3 aspect-3/4 bg-slate-100 rounded-2xl overflow-hidden relative shadow-inner">
-              <Image
-                src="/images/face (2).jpg"
-                alt="代表：小川 竜司"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
-            </div>
-            <div className="w-full md:w-2/3 text-center md:text-left">
-              <div className="mb-6">
-                <h3 className="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-2">
-                  Representative
-                </h3>
-                <div className="text-2xl md:text-3xl font-black text-slate-900">
-                  代表：小川 竜司 <span className="text-sm md:text-base font-bold text-slate-400 block md:inline-block md:ml-2">Ryuji Ogawa</span>
-                </div>
-              </div>
-              <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed mb-6">
-                富山県を拠点に、物販と物流の二軸で活動中。「誠実な対応」と「迅速なフットワーク」を信条に、地域の皆様のお手伝いを行っています。<br />
-                趣味はカメラで家族を撮ること。二人のプリンセスと最愛の妻に支えられながら、引っ越し・PCサポート・不用品査定をすべてワンストップでお届けし、地域の皆様に愛されるサービスを目指しています。
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Office Name</span>
-                  <span className="text-base font-black text-slate-800">AmNiss&Co.Japan</span>
-                </div>
-                <div className="flex flex-col gap-0.5 border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Name</span>
-                  <span className="text-base font-black text-slate-800">A.P.C LOGISTICS / re&apos;vive</span>
-                </div>
-              </div>
-            </div>
+<section id="profile" className="w-full bg-slate-100 py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-5xl mx-auto">
+    <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-10 items-center">
+      
+      {/* 💡 横幅と縦幅を完全に固定してNext.jsのエラーを回避します */}
+      <div className="w-60 h-80 bg-slate-100 rounded-2xl overflow-hidden shadow-inner shrink-0 relative">
+        <Image
+          src="/images/face (2).jpg"
+          alt="代表：小川 竜司"
+          width={240}
+          height={320}
+          className="w-full h-full object-cover"
+          priority
+          unoptimized
+        />
+      </div>
+      
+      {/* 💡 元の「md:w-2/3」にしっかりと戻しました */}
+      <div className="w-full md:w-2/3 text-center md:text-left">
+        <div className="mb-6">
+          <h3 className="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-2">
+            Representative
+          </h3>
+          <div className="text-2xl md:text-3xl font-black text-slate-900">
+            代表：小川 竜司 <span className="text-sm md:text-base font-bold text-slate-400 block md:inline-block md:ml-2">Ryuji Ogawa</span>
           </div>
         </div>
-      </section>
+        <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed mb-6">
+          富山県を拠点に、物販と物流の二軸で活動中。「誠実な対応」と「迅速なフットワーク」を信条に、地域の皆様のお手伝いを行っています。<br />
+          趣味はカメラで家族を撮ること。二人のプリンセスと最愛の妻に支えられながら、引っ越し・PCサポート・不用品査定をすべてワンストップでお届けし、地域の皆様に愛されるサービスを目指しています。
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Office Name</span>
+            <span className="text-base font-black text-slate-800">AmNiss&Co.Japan</span>
+          </div>
+          <div className="flex flex-col gap-0.5 border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Name</span>
+            <span className="text-base font-black text-slate-800">A.P.C LOGISTICS / re&apos;vive</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* ─── 9. 最終お問い合わせフォーム ─── */}
       <section id="contact" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-16">
