@@ -6,9 +6,6 @@ import Link from "next/link";
 
 export default function CorporateHome() {
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  
-  // 💡 isMounted だけを残し、setIsMounted は削除（eslintの警告を回避）
-  const [isMounted] = useState(true);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -279,14 +276,14 @@ export default function CorporateHome() {
       </p>
     </div>
 
-    {/* 2. ブログ一覧へのリンク（見出し直後に配置） */}
+    {/* 2. ブログ一覧へのリンク */}
     <div className="text-center mb-16">
       <Link 
-  href="/blog" 
-  className="inline-block bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white px-8 py-4 rounded-2xl font-black text-xs transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 tracking-wider"
->
-  📚 ブログ記事一覧をすべて見る
-</Link>
+        href="/blog" 
+        className="inline-block bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white px-8 py-4 rounded-2xl font-black text-xs transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 tracking-wider"
+      >
+        📚 ブログ記事一覧をすべて見る
+      </Link>
     </div>
 
     {/* 3. ブログ記事一覧エリア */}
@@ -355,37 +352,39 @@ export default function CorporateHome() {
       );
     }, [])}
 
-    {/* 4. SNS連携＆最新活動エリア（LightWidget統合版） */}
-<div className="bg-white border border-slate-200 rounded-2xl p-8 sm:p-10 text-center shadow-xs">
-  <h3 className="text-xs font-black text-slate-900 mb-6 uppercase tracking-[0.2em]">
-    Follow Our Daily Updates
-  </h3>
+    {/* 4. SNS連携＆最新活動エリア（SNS誘導強化版） */}
+    <div className="bg-white border border-slate-200 rounded-2xl p-8 sm:p-10 text-center shadow-xs">
+      <h3 className="text-xs font-black text-slate-900 mb-8 uppercase tracking-[0.2em]">
+        Follow Our Daily Updates
+      </h3>
 
-<div className="mb-8 min-h-100">
-  {isMounted && (
-    <iframe 
-      key="instagram-feed" // 💡 keyを追加することでReactの管理を強制的にリセットします
-      src="//lightwidget.com/widgets/86950ed5222056f8872ed9851e9a87fb.html" 
-      scrolling="no" 
-      className="lightwidget-widget" 
-      style={{ width: "100%", border: "none", overflow: "hidden" }} // borderを0ではなく"none"に明示
-      title="Instagram Feed"
-      suppressHydrationWarning={true} // 💡 これが最強の解決策です。ハイドレーションエラーを無視させます
-    />
-  )}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+  {/* X ボタン */}
+  <a 
+    href="https://x.com/amniss_reuse" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="w-full sm:w-60 h-14 bg-slate-900 text-white hover:bg-emerald-600 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-2"
+  >
+    <span className="text-lg">𝕏</span> X (Twitter) をフォロー
+  </a>
+  
+  {/* Instagram ボタン */}
+  <a 
+    href="https://www.instagram.com/amniss_ryuji1724" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="w-full sm:w-60 h-14 bg-linear-to-tr from-amber-500 via-pink-600 to-indigo-700 text-white hover:opacity-90 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-2"
+  >
+    <span className="text-lg">📷</span> Instagram をフォロー
+  </a>
 </div>
 
-  <div className="flex justify-center gap-8 mb-6">
-    <a href="https://x.com/amniss_reuse" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-600 transition-colors font-black text-lg">X (Twitter)</a>
-    <a href="https://www.instagram.com/amniss_ryuji1724" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-emerald-600 transition-colors font-black text-lg">Instagram</a>
-  </div>
-  <p className="text-xs text-slate-500 font-bold">
-    現場のリアルタイムや、制作風景、代表のプライベートも配信中！
-  </p>
-</div>
-
-{/* 外部スクリプトの読み込み（コンポーネントの末尾またはuseEffectで実行） */}
-<script src="https://cdn.lightwidget.com/widgets/lightwidget.js" async />
+      <p className="text-xs text-slate-500 font-bold leading-relaxed">
+        現場のリアルタイムや、制作風景、代表のプライベートも配信中！<br className="hidden sm:block"/>
+        ぜひフォローして最新情報をチェックしてください。
+      </p>
+    </div>
     
   </div>
 </section>
