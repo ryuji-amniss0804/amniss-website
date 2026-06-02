@@ -87,7 +87,8 @@ export async function POST(request: Request) {
       <hr />
       <p>※このメールはシミュレーターで「予約番号を発行する」が押された際に自動送信されました。</p>
     `;
-
+    
+    console.log("API Key loaded:", process.env.RESEND_API_KEY ? "Yes" : "No");
     // 直書きしていた部分を以下に変更
     const resendApiKey = process.env.RESEND_API_KEY;
 
