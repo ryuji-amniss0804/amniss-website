@@ -88,8 +88,8 @@ export async function POST(request: Request) {
       <p>※このメールはシミュレーターで「予約番号を発行する」が押された際に自動送信されました。</p>
     `;
 
-    // Resend APIキー
-    const resendApiKey = 're_X4r7hgtU_9CjP7CqX11NXoH8CjjLx7P6J';
+    // 直書きしていた部分を以下に変更
+    const resendApiKey = process.env.RESEND_API_KEY;
 
     // 送信処理
     const response = await fetch('https://api.resend.com/emails', {
