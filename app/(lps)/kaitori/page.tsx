@@ -82,7 +82,7 @@ export default function Home() {
           {/* PC時のみ表示される許可証番号 */}
           <p className="hidden md:block text-[10px] text-center text-gray-400 mt-6 leading-relaxed">
             古物商許可<br />
-            [富山県公安委員会<br />第501310001234号]
+            [富山県公安委員会<br />第501310007877号]
           </p>
         </div>
       </nav>

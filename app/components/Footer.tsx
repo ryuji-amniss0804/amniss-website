@@ -18,7 +18,7 @@ export default function Footer() {
           
           <div className="flex flex-col gap-3">
             <span className="text-[10px] text-slate-500 font-bold bg-white px-3 py-1.5 rounded border border-slate-200 inline-block w-fit">
-              古物商：富山県公安委員会 第501310001234号
+              古物商：富山県公安委員会 第501310007877号
             </span>
             <Link href="/company" className="text-[11px] text-slate-600 hover:text-emerald-600 transition-colors underline decoration-slate-300 underline-offset-4 font-bold">
               会社概要・特定商取引法に基づく表記
