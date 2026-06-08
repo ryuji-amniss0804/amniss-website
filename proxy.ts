@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ログインページはそのまま通す
   if (pathname === "/admin/login") return NextResponse.next();
 
   const token = req.cookies.get("admin_token")?.value;
