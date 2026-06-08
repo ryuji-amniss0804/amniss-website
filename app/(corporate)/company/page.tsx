@@ -200,7 +200,7 @@ export default function CompanyPage() {
               <div className="font-black text-slate-900 md:col-span-1">各種許認可・届出</div>
               <div className="text-slate-600 font-medium md:col-span-3 space-y-1">
                 <div>• 貨物軽自動車運送事業 届出済</div>
-                <div>• 富山県公安委員会 古物商許可 第501310001234号</div>
+                <div>• 富山県公安委員会 古物商許可 第501310007877号</div>
               </div>
             </div>
 
