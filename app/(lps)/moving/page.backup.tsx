@@ -1,33 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-
-function useInView(threshold = 0.06) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { threshold }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, inView] as const;
-}
-
-function anim(inView: boolean, delay = 0) {
-  return {
-    style: {
-      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
-      opacity: inView ? 1 : 0,
-      transform: inView ? "translateY(0)" : "translateY(22px)",
-    },
-  };
-}
 
 // 富山県内主要ルートの距離マスター
 const ROUTE_DISTANCES = [
@@ -67,17 +41,8 @@ export default function MovingLP() {
   const [isBooked, setIsBooked] = useState<boolean>(false); // 番号を発行したか
   const [bookingNumber, setBookingNumber] = useState<string>(""); // 発行された番号
 
+  // 💡 最終お問い合わせメールフォームの状態管理
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [heroReady, setHeroReady] = useState(false);
-  const [plansRef, plansInView] = useInView();
-  const [featuresRef, featuresInView] = useInView();
-  const [whyRef, whyInView] = useInView();
-  const [ctaRef, ctaInView] = useInView();
-
-  useEffect(() => {
-    const t = setTimeout(() => setHeroReady(true), 80);
-    return () => clearTimeout(t);
-  }, []);
 
   // 💡 【積載量計算ロジック】荷物に応じてエブリイの許容量（MAX100）をどれくらい使うか計算
   let loadPoints = 0;
@@ -188,31 +153,14 @@ export default function MovingLP() {
       <section className="bg-slate-900 text-white py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] bg-size-[16px_16px]"></div>
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-          <span
-            className="inline-block bg-blue-900/50 text-blue-400 border border-blue-700/50 text-xs sm:text-sm font-bold px-3 py-1 rounded-full mb-6 tracking-wide"
-            style={{ transition: "opacity 0.8s ease 80ms", opacity: heroReady ? 1 : 0 }}
-          >
+          <span className="inline-block bg-blue-900/50 text-blue-400 border border-blue-700/50 text-xs sm:text-sm font-bold px-3 py-1 rounded-full mb-6 tracking-wide">
             富山県発着・軽バン単身引っ越し専門
           </span>
-          <h1
-            className="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-6"
-            style={{
-              transition: "opacity 0.9s ease 200ms, transform 0.9s ease 200ms",
-              opacity: heroReady ? 1 : 0,
-              transform: heroReady ? "translateY(0)" : "translateY(28px)",
-            }}
-          >
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-6">
             富山の単身引っ越しを、<br />
             <span className="text-blue-400">どこよりも安く、スマートに。</span>
           </h1>
-          <p
-            className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed"
-            style={{
-              transition: "opacity 0.9s ease 380ms, transform 0.9s ease 380ms",
-              opacity: heroReady ? 1 : 0,
-              transform: heroReady ? "translateY(0)" : "translateY(20px)",
-            }}
-          >
+          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
             軽バン（スズキ・エブリイ）に特化した圧倒的な格安プランから、県外への長距離運送まで完全対応。<br />
             あとからの不当な追加請求は一切ない【完全明朗会計】をお約束します。
           </p>
@@ -227,8 +175,8 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 料金プランセクション ─── */}
-      <section ref={plansRef} className="py-16 sm:py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div {...anim(plansInView, 0)} className="text-center mb-12 sm:mb-16">
+      <section className="py-16 sm:py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mb-4">
             完全明朗会計の料金プラン
           </h2>
@@ -581,8 +529,8 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 5. エブリイ積載目安セクション ─── */}
-      <section ref={featuresRef} className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
-        <div {...anim(featuresInView, 0)} className="text-center mb-12">
+      <section className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200">
+        <div className="text-center mb-12">
           <span className="text-blue-600 text-xs font-black uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">CAPACITY</span>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mt-2 mb-4">
             想像以上の大容量！軽バン（エブリイ）の積載目安
@@ -664,9 +612,9 @@ export default function MovingLP() {
       </section>
 
       {/* ─── 7. WHY US なぜ選ばれるのか？（安さの秘密） ─── */}
-      <section ref={whyRef} className="py-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+      <section className="py-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm">
-          <div {...anim(whyInView, 0)} className="text-center mb-10">
+          <div className="text-center mb-10">
             <span className="text-blue-600 text-xs font-black uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">WHY US</span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 mt-2">だから選ばれる！A.P.C LOGISTICSの安さの秘密</h2>
             <p className="text-sm text-slate-500 mt-2">大手のような「至れり尽くせり」をあえて省き、必要な部分だけをスマートに効率化しています。</p>
@@ -749,12 +697,12 @@ export default function MovingLP() {
 </section>
 
       {/* ─── 9. 最終お問い合わせフォーム ─── */}
-      <section ref={ctaRef} id="contact" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-16">
+      <section id="contact" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mb-16">
         <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-size-[24px_24px]"></div>
           
           <div className="max-w-3xl mx-auto relative z-10">
-            <div {...anim(ctaInView, 0)} className="text-center mb-10 md:mb-16">
+            <div className="text-center mb-10 md:mb-16">
               <h3 className="text-blue-400 font-black text-xs uppercase tracking-widest bg-blue-950/60 border border-blue-900/50 px-3 py-1 rounded-full inline-block mb-3">
                 CONTACT
               </h3>
@@ -792,7 +740,7 @@ export default function MovingLP() {
                   </div>
                 ) : (
                   <form onSubmit={handleFormSubmit} className="space-y-4">
-                    <input type="hidden" name="access_key" value={process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? ""} />
+                    <input type="hidden" name="access_key" value="5c6cab02-a690-430f-a08c-a8e48b97ad30" />
                     <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

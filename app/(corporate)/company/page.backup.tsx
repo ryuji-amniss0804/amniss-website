@@ -11,9 +11,9 @@ export default function CompanyPage() {
   return (
     <div className="bg-slate-50 min-h-screen pt-24 pb-16 md:pb-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-
+        
         {/* ページヘッダー */}
-        <div className="amn-animate text-center mb-16" style={{ animationDelay: "0s" }}>
+        <div className="text-center mb-16">
           <span className="text-emerald-600 text-sm font-black tracking-widest uppercase block mb-2">
             COMPANY PROFILE
           </span>
@@ -24,29 +24,31 @@ export default function CompanyPage() {
         </div>
 
         {/* ─── セクション1：代表挨拶 ─── */}
-        <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12 hover:shadow-lg transition-shadow duration-300"
-          style={{ animationDelay: "0.1s" }}
-        >
+        <section className="bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-
+            
             {/* 左側：代表写真 ＆ 肩書き・名前 */}
             <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 pb-6 md:pb-0 md:pr-8 flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="w-full max-w-50 md:max-w-full aspect-3/4 bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-200 mb-6 shadow-xs group">
+              
+              {/* 代表写真枠（Tailwind v4 標準の max-w-50 で警告をクリーンアップ！） */}
+              <div className="w-full max-w-50 md:max-w-full aspect-3/4 bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-200 mb-6 shadow-xs">
                 <Image
                   src="/images/face (2).jpg"
                   alt="代表：小川 竜司"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="object-cover"
                   sizes="(max-width: 768px) 200px, 260px"
                   priority
                   unoptimized
                 />
               </div>
+
               <span className="text-xs font-black text-slate-400 uppercase tracking-wider block mb-1">
                 AmNiss & Co. Japan
               </span>
-              <span className="text-sm font-bold text-emerald-600 block mb-2">代 表</span>
+              <span className="text-sm font-bold text-emerald-600 block mb-2">
+                代 表
+              </span>
               <h2 className="text-2xl font-black text-slate-900 tracking-wide mb-4">
                 小川 竜司
               </h2>
@@ -61,7 +63,9 @@ export default function CompanyPage() {
                 「物流 × IT × リユース」で、<br className="sm:hidden" />
                 富山の暮らしとビジネスを、どこよりもスマートに。
               </h3>
-              <p>はじめまして、代表の小川 竜司です。</p>
+              <p>
+                はじめまして、代表の小川 竜司です。
+              </p>
               <p>
                 現代のライフスタイルやビジネスにおいて、引越しや不用品の処分、新居・オフィスでの通信環境の整備は、誰もが直面する「大きな負担」です。多くの場合、それぞれの専門業者へ個別に連絡を取り、調整しなければなりません。
               </p>
@@ -78,11 +82,9 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* ─── セクション2：企業理念・3大クレド ─── */}
-        <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12 hover:shadow-lg transition-shadow duration-300"
-          style={{ animationDelay: "0.2s" }}
-        >
+
+        {/* ─── 💡 新設セクション2：企業理念・3大クレド（白ベース） ─── */}
+        <section className="bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12">
           <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
             <span className="w-2 h-5 bg-emerald-500 rounded-full inline-block" />
             企業理念
@@ -92,10 +94,9 @@ export default function CompanyPage() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.28s" }}
-            >
+            
+            {/* 理念1 */}
+            <div className="bg-slate-50/60 rounded-2xl p-6 border border-slate-100">
               <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center justify-center font-black text-sm text-emerald-700 mb-4">
                 01
               </div>
@@ -107,10 +108,8 @@ export default function CompanyPage() {
               </p>
             </div>
 
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-cyan-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.38s" }}
-            >
+            {/* 理念2 */}
+            <div className="bg-slate-50/60 rounded-2xl p-6 border border-slate-100">
               <div className="w-9 h-9 bg-cyan-50 border border-cyan-100 rounded-lg flex items-center justify-center font-black text-sm text-cyan-700 mb-4">
                 02
               </div>
@@ -122,10 +121,8 @@ export default function CompanyPage() {
               </p>
             </div>
 
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.48s" }}
-            >
+            {/* 理念3 */}
+            <div className="bg-slate-50/60 rounded-2xl p-6 border border-slate-100">
               <div className="w-9 h-9 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-center font-black text-sm text-blue-700 mb-4">
                 03
               </div>
@@ -136,14 +133,13 @@ export default function CompanyPage() {
                 軽貨物の機動力と、Python等による自動化・カスタムPCビルドのIT力を融合。地域密着でありながら、一歩先を行くスマートな仕組みを提供し続けます。
               </p>
             </div>
+
           </div>
         </section>
 
+
         {/* ─── セクション3：会社概要（テーブル） ─── */}
-        <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 hover:shadow-lg transition-shadow duration-300"
-          style={{ animationDelay: "0.3s" }}
-        >
+        <section className="bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80">
           <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
             <span className="w-2 h-5 bg-emerald-500 rounded-full inline-block" />
             事業概要
@@ -153,17 +149,20 @@ export default function CompanyPage() {
           </p>
 
           <div className="border-t border-slate-200 divide-y divide-slate-100 text-sm md:text-base">
-
+            
+            {/* 商号 */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">商号 / 屋号</div>
               <div className="text-slate-600 font-medium md:col-span-3">AmNiss & Co. Japan（アムニス・アンド・カンパニー・ジャパン）</div>
             </div>
 
+            {/* 代表者 */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">代表者</div>
               <div className="text-slate-600 font-medium md:col-span-3">小川 竜司</div>
             </div>
 
+            {/* 本社所在地 */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">本社所在地</div>
               <div className="text-slate-600 font-medium md:col-span-3">
@@ -172,6 +171,7 @@ export default function CompanyPage() {
               </div>
             </div>
 
+            {/* 富山ベース */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">富山営業所・物流センター</div>
               <div className="text-slate-600 font-medium md:col-span-3">
@@ -180,6 +180,7 @@ export default function CompanyPage() {
               </div>
             </div>
 
+            {/* 事業内容 */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">事業内容</div>
               <div className="text-slate-600 font-medium md:col-span-3">
@@ -196,6 +197,7 @@ export default function CompanyPage() {
               </div>
             </div>
 
+            {/* 各種許認可 */}
             <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
               <div className="font-black text-slate-900 md:col-span-1">各種許認可・届出</div>
               <div className="text-slate-600 font-medium md:col-span-3 space-y-1">
@@ -208,7 +210,7 @@ export default function CompanyPage() {
         </section>
 
         {/* トップに戻るリンク */}
-        <div className="amn-animate text-center mt-12" style={{ animationDelay: "0.4s" }}>
+        <div className="text-center mt-12">
           <Link href="/" className="text-sm font-black text-slate-500 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1">
             ➔ トップページへ戻る
           </Link>

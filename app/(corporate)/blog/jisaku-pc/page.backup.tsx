@@ -1,24 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 
 export default function PersonalComputerRelocationSeoBlog() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setReady(true), 60);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
+    // 💡 外側の黒を完全にシャットアウトし、画面を100%真っ白なブログ紙面にします
     <div className="w-full bg-white text-slate-800 min-h-screen">
       <article className="max-w-4xl mx-auto px-4 py-12 bg-white text-slate-800 antialiased font-medium leading-relaxed">
-
+        
         {/* パンくずナビ */}
-        <nav
-          className="text-xs sm:text-sm text-slate-400 mb-8 font-bold"
-          style={{ transition: "opacity 0.6s ease 0ms", opacity: ready ? 1 : 0 }}
-        >
+        <nav className="text-xs sm:text-sm text-slate-400 mb-8 font-bold">
           <Link href="/" className="hover:text-blue-600 transition-colors">HOME</Link>
           <span className="mx-2">➔</span>
           <Link href="/blog" className="hover:text-blue-600 transition-colors">公式ブログ</Link>
@@ -27,14 +19,7 @@ export default function PersonalComputerRelocationSeoBlog() {
         </nav>
 
         {/* ヘッダー */}
-        <header
-          className="mb-12 pb-8 border-b border-slate-200"
-          style={{
-            transition: "opacity 0.8s ease 80ms, transform 0.8s ease 80ms",
-            opacity: ready ? 1 : 0,
-            transform: ready ? "translateY(0)" : "translateY(24px)",
-          }}
-        >
+        <header className="mb-12 pb-8 border-b border-slate-200">
           <div className="flex items-center gap-3 mb-4">
             <span className="bg-blue-50 text-blue-600 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
               ガジェット・引越しノウハウ

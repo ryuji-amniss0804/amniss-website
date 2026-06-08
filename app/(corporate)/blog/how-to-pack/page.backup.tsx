@@ -1,25 +1,13 @@
-"use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 
+// 💡 Next.jsが「これが画面の本体だよ！」と認識できるように関数（Default Export）で包みました
 export default function HowToPackPage() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setReady(true), 60);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
+    // 💡 【大修正】外側の黒を完全にシャットアウトして、画面を100%真っ白にします！
     <div className="w-full bg-white text-slate-800 min-h-screen">
       <article className="max-w-4xl mx-auto px-4 py-12 bg-white text-slate-800 antialiased font-medium leading-relaxed">
       {/* ヘッダーセクション */}
-      <header
-        className="mb-12 pb-8 border-b border-slate-200"
-        style={{
-          transition: "opacity 0.8s ease 80ms, transform 0.8s ease 80ms",
-          opacity: ready ? 1 : 0,
-          transform: ready ? "translateY(0)" : "translateY(24px)",
-        }}
-      >
+      <header className="mb-12 pb-8 border-b border-slate-200">
         <div className="flex items-center gap-3 mb-4">
           <span className="bg-blue-50 text-blue-600 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
             引越し豆知識

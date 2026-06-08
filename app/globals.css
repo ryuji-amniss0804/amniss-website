@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;
@@ -43,4 +44,38 @@ section {
   section {
     scroll-margin-top: 0;
   }
+}
+
+/* ─── スクロールアニメーション ─── */
+@keyframes amnFadeInUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes amnFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.amn-animate {
+  opacity: 0;
+  animation: amnFadeInUp 0.7s ease forwards;
+}
+.amn-fade {
+  opacity: 0;
+  animation: amnFadeIn 0.8s ease forwards;
+}
+
+/* ─── ブログ記事 prose カスタム (AmNiss ブランドカラー上書き) ─── */
+.prose h2 {
+  border-bottom: 2px solid #d1fae5;
+  padding-bottom: 0.5rem;
+}
+.prose blockquote {
+  background-color: #f0fdf4;
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-style: normal;
+}
+.prose blockquote p::before,
+.prose blockquote p::after {
+  content: none;
 }
