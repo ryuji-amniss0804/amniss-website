@@ -24,6 +24,15 @@ export type BlogPostMeta = {
  */
 export const BLOG_POSTS_META: BlogPostMeta[] = [
   {
+    slug: "20260608-9v4c",
+    title: "【DXの本質】なぜ中小企業のIT化は失敗するのか？「手作業をゼロにする」ための正しい自動化ステップ",
+    excerpt: "「IT化」したのに業務が楽にならない…その原因は部分的な手作業の放置にあります。本記事では、中小企業や個人事業主が陥るIT化の罠を紐解き、最新のAI技術とシステム連携によって「人間の手作業を極限までゼロにする」ための正しい自動化4ステップを徹底解説。ツールに使われる側から、システムを統括する『棟梁』へと進化するための実践的なDX戦略をお届けします。",
+    date: "2026.06.08",
+    category: "IT・DX・PC",
+    categoryBg: "bg-indigo-50 text-indigo-700 border-indigo-200/50",
+    accent: "bg-indigo-50 text-indigo-600",
+  },
+  {
     slug: "amniss-kaitori-nagare",
     title: "【初めてでも安心】AmNissの出張買取・不用品回収の流れを完全解説！当日の手順と準備ポイント",
     excerpt: "「初めて出張買取を頼むけど何を用意すればいい？」そんな疑問にお答えします。お問い合わせから査定・回収・お支払いまでの全ステップと、事前に準備すると査定額が上がるポイントをAmNissスタッフが徹底解説！",
