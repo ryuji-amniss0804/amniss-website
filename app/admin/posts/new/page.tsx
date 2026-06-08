@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { marked } from "marked";
 import LogoutButton from "../../_components/LogoutButton";
@@ -58,34 +58,22 @@ type Status = "idle" | "loading" | "success" | "error";
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
+  const [slug, setSlug] = useState(() => generateSlug(todayStr()));
   const [categoryIdx, setCategoryIdx] = useState(0);
   const [date, setDate] = useState(todayStr());
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [preview, setPreview] = useState("");
+  const preview = marked.parse(content) as string;
   const [showPreview, setShowPreview] = useState(true);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [createdSlug, setCreatedSlug] = useState("");
   const [gitCommitted, setGitCommitted] = useState(false);
 
-  // マークダウンプレビューを更新
-  useEffect(() => {
-    const html = marked.parse(content) as string;
-    setPreview(html);
-  }, [content]);
-
   // slug を自動生成
   const autoGenerateSlug = useCallback(() => {
     setSlug(generateSlug(date));
   }, [date]);
-
-  // 初期 slug 生成
-  useEffect(() => {
-    if (!slug) autoGenerateSlug();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const cat = CATEGORY_OPTIONS[categoryIdx];
 
@@ -143,7 +131,7 @@ export default function NewPostPage() {
 
       {/* 管理ナビゲーション */}
       <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-6">
+        <div className="max-w-350 mx-auto px-4 sm:px-6 h-14 flex items-center gap-6">
           <div className="flex items-center gap-2 mr-4 shrink-0">
             <div className="w-6 h-6 bg-emerald-500 rounded-md flex items-center justify-center">
               <span className="text-white font-black text-xs">A</span>
@@ -205,7 +193,7 @@ export default function NewPostPage() {
 
       {/* 投稿フォーム */}
       {status !== "success" && (
-        <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
+        <main className="max-w-350 mx-auto px-4 sm:px-6 py-6">
 
           <div className="mb-6">
             <h1 className="text-xl font-black text-slate-900 tracking-tight">✏️ 新規記事を作成</h1>
