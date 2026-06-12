@@ -48,12 +48,6 @@ export default function Footer() {
 
         {/* 右カラム：拠点情報 */}
         <div className="text-xs space-y-5">
-          <span className="text-slate-900 text-[10px] font-black tracking-[0.2em] uppercase block">Head Office</span>
-          <p className="font-bold text-slate-600 leading-relaxed text-sm">
-            〒150-0043<br />
-            東京都渋谷区道玄坂1-10-8<br />
-            渋谷道玄坂東急ビル2F-C
-          </p>
           <div className="p-4 bg-white rounded-lg border border-slate-200">
             <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Toyama Base</p>
             <p className="text-slate-900 font-bold">富山県富山市内（配送・買取拠点）</p>
