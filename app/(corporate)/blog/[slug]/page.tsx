@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllPosts, getPostBySlug } from "@/lib/posts";
 
+const LINE_URL = "https://lin.ee/845Fdsy";
+
 export async function generateStaticParams() {
   const posts = getAllPosts();
   return posts
@@ -17,9 +19,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  if (!post) return { title: "記事が見つかりません | AmNiss Blog" };
+  if (!post) return { title: "記事が見つかりません | re'vive Blog" };
   return {
-    title: `${post.meta.title} | AmNiss Blog`,
+    title: `${post.meta.title} | re'vive ブログ`,
     description: post.meta.excerpt,
   };
 }
@@ -31,98 +33,145 @@ export default async function BlogPostPage({
 }) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-
   if (!post) notFound();
-
   const { meta, contentHtml } = post;
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans antialiased">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+    >
+      {/* ヘッダー */}
+      <header
+        className="pt-28 pb-12 px-4"
+        style={{
+          backgroundColor: "var(--color-surface-alt)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <div className="max-w-3xl mx-auto">
 
-      {/* ─── ヘッダー ─── */}
-      <header className="bg-white border-b border-slate-100 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
-
-          {/* パンくずナビ */}
-          <nav className="text-xs text-slate-400 font-bold mb-8 flex items-center gap-1.5 flex-wrap">
-            <Link href="/" className="hover:text-emerald-600 transition-colors">HOME</Link>
+          {/* パンくず */}
+          <nav
+            className="text-xs font-bold mb-8 flex items-center gap-1.5 flex-wrap"
+            style={{ color: "var(--color-muted)" }}
+          >
+            <Link href="/" className="transition-opacity hover:opacity-60">HOME</Link>
             <span className="opacity-40">›</span>
-            <Link href="/blog" className="hover:text-emerald-600 transition-colors">ブログ</Link>
+            <Link href="/blog" className="transition-opacity hover:opacity-60">ブログ</Link>
             <span className="opacity-40">›</span>
-            <span className="text-slate-500">{meta.category}</span>
+            <span>{meta.category}</span>
           </nav>
 
-          {/* カテゴリー＆日付 */}
-          <div className="flex items-center gap-3 mb-6 flex-wrap">
-            <span className={`${meta.accent} text-[11px] font-black px-3 py-1.5 rounded-full`}>
+          {/* カテゴリ・日付 */}
+          <div className="flex items-center gap-4 mb-5">
+            <span
+              className="text-[11px] font-black uppercase tracking-widest"
+              style={{ color: "var(--color-primary-light)" }}
+            >
               {meta.category}
             </span>
-            <time className="text-xs font-bold text-slate-400">{meta.date}</time>
+            <time
+              className="text-xs font-bold"
+              style={{ color: "var(--color-muted)" }}
+            >
+              {meta.date}
+            </time>
           </div>
 
           {/* タイトル */}
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight mb-6">
+          <h1
+            className="text-2xl sm:text-3xl font-black leading-tight tracking-tight mb-6"
+            style={{ fontFamily: "'Noto Serif JP', serif" }}
+          >
             {meta.title}
           </h1>
 
           {/* リード文 */}
-          <p className="text-sm text-slate-500 font-medium leading-relaxed border-l-4 border-emerald-500 pl-5 py-1 bg-emerald-50/50 rounded-r-xl pr-4">
+          <p
+            className="text-sm font-medium leading-relaxed pl-4 py-2"
+            style={{
+              color: "var(--color-muted)",
+              borderLeft: "3px solid var(--color-primary)",
+            }}
+          >
             {meta.excerpt}
           </p>
         </div>
       </header>
 
-      {/* ─── 本文 ─── */}
+      {/* 本文 */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <div
           className={[
-            "bg-white rounded-3xl border border-slate-200 shadow-sm p-8 sm:p-12",
-            "prose prose-slate max-w-none",
+            "prose max-w-none",
             "prose-headings:font-black prose-headings:tracking-tight",
-            "prose-a:text-emerald-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline",
-            "prose-strong:font-black prose-strong:text-slate-900",
-            "prose-blockquote:border-emerald-500",
+            "prose-strong:font-black",
+            "prose-blockquote:not-italic",
             "prose-code:before:content-none prose-code:after:content-none",
-            "prose-code:bg-slate-100 prose-code:text-slate-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal",
-            "prose-pre:bg-slate-800",
+            "prose-code:bg-[var(--color-surface-alt)] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal",
+            "prose-pre:bg-[#1b4332]",
           ].join(" ")}
           dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
+      </main>
 
-        {/* ─── LINE CTA ─── */}
-        <div className="mt-10 bg-white rounded-3xl border border-slate-200 p-8 text-center shadow-sm">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+      {/* LINE CTA — 全幅セクション */}
+      <section
+        style={{
+          backgroundColor: "var(--color-surface-alt)",
+          borderTop: "1px solid var(--color-border)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+          <p
+            className="text-xs font-black uppercase tracking-widest mb-3"
+            style={{ color: "var(--color-primary-light)" }}
+          >
+            Contact
+          </p>
+          <p
+            className="text-base font-black mb-2"
+            style={{ color: "var(--color-text)", fontFamily: "'Noto Serif JP', serif" }}
+          >
             この記事についてのご相談
           </p>
-          <p className="text-sm text-slate-600 font-medium mb-6 leading-relaxed">
+          <p
+            className="text-sm font-medium mb-8 leading-relaxed"
+            style={{ color: "var(--color-muted)" }}
+          >
             引越し・買取・不用品回収など、ご不明な点はLINEで気軽にご相談ください。
           </p>
           <a
-            href="https://line.me/R/ti/p/@022lhymn"
+            href={LINE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 bg-[#06C755] text-white px-8 py-4 rounded-xl font-black text-sm hover:brightness-110 transition-all shadow-lg hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-lg font-black text-sm hover:opacity-80 transition-opacity"
+            style={{ backgroundColor: "var(--color-primary)" }}
           >
-            <span className="text-lg">💬</span> LINEで無料相談
+            💬 LINEで無料相談
           </a>
         </div>
+      </section>
 
-        {/* ─── 下部ナビ ─── */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-200 pt-8">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-black text-slate-500 hover:text-emerald-600 transition-colors"
-          >
-            ← ブログ一覧へ戻る
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-black text-slate-400 hover:text-emerald-600 transition-colors"
-          >
-            トップページへ →
-          </Link>
-        </div>
-      </main>
+      {/* 下部ナビ */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <Link
+          href="/blog"
+          className="text-sm font-black transition-opacity hover:opacity-60"
+          style={{ color: "var(--color-muted)" }}
+        >
+          ← ブログ一覧へ戻る
+        </Link>
+        <Link
+          href="/"
+          className="text-sm font-black transition-opacity hover:opacity-60"
+          style={{ color: "var(--color-muted)" }}
+        >
+          トップページへ →
+        </Link>
+      </div>
     </div>
   );
 }
