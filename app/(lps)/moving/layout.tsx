@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-// 💡 【ココを追加！】2つ上の app フォルダ直下にある CSS を強制的に読み込ませます
 import "../../globals.css";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 export const metadata: Metadata = {
-  title: "富山の格安・単身引っ越しなら A.P.C LOGISTICS",
-  description: "富山県発着の単身引っ越し専門。軽バン（エブリイ）プラン12,100円〜。長距離引越しも大手より圧倒的に安い！不用品丸ごと査定で引っ越し代から割引＆新居でのWi-Fi・PC初期設定も完全無料！",
-  keywords: ["富山 引っ越し", "単身引っ越し 富山", "格安引越し 富山", "軽バン 引っ越し 富山", "長距離引越し 富山", "エーピーシーロジスティクス"],
-  
+  title: "富山の単身引越しなら re'vive | 引越し費用を買取で相殺",
+  description:
+    "富山県内の単身引越しに特化。軽バン（エブリイ）で機動力高く対応。不用品はその場で買取査定。引越し費用を実質削減。富山県SDGs宣言企業。",
   openGraph: {
-    title: "富山の格安・単身引っ越しなら A.P.C LOGISTICS",
-    description: "富山県発着の単身引っ越し専門。軽バン（エブリイ）プラン12,100円〜。不用品丸ごと査定＆新居でのWi-Fi・PC初期設定も完全無料！",
+    title: "富山の単身引越しなら re'vive",
+    description:
+      "単身引越し＋その場買取で引越し費用を実質削減。富山県全域対応。",
     url: "https://revive-lp-eight.vercel.app/moving",
     type: "website",
   },
@@ -22,8 +23,21 @@ export default function MovingLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="antialiased">
-        {children}
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        className="min-h-screen flex flex-col antialiased"
+        style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+      >
+        <Header />
+        <main className="grow">{children}</main>
+        <Footer />
       </body>
     </html>
   );

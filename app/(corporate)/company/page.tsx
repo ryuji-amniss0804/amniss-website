@@ -1,218 +1,153 @@
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
-  title: "会社概要・代表挨拶・企業理念 | AmNiss & Co. Japan",
-  description: "IT、物流、リユースの融合で富山の暮らしをスマートにするAmNiss & Co. Japanの会社概要・代表メッセージ・企業理念のページです。",
+  title: "会社概要 | re'vive",
+  description:
+    "AmNiss&Co.Japan / re'viveの会社概要。代表・小川竜司が直接対応。富山県SDGs宣言企業、古物商許可取得済み。",
 };
+
+const LINE_URL = "https://lin.ee/845Fdsy";
+
+const TABLE_ROWS = [
+  { label: "会社名", value: "AmNiss&Co.Japan" },
+  { label: "ブランド", value: "re'vive（リバイブ）" },
+  { label: "代表者", value: "小川 竜司" },
+  { label: "所在地", value: "富山県" },
+  {
+    label: "事業内容",
+    value: "単身引越し・出張買取・遺品整理・軽貨物運送",
+  },
+  {
+    label: "古物商許可",
+    value: "富山県公安委員会 第501310007877号",
+  },
+  {
+    label: "SDGs",
+    value: "富山県SDGs宣言企業（2026年5月宣言）",
+  },
+];
 
 export default function CompanyPage() {
   return (
-    <div className="bg-slate-50 min-h-screen pt-24 pb-16 md:pb-24">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen pt-28 pb-20"
+      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+    >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* ページヘッダー */}
-        <div className="amn-animate text-center mb-16" style={{ animationDelay: "0s" }}>
-          <span className="text-emerald-600 text-sm font-black tracking-widest uppercase block mb-2">
-            COMPANY PROFILE
+        {/* ページタイトル */}
+        <div className="amn-animate mb-16" style={{ animationDelay: "0s" }}>
+          <span
+            className="text-xs font-black tracking-widest uppercase block mb-3"
+            style={{ color: "var(--color-primary-light)" }}
+          >
+            Company Profile
           </span>
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-            会社概要・代表挨拶
+          <h1
+            className="text-3xl sm:text-4xl font-black"
+            style={{ fontFamily: "'Noto Serif JP', serif" }}
+          >
+            会社概要
           </h1>
-          <div className="w-12 h-1 bg-emerald-500 mx-auto mt-4 rounded-full" />
+          <div
+            className="w-10 h-0.5 mt-5"
+            style={{ backgroundColor: "var(--color-primary)" }}
+          />
         </div>
 
-        {/* ─── セクション1：代表挨拶 ─── */}
+        {/* 代表紹介 */}
         <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12 hover:shadow-lg transition-shadow duration-300"
-          style={{ animationDelay: "0.1s" }}
+          className="amn-animate mb-16 pb-16"
+          style={{ animationDelay: "0.1s", borderBottom: "1px solid var(--color-border)" }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-
-            {/* 左側：代表写真 ＆ 肩書き・名前 */}
-            <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 pb-6 md:pb-0 md:pr-8 flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="w-full max-w-50 md:max-w-full aspect-3/4 bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-200 mb-6 shadow-xs group">
+          <div className="flex flex-col sm:flex-row items-start gap-10">
+            <div className="shrink-0">
+              <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden relative">
                 <Image
                   src="/images/face (2).jpg"
-                  alt="代表：小川 竜司"
+                  alt="代表 小川竜司"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 768px) 200px, 260px"
+                  className="object-cover"
+                  sizes="(max-width: 640px) 144px, 176px"
                   priority
-                  unoptimized
                 />
               </div>
-              <span className="text-xs font-black text-slate-400 uppercase tracking-wider block mb-1">
-                AmNiss & Co. Japan
+            </div>
+            <div>
+              <span
+                className="text-xs font-bold uppercase tracking-widest block mb-2"
+                style={{ color: "var(--color-primary-light)" }}
+              >
+                Representative
               </span>
-              <span className="text-sm font-bold text-emerald-600 block mb-2">代 表</span>
-              <h2 className="text-2xl font-black text-slate-900 tracking-wide mb-4">
+              <h2
+                className="text-xl sm:text-2xl font-black mb-1"
+                style={{ fontFamily: "'Noto Serif JP', serif" }}
+              >
                 小川 竜司
               </h2>
-              <p className="text-xs font-bold text-slate-400 leading-relaxed">
-                自らPCリユース・EC物販事業を立ち上げ、パーツ選定から初期設定、カスタムPCのビルドまでを実践の中で深く検証。物流×ITのノウハウを融合した独自のワンストップサービスを形にする。
+              <p className="text-xs mb-5" style={{ color: "var(--color-muted)" }}>
+                Ryuji Ogawa
               </p>
-            </div>
-
-            {/* 右側：挨拶本文 */}
-            <div className="md:col-span-2 space-y-6 text-slate-600 text-sm md:text-base leading-relaxed font-medium pt-4 md:pt-0">
-              <h3 className="text-lg md:text-xl font-black text-slate-900 leading-snug">
-                「物流 × IT × リユース」で、<br className="sm:hidden" />
-                富山の暮らしとビジネスを、どこよりもスマートに。
-              </h3>
-              <p>はじめまして、代表の小川 竜司です。</p>
-              <p>
-                現代のライフスタイルやビジネスにおいて、引越しや不用品の処分、新居・オフィスでの通信環境の整備は、誰もが直面する「大きな負担」です。多くの場合、それぞれの専門業者へ個別に連絡を取り、調整しなければなりません。
-              </p>
-              <p>
-                私自身、これまでパソコンの組み立てや内部コンポーネントの選定、ネットショップの運用、精度を追求したカスタムPCビルド、そして軽貨物の運送業務まで、様々な現場を経験し、学びながら形にしてきました。だからこそ、お客様やビジネスパートナー様がどこで迷い、どこで「面倒くさい」と感じるのかが痛いほどよく分かります。
-              </p>
-              <p>
-                AmNissはその経験をすべて1つに統合しました。軽貨物物流の機動力に加え、不要品を自社のルートで賢く現金化するリユース力、保持するEC販路、親身で丁寧なトータルサポート、そして面倒なネットワーク設定まで、<strong className="text-slate-900">「窓口を一本化することで、個人・法人を問わず、あらゆる複雑な課題をスマートに完結させるソリューション」</strong>を提供しています。
-              </p>
-              <p>
-                私たちのフットワークの軽さと、丁寧な対話でお客様に寄り添い、富山の皆様の新生活やビジネスシーンをどこよりも誠実かつスマートに応援することをお約束いたします。
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--color-muted)" }}
+              >
+                軽貨物運送・せどり4年・eBay輸出の経験から、<br />
+                他店で断られたジャンク品・古い精密機器でも<br />
+                価値を見出して高く買い取ります。<br />
+                引越しから買取まで、すべて一人で責任を持って対応します。
               </p>
             </div>
           </div>
         </section>
 
-        {/* ─── セクション2：企業理念・3大クレド ─── */}
+        {/* 会社概要テーブル */}
         <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 mb-12 hover:shadow-lg transition-shadow duration-300"
+          className="amn-animate mb-16"
           style={{ animationDelay: "0.2s" }}
         >
-          <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
-            <span className="w-2 h-5 bg-emerald-500 rounded-full inline-block" />
-            企業理念
-          </h3>
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider pl-4 mb-8">
-            Our Core Mission & Values
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.28s" }}
-            >
-              <div className="w-9 h-9 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center justify-center font-black text-sm text-emerald-700 mb-4">
-                01
-              </div>
-              <h4 className="font-black text-slate-900 text-base mb-2 tracking-wide">
-                不便の「全解決」をワンストップで
-              </h4>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                引越し・片付け・PC設定など、新生活やビジネスの転換期に生じる面倒なタスクを分断せず、一括で解決。お客様の時間とコストを徹底的に守ります。
-              </p>
-            </div>
-
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-cyan-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.38s" }}
-            >
-              <div className="w-9 h-9 bg-cyan-50 border border-cyan-100 rounded-lg flex items-center justify-center font-black text-sm text-cyan-700 mb-4">
-                02
-              </div>
-              <h4 className="font-black text-slate-900 text-base mb-2 tracking-wide">
-                独自の再販網で「価値」を還流する
-              </h4>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                眠っているガジェットやパーツ、不要になった家財に強固なEC販売網で新たな価値を付与。処分ではなく次世代へ繋ぐ「誠実なリユース」を徹底します。
-              </p>
-            </div>
-
-            <div
-              className="amn-animate bg-slate-50/60 rounded-2xl p-6 border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: "0.48s" }}
-            >
-              <div className="w-9 h-9 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-center font-black text-sm text-blue-700 mb-4">
-                03
-              </div>
-              <h4 className="font-black text-slate-900 text-base mb-2 tracking-wide">
-                富山の暮らしをIT×物流で最適化
-              </h4>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                軽貨物の機動力と、Python等による自動化・カスタムPCビルドのIT力を融合。地域密着でありながら、一歩先を行くスマートな仕組みを提供し続けます。
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── セクション3：会社概要（テーブル） ─── */}
-        <section
-          className="amn-animate bg-white rounded-3xl p-8 md:p-12 shadow-xs border border-slate-200/80 hover:shadow-lg transition-shadow duration-300"
-          style={{ animationDelay: "0.3s" }}
-        >
-          <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
-            <span className="w-2 h-5 bg-emerald-500 rounded-full inline-block" />
+          <h2
+            className="text-lg sm:text-xl font-black mb-8"
+            style={{ fontFamily: "'Noto Serif JP', serif" }}
+          >
             事業概要
-          </h3>
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider pl-4 mb-8">
-            Company Overview
-          </p>
+          </h2>
 
-          <div className="border-t border-slate-200 divide-y divide-slate-100 text-sm md:text-base">
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">商号 / 屋号</div>
-              <div className="text-slate-600 font-medium md:col-span-3">AmNiss & Co. Japan（アムニス・アンド・カンパニー・ジャパン）</div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">代表者</div>
-              <div className="text-slate-600 font-medium md:col-span-3">小川 竜司</div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">本社所在地</div>
-              <div className="text-slate-600 font-medium md:col-span-3">
-                〒150-0043<br />
-                東京都渋谷区道玄坂1丁目10番8号 渋谷道玄坂東急ビル2F−C
+          <div style={{ borderTop: "1px solid var(--color-border)" }}>
+            {TABLE_ROWS.map((row) => (
+              <div
+                key={row.label}
+                className="grid grid-cols-1 sm:grid-cols-4 gap-2 py-5 text-sm"
+                style={{ borderBottom: "1px solid var(--color-border)" }}
+              >
+                <div
+                  className="font-black sm:col-span-1 text-xs uppercase tracking-wide"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  {row.label}
+                </div>
+                <div className="sm:col-span-3 font-medium" style={{ color: "var(--color-text)" }}>
+                  {row.value}
+                </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">富山営業所・物流センター</div>
-              <div className="text-slate-600 font-medium md:col-span-3">
-                富山県富山市内（※実務・車庫・在庫仕分け拠点）<br />
-                <span className="text-xs text-slate-400 font-bold">※地域密着の出張対応、および富山発着の軽貨物運送の拠点となります。</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">事業内容</div>
-              <div className="text-slate-600 font-medium md:col-span-3">
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>単身引越し・緊急配送・貨物軽自動車運送事業（A.P.C LOGISTICS）</li>
-                  <li>不用品回収・お片付け・出張買取事業（re&apos;vive）</li>
-                  <li>
-                    BTO・ゲーミングPCおよびカスタムPCの受注製造・販売<br />
-                    <span className="text-xs text-emerald-600 font-black">※お客様のご予算や用途（ゲーム・配信・動画編集など）に合わせて、パーツ選定から組み立て・初期設定まで完全オーダーメイドで対応。</span>
-                  </li>
-                  <li>パソコン・IT周辺機器・ゲーミングPCのパーツ買取およびリユース販売</li>
-                  <li>個人・店舗向けITサポート、ネットワークインフラ構築支援</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 py-5 gap-2 md:gap-4">
-              <div className="font-black text-slate-900 md:col-span-1">各種許認可・届出</div>
-              <div className="text-slate-600 font-medium md:col-span-3 space-y-1">
-                <div>• 貨物軽自動車運送事業 届出済</div>
-                <div>• 富山県公安委員会 古物商許可 第501310007877号</div>
-              </div>
-            </div>
-
+            ))}
           </div>
         </section>
 
-        {/* トップに戻るリンク */}
-        <div className="amn-animate text-center mt-12" style={{ animationDelay: "0.4s" }}>
-          <Link href="/" className="text-sm font-black text-slate-500 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1">
-            ➔ トップページへ戻る
-          </Link>
-        </div>
+        {/* CTA */}
+        <section className="amn-animate text-center" style={{ animationDelay: "0.3s" }}>
+          <a
+            href={LINE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-white font-black text-sm px-8 py-4 rounded-lg transition-opacity hover:opacity-80 mb-8"
+            style={{ backgroundColor: "var(--color-primary)" }}
+          >
+            LINEで無料相談・お問い合わせ
+          </a>
+        </section>
 
       </div>
     </div>

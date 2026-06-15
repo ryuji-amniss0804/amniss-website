@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BLOG_POSTS_META } from "@/lib/posts-meta";
 
 function useInView() {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
     const el = ref.current;
@@ -20,21 +20,11 @@ function useInView() {
   return [ref, inView] as const;
 }
 
-function anim(inView: boolean, delay = 0) {
-  return {
-    style: {
-      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
-      opacity: inView ? 1 : 0,
-      transform: inView ? "translateY(0)" : "translateY(24px)",
-    },
-  };
-}
-
 const BLOG_POSTS = [...BLOG_POSTS_META].sort((a, b) => b.date.localeCompare(a.date));
 
 export default function BlogIndex() {
   const [ready, setReady] = useState(false);
-  const [cardsRef, cardsInView] = useInView();
+  const [listRef, listInView] = useInView();
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 60);
@@ -42,95 +32,100 @@ export default function BlogIndex() {
   }, []);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-16 sm:py-24 font-sans">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}>
 
-        {/* パンくずリスト */}
-        <nav
-          style={{
-            transition: "opacity 0.6s ease 0ms",
-            opacity: ready ? 1 : 0,
-          }}
-          className="text-xs sm:text-sm text-slate-400 mb-6 font-bold"
-        >
-          <Link href="/" className="hover:text-blue-600 transition-colors">HOME</Link>
-          <span className="mx-2">➔</span>
-          <span className="text-slate-600">公式ブログ・豆知識</span>
-        </nav>
-
-        {/* ヘッダー */}
+      {/* ページヘッダー */}
+      <section
+        className="pt-36 pb-16 sm:pt-44 sm:pb-20 px-6"
+        style={{ backgroundColor: "var(--color-surface-alt)", borderBottom: "1px solid var(--color-border)" }}
+      >
         <div
+          className="max-w-4xl mx-auto"
           style={{
             transition: "opacity 0.8s ease 80ms, transform 0.8s ease 80ms",
             opacity: ready ? 1 : 0,
-            transform: ready ? "translateY(0)" : "translateY(24px)",
+            transform: ready ? "translateY(0)" : "translateY(20px)",
           }}
-          className="border-b border-slate-200 pb-8 mb-12"
         >
-          <span className="text-blue-600 text-xs font-black tracking-widest uppercase block mb-2">
+          <p
+            className="text-xs font-black tracking-widest uppercase mb-3"
+            style={{ color: "var(--color-primary)" }}
+          >
             Official Blog
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-            AmNiss 総合ブログ & 豆知識
-          </h1>
-          <p className="text-sm sm:text-base text-slate-500 font-medium mt-2">
-            富山のお客様へ届ける、引越し・お片付け・パソコン・DXに関する役立つコンテンツSEOメディアです。
           </p>
-          <div className="w-12 h-1 bg-blue-500 mt-4 rounded-full" />
+          <h1
+            className="text-3xl sm:text-4xl font-black mb-4"
+            style={{ fontFamily: "'Noto Serif JP', serif" }}
+          >
+            AmNiss 公式ブログ
+          </h1>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
+            富山のお客様へ届ける、引越し・お片付け・パソコン・DXに関する役立つコンテンツです。
+          </p>
+          <div className="w-10 h-0.5 mt-6" style={{ backgroundColor: "var(--color-primary)" }} />
         </div>
+      </section>
 
-        {/* 記事一覧リスト */}
-        <div ref={cardsRef} className="space-y-8">
-          {BLOG_POSTS.map((post, i) => (
-            <article
-              key={post.slug}
-              {...anim(cardsInView, i * 130)}
-              className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs hover:shadow-xl transition-all duration-400 flex flex-col justify-between group hover:-translate-y-1"
-            >
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className={`${post.accent} text-xs font-black px-2.5 py-1 rounded-full`}>
-                    {post.category}
-                  </span>
-                  <time className="text-xs font-bold text-slate-400">{post.date}</time>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mb-3">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </h2>
-                <p className="text-slate-600 text-sm leading-relaxed font-medium mb-6">
-                  {post.excerpt}
-                </p>
-              </div>
-              <div className="flex justify-end pt-4 border-t border-slate-100">
+      {/* 記事一覧 */}
+      <section
+        ref={listRef as React.RefObject<HTMLElement>}
+        className="py-16 sm:py-24 px-6"
+        style={{ backgroundColor: "var(--color-surface)" }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <div style={{ borderTop: "1px solid var(--color-border)" }}>
+            {BLOG_POSTS.map((post, i) => (
+              <article
+                key={post.slug}
+                style={{
+                  borderBottom: "1px solid var(--color-border)",
+                  transition: `opacity 0.7s ease ${i * 100}ms, transform 0.7s ease ${i * 100}ms`,
+                  opacity: listInView ? 1 : 0,
+                  transform: listInView ? "translateY(0)" : "translateY(20px)",
+                }}
+              >
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="text-sm font-black text-blue-600 hover:text-blue-500 transition-colors flex items-center gap-1.5 group/link"
+                  className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-10 py-8 group"
                 >
-                  この記事を詳しく読む
-                  <span className="group-hover/link:translate-x-1 transition-transform inline-block">➔</span>
+                  {/* 日付・カテゴリ */}
+                  <div className="shrink-0 sm:w-40">
+                    <time
+                      className="text-xs font-bold block mb-1"
+                      style={{ color: "var(--color-muted)" }}
+                    >
+                      {post.date}
+                    </time>
+                    <span
+                      className="text-xs font-black"
+                      style={{ color: "var(--color-primary)" }}
+                    >
+                      {post.category}
+                    </span>
+                  </div>
+
+                  {/* タイトル・抜粋 */}
+                  <div className="flex-1 min-w-0">
+                    <h2
+                      className="font-black text-base sm:text-lg leading-snug mb-2 group-hover:opacity-60 transition-opacity"
+                      style={{ color: "var(--color-text)" }}
+                    >
+                      {post.title}
+                    </h2>
+                    <p
+                      className="text-sm leading-relaxed line-clamp-2"
+                      style={{ color: "var(--color-muted)" }}
+                    >
+                      {post.excerpt}
+                    </p>
+                  </div>
                 </Link>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* トップへ戻るリンク */}
-        <div
-          style={{
-            transition: "opacity 0.8s ease 400ms",
-            opacity: cardsInView ? 1 : 0,
-          }}
-          className="text-center mt-16 pt-8 border-t border-slate-200"
-        >
-          <Link
-            href="/"
-            className="text-sm font-black text-slate-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
-          >
-            ➔ トップページへ戻る
-          </Link>
-        </div>
-
-      </div>
     </div>
   );
 }

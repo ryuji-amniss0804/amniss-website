@@ -1,45 +1,41 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ─── re'vive カラーパレット ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg:            #f8f8f5;  /* オフホワイト背景 */
+  --color-surface:       #ffffff;  /* セクション・区切り面 */
+  --color-surface-alt:   #f0f0eb;  /* 交互セクションの背景 */
+  --color-primary:       #2d6a4f;  /* SDGsグリーン */
+  --color-primary-light: #40916c;  /* ホバー */
+  --color-primary-dark:  #1b4332;  /* ヒーロー背景・強調 */
+  --color-text:          #1a1a1a;  /* メインテキスト */
+  --color-muted:         #666666;  /* サブテキスト */
+  --color-border:        #e0e0da;  /* 区切り線 */
+  --color-white:         #ffffff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --font-sans: 'Noto Sans JP', sans-serif;
+  --font-serif: 'Noto Serif JP', serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* ↓ ここから追記・修正 ↓ */
-
-/* globals.css */
 html {
-  /* scroll-behavior: smooth; ← これをコメントアウトまたは削除 */
-  scroll-behavior: auto; /* こちらに変更 */
+  scroll-behavior: auto;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Noto Sans JP', sans-serif;
 }
 
-/* スマホでメニューから飛んだ時、ヘッダーに隠れないように余白を作る */
 section {
-  scroll-margin-top: 5rem; /* 80px（スマホヘッダーの高さ） */
+  scroll-margin-top: 5rem;
 }
 
-/* PCではサイドバーなので、余白をリセットする */
 @media (min-width: 768px) {
   section {
     scroll-margin-top: 0;
@@ -65,17 +61,42 @@ section {
   animation: amnFadeIn 0.8s ease forwards;
 }
 
-/* ─── ブログ記事 prose カスタム (AmNiss ブランドカラー上書き) ─── */
+/* ─── ブログ記事 prose カスタム ─── */
+.prose {
+  color: var(--color-text);
+}
 .prose h2 {
-  border-bottom: 2px solid #d1fae5;
+  border-bottom: 2px solid var(--color-primary);
   padding-bottom: 0.5rem;
+  color: var(--color-text);
+}
+.prose h3, .prose h4 {
+  color: var(--color-text);
+}
+.prose p, .prose li {
+  color: var(--color-muted);
+}
+.prose a {
+  color: var(--color-primary-light);
+}
+.prose strong {
+  color: var(--color-text);
 }
 .prose blockquote {
-  background-color: #f0fdf4;
+  background-color: var(--color-surface);
+  border-left-color: var(--color-primary);
   border-radius: 0 0.75rem 0.75rem 0;
   font-style: normal;
+  color: var(--color-text);
 }
 .prose blockquote p::before,
 .prose blockquote p::after {
   content: none;
+}
+.prose code {
+  background-color: var(--color-surface);
+  color: var(--color-primary-light);
+}
+.prose pre {
+  background-color: var(--color-surface);
 }
