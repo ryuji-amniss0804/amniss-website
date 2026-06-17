@@ -491,13 +491,13 @@ export default function TopPage() {
               className="text-xs font-black tracking-widest uppercase mb-2"
               style={{ color: "var(--color-primary)" }}
             >
-              Our Story
+              Our Vision
             </p>
             <h2
               className="text-2xl sm:text-3xl font-black mb-4"
               style={{ fontFamily: "'Noto Serif JP', serif" }}
             >
-              re&apos;viveについて
+              捨てられるはずのものを、もう一度世界へ。
             </h2>
             <div className="w-10 h-0.5" style={{ backgroundColor: "var(--color-primary)" }} />
           </div>
@@ -507,20 +507,8 @@ export default function TopPage() {
             className="flex flex-col gap-8 text-sm sm:text-base leading-loose"
             style={{ color: "var(--color-muted)" }}
           >
-            <p style={{ color: "var(--color-text)", fontWeight: "bold", fontSize: "1rem" }}>
-              きっかけは、家族との時間でした。
-            </p>
-
             <p>
-              朝から深夜まで働いて、手取り35万円。数字だけ見れば悪くない。でも気づいたら、家族と過ごす時間がどんどん削られていました。何のために働いているのか、わからなくなっていました。
-            </p>
-
-            <p>
-              それなら、自分でやろう。
-            </p>
-
-            <p>
-              これまでの軽貨物運送の経験、4年間続けてきた店舗せどり、eBayで積み上げた海外販路。バラバラに見えるキャリアが、ある日一本の線で繋がりました。
+              国内では「ゴミ」として処分されていくものが、海外では誰かが探し続けているものだったりする。壊れたカメラ、古いPC、他店で断られた精密機器。価値があるのに、届く場所がないだけ。
             </p>
 
             <p
@@ -531,26 +519,23 @@ export default function TopPage() {
                 fontWeight: "bold",
               }}
             >
-              「捨てられるはずのものに、価値を見出せる。」
+              re&apos;viveは、その橋渡しをする会社です。
             </p>
 
             <p>
-              壊れたカメラ、古いPC、他店で断られた精密機器。海外では需要があるものが、国内では「ゴミ」として処分されていく。それがもったいなかった。引越しで出た不用品も、遺品も、誰かにとってはまだ価値があるはずです。
+              引越しで出た不用品も、長年眠っていた道具も、誰かの手に渡ることで「ゴミ」ではなくなる。モノを蘇らせることで、お客様の負担を減らし、廃棄物を減らす。
             </p>
 
             <p>
-              re&apos;viveは、そこから生まれました。
-            </p>
-
-            <p>
-              モノを蘇らせることで、お客様の負担を減らす。家族との時間を大切にしたいという思いから始めた事業だから、お客様の時間も、お金も、できるだけ無駄にしたくない。富山県SDGs宣言企業として、廃棄物を減らしながら、地域に根ざして続けていきます。
+              富山から、日本の価値あるものを世界へ届ける。<br />
+              それが、re&apos;viveのビジョンです。
             </p>
 
             <p
               className="text-right font-bold"
               style={{ color: "var(--color-text)" }}
             >
-              代表　小川 竜司
+              富山県SDGs宣言企業　代表　小川 竜司
             </p>
           </div>
 
