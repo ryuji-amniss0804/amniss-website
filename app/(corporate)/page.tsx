@@ -37,9 +37,6 @@ function anim(inView: boolean, delay = 0) {
 
 const LINE_URL = "https://lin.ee/845Fdsy";
 
-
-
-
 const LATEST_POSTS = [...BLOG_POSTS_META]
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, 3);
