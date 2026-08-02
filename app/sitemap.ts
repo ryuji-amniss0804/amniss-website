@@ -3,18 +3,18 @@ import { getAllPosts } from '@/lib/posts'
 
 const SITE_URL = 'https://amniss-japan.jp'
 
+/**
+ * 実体のあるページだけを載せること。
+ * リダイレクトするURL（/moving /kaitori /transport など）を入れると
+ * Search Console に「リダイレクトのあるページ」として弾かれる。
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
   const staticPages: MetadataRoute.Sitemap = (
     [
       { path: '', changeFrequency: 'weekly' as const, priority: 1 },
-      { path: '/moving', changeFrequency: 'weekly' as const, priority: 0.9 },
-      { path: '/kaitori', changeFrequency: 'weekly' as const, priority: 0.9 },
-      { path: '/transport', changeFrequency: 'weekly' as const, priority: 0.8 },
-      { path: '/shucho-kaitori', changeFrequency: 'monthly' as const, priority: 0.7 },
-      { path: '/pc-sales', changeFrequency: 'monthly' as const, priority: 0.6 },
-      { path: '/blog', changeFrequency: 'weekly' as const, priority: 0.6 },
+      { path: '/blog', changeFrequency: 'weekly' as const, priority: 0.7 },
       { path: '/company', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/tokushoho', changeFrequency: 'yearly' as const, priority: 0.3 },
       { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },

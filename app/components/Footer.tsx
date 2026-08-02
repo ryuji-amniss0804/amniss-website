@@ -51,9 +51,8 @@ export default function Footer() {
             Navigation
           </span>
           {[
-            { name: "引越し", href: "/moving" },
-            { name: "買取", href: "/kaitori" },
-            { name: "運搬・軽貨物", href: "/transport" },
+            { name: "単身引越し", href: "/#moving" },
+            { name: "出張買取", href: "/#kaitori" },
             { name: "ブログ", href: "/blog" },
             { name: "会社概要", href: "/company" },
           ].map((item) => (

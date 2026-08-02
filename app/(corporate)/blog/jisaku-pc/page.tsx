@@ -348,7 +348,7 @@ export default function PersonalComputerRelocationSeoBlog() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href="/kaitori"
+                href="/#kaitori"
                 className="w-full sm:w-auto font-black px-8 py-4 rounded-xl text-sm transition-all text-white"
                 style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
               >
