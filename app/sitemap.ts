@@ -14,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = (
     [
       { path: '', changeFrequency: 'weekly' as const, priority: 1 },
-      { path: '/blog', changeFrequency: 'weekly' as const, priority: 0.7 },
       { path: '/company', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/tokushoho', changeFrequency: 'yearly' as const, priority: 0.3 },
       { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },

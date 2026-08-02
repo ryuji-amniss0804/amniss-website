@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { BLOG_POSTS_META } from "@/lib/posts-meta";
 
+const LINE_URL = "https://lin.ee/845Fdsy";
+
 function useInView() {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
@@ -60,7 +62,7 @@ export default function BlogIndex() {
             AmNiss 公式ブログ
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-            富山のお客様へ届ける、引越し・お片付け・パソコン・DXに関する役立つコンテンツです。
+            富山のお客様へ届ける、引越し・お片付け・不用品の処分に関する役立つ情報をお届けします。
           </p>
           <div className="w-10 h-0.5 mt-6" style={{ backgroundColor: "var(--color-primary)" }} />
         </div>
@@ -73,6 +75,31 @@ export default function BlogIndex() {
         style={{ backgroundColor: "var(--color-surface)" }}
       >
         <div className="max-w-4xl mx-auto">
+          {BLOG_POSTS.length === 0 ? (
+            <div
+              className="max-w-xl"
+              style={{
+                transition: "opacity 0.7s ease, transform 0.7s ease",
+                opacity: listInView ? 1 : 0,
+                transform: listInView ? "translateY(0)" : "translateY(20px)",
+              }}
+            >
+              <p className="text-sm leading-loose mb-8" style={{ color: "var(--color-muted)" }}>
+                現在、公開中の記事はありません。<br />
+                引越しや不用品の処分でお困りのことがあれば、記事をお待ちいただかなくても
+                LINEで直接ご相談いただけます。写真を送っていただくだけで見積もりが可能です。
+              </p>
+              <a
+                href={LINE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-white font-black text-sm px-8 py-4 rounded-lg transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "var(--color-primary)" }}
+              >
+                LINEで無料相談
+              </a>
+            </div>
+          ) : (
           <div style={{ borderTop: "1px solid var(--color-border)" }}>
             {BLOG_POSTS.map((post, i) => (
               <article
@@ -123,6 +150,7 @@ export default function BlogIndex() {
               </article>
             ))}
           </div>
+          )}
         </div>
       </section>
 

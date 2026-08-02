@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { BLOG_POSTS_META } from "@/lib/posts-meta";
 
 function useInView(threshold = 0.06) {
   const ref = useRef<HTMLElement>(null);
@@ -37,10 +36,6 @@ function anim(inView: boolean, delay = 0) {
 
 const LINE_URL = "https://lin.ee/845Fdsy";
 
-const LATEST_POSTS = [...BLOG_POSTS_META]
-  .sort((a, b) => b.date.localeCompare(a.date))
-  .slice(0, 3);
-
 export default function TopPage() {
   const [heroReady, setHeroReady] = useState(false);
   const [introRef, introInView] = useInView();
@@ -50,7 +45,6 @@ export default function TopPage() {
   const [storyRef, storyInView] = useInView();
 
   const [ctaRef, ctaInView] = useInView();
-  const [blogRef, blogInView] = useInView();
 
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 100);
@@ -573,63 +567,7 @@ export default function TopPage() {
         </div>
       </section>
 
-      {/* ── 7. ブログ ── */}
-      <section
-        className="py-20 sm:py-28"
-        ref={blogRef as React.RefObject<HTMLElement>}
-        style={{ borderTop: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}
-      >
-        <div className="max-w-4xl mx-auto px-6 sm:px-8">
-          <div {...anim(blogInView, 0)} className="flex items-end justify-between mb-12">
-            <div>
-              <p
-                className="text-xs font-black tracking-widest uppercase mb-2"
-                style={{ color: "var(--color-primary)" }}
-              >
-                Blog
-              </p>
-              <h2
-                className="text-2xl sm:text-3xl font-black"
-                style={{ fontFamily: "'Noto Serif JP', serif" }}
-              >
-                お役立ち情報
-              </h2>
-            </div>
-            <a
-              href="/blog"
-              className="text-sm font-bold hover:opacity-60 transition-opacity"
-              style={{ color: "var(--color-primary)" }}
-            >
-              一覧を見る →
-            </a>
-          </div>
-
-          <div {...anim(blogInView, 80)} style={{ borderTop: "1px solid var(--color-border)" }}>
-            {LATEST_POSTS.map((post) => (
-              <a
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="flex items-center justify-between py-5 group"
-                style={{ borderBottom: "1px solid var(--color-border)" }}
-              >
-                <div className="flex-1 min-w-0 pr-6">
-                  <p className="text-xs mb-1" style={{ color: "var(--color-muted)" }}>
-                    {post.date}
-                  </p>
-                  <p
-                    className="text-sm sm:text-base font-bold leading-snug group-hover:opacity-60 transition-opacity"
-                    style={{ color: "var(--color-text)" }}
-                  >
-                    {post.title}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. CTA ── */}
+      {/* ── 7. CTA ── */}
       <section
         className="py-24 sm:py-32 text-center"
         ref={ctaRef as React.RefObject<HTMLElement>}

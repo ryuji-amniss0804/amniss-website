@@ -53,7 +53,6 @@ export default function Footer() {
           {[
             { name: "単身引越し", href: "/#moving" },
             { name: "出張買取", href: "/#kaitori" },
-            { name: "ブログ", href: "/blog" },
             { name: "会社概要", href: "/company" },
           ].map((item) => (
             <Link

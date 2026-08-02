@@ -46,9 +46,6 @@ export default function Header() {
           <Link href="/#kaitori" className="hover:opacity-60 transition-opacity">
             買取
           </Link>
-          <Link href="/blog" className="hover:opacity-60 transition-opacity">
-            ブログ
-          </Link>
           <Link href="/company" className="hover:opacity-60 transition-opacity">
             会社概要
           </Link>
@@ -91,9 +88,6 @@ export default function Header() {
           </Link>
           <Link href="/#kaitori" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
             買取
-          </Link>
-          <Link href="/blog" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
-            ブログ
           </Link>
           <Link href="/company" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
             会社概要

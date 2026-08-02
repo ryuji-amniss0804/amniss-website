@@ -5,10 +5,6 @@ import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { BLOG_POSTS_META, type BlogPostMeta } from "./posts-meta";
 
-export { BLOG_POSTS_META };
-
-export type { BlogPostMeta };
-
 const CONTENT_DIR = path.join(process.cwd(), "content/blog");
 
 function readMarkdownMetas(): BlogPostMeta[] {
