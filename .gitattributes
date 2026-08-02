@@ -1,0 +1,15 @@
+# リポジトリ内の改行コードは LF に統一する。
+# admin（GitHub API）は LF、Windows のエディタは CRLF で書くため、
+# これが無いと中身の変わっていないファイルが毎回差分として出る。
+* text=auto eol=lf
+
+# バイナリは変換しない
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.pdf  binary
+*.woff  binary
+*.woff2 binary

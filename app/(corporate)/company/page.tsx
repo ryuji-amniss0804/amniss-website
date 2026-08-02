@@ -2,25 +2,34 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "会社概要 | re'vive",
+  title: "会社概要 | re'vive 富山",
   description:
-    "AmNiss&Co.Japan / re'viveの会社概要。代表・小川竜司が直接対応。富山県SDGs宣言企業、古物商許可取得済み。",
+    "re'vive 富山（運営：AmNiss&Co. Japan）の会社概要。代表・小川竜司が直接対応。富山県富山市を拠点に県内全域の単身引越し・出張買取・軽貨物運送。古物商許可、貨物軽自動車運送事業届出済、富山県SDGs宣言企業。",
+  alternates: { canonical: "/company" },
 };
 
 const LINE_URL = "https://lin.ee/845Fdsy";
+const TEL = "070-8450-0897";
 
 const TABLE_ROWS = [
-  { label: "会社名", value: "AmNiss&Co.Japan" },
-  { label: "ブランド", value: "re'vive（リバイブ）" },
+  { label: "屋号", value: "re'vive 富山（リバイブ富山）" },
+  { label: "運営事業者", value: "AmNiss&Co. Japan" },
   { label: "代表者", value: "小川 竜司" },
-  { label: "所在地", value: "富山県" },
+  { label: "所在地", value: "富山県富山市" },
+  { label: "電話番号", value: `${TEL}（受付 9:00〜21:00）` },
+  { label: "営業時間", value: "9:00〜21:00（年中無休）" },
+  { label: "対応エリア", value: "富山県全域（即日対応可）" },
   {
     label: "事業内容",
-    value: "単身引越し・出張買取・遺品整理・軽貨物運送",
+    value: "単身引越し・軽貨物運送・出張買取・不用品の運搬／処分・遺品整理",
   },
   {
     label: "古物商許可",
     value: "富山県公安委員会 第501310007877号",
+  },
+  {
+    label: "運送事業",
+    value: "貨物軽自動車運送事業 届出済",
   },
   {
     label: "SDGs",

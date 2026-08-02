@@ -21,8 +21,18 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return { title: "記事が見つかりません | re'vive Blog" };
   return {
-    title: `${post.meta.title} | re'vive ブログ`,
+    title: `${post.meta.title} | re'vive 富山 ブログ`,
     description: post.meta.excerpt,
+    alternates: { canonical: `/blog/${slug}` },
+    openGraph: {
+      title: post.meta.title,
+      description: post.meta.excerpt,
+      url: `https://amniss-japan.jp/blog/${slug}`,
+      siteName: "re'vive 富山",
+      locale: "ja_JP",
+      type: "article",
+      publishedTime: post.meta.date || undefined,
+    },
   };
 }
 
