@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       { source: "/transport", destination: "/", permanent: true },
       { source: "/shucho-kaitori", destination: "/#kaitori", permanent: true },
       { source: "/pc-sales", destination: "/", permanent: true },
+
+      // 旧ブログ記事。優良誤認表現と旧屋号を含んでいたため削除済み。
+      // インデックス済みの分の受け皿として、内容が近いアンカーへ逃がす。
+      // ※ ここに書いたスラッグで新規記事を投稿すると、記事より redirect が優先される。
+      //    同じスラッグを使いたくなったら、この行を消すこと。
+      { source: "/blog/how-to-pack",         destination: "/#moving",  permanent: true },
+      { source: "/blog/toyama-fuyohin-tips", destination: "/#kaitori", permanent: true },
+      { source: "/blog/jisaku-pc",           destination: "/",         permanent: true },
     ];
   },
 };
