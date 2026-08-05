@@ -8,21 +8,25 @@ type Props = {
   /** ヒーローの1枚だけ true。それ以外に付けないこと */
   priority?: boolean;
   caption?: string;
-  /** ヒーローの文字を読ませるためのグラデーションを重ねる */
-  overlay?: boolean;
   className?: string;
 };
 
 /**
  * 画像の共通ラッパ。
- * 暗くする／そのままの判断は lib/images.ts の treatment に持たせてあり、
- * ここでは「一律に暗くする」ことはしない。
- * treatment: "dark" のときだけ filter + rgb(16,23,32) 34% のブレンドが乗る。
+ *
+ * 加工の判断は lib/images.ts の treatment に持たせてあり、ここでは指定できない。
+ * 「この1枚だけ暗くしたい」という都度の判断が入ると、方針が文章にしか残らなくなるため。
+ *
+ *  plain … 素のまま
+ *  muted … saturate(.72) contrast(1.06) brightness(.94)
+ *  dark  … 強い減光 ＋ 可読性のオーバーレイ。**オーバーレイは外せない。**
+ *          この数字は上に白い文字を乗せて初めて成立するもので、
+ *          文字が乗らない場所に当てると露出に失敗した写真になる。
  */
-export default function Photo({ image, sizes, priority, caption, overlay, className }: Props) {
-  const figClass = ["fig", image.treatment === "dark" ? "fig-dark" : "", overlay ? "fig-hero" : "", className]
-    .filter(Boolean)
-    .join(" ");
+export default function Photo({ image, sizes, priority, caption, className }: Props) {
+  const treat =
+    image.treatment === "dark" ? "fig-dark" : image.treatment === "muted" ? "fig-muted" : "";
+  const figClass = ["fig", treat, className].filter(Boolean).join(" ");
 
   return (
     <figure>

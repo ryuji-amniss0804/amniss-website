@@ -179,45 +179,61 @@ body.rv {
 .rv .hero { border-bottom: 1px solid var(--rule-2); }
 .rv .hero .in { padding: 78px 0 0; }
 .rv .hero h1 { font-size: 40px; line-height: 1.62; letter-spacing: 0.01em; }
+/* 下層ページ。トップより一段小さくする */
+.rv .hero.md h1 { font-size: 33px; line-height: 1.68; }
+.rv .hero .kicker { margin-bottom: 22px; }
 .rv .hero .sub { margin-top: 26px; color: var(--ink-3); font-size: 15px; max-width: 33em; line-height: 2.1; }
 .rv .hero .acts { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
 .rv .hero .fig { margin-top: 56px; position: relative; }
 .rv .hero .fig img { width: 100%; height: 390px; object-fit: cover; }
 .rv .hero .cap { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
 @media (max-width: 700px) {
-  .rv .hero h1 { font-size: 26px; line-height: 1.75; }
+  .rv .hero h1,
+  .rv .hero.md h1 { font-size: 26px; line-height: 1.75; }
   .rv .hero .in { padding: 48px 0 0; }
   .rv .hero .fig img { height: 230px; }
 }
 
 /* ---- 画像の処理 ------------------------------------------------
-   暗くするのは「スタイル」ではなく「散らかった背景を消す道具」。
+   加工は「スタイル」ではなく「散らかった背景を消す道具」。
    一律には当てない。lib/images.ts の treatment に従うこと。
-   パラメータ：彩度 0.16 ／ コントラスト 1.16 ／ 明度 0.46 ／
-   rgb(16,23,32) を 34% でブレンド。
+
+   plain … 何もしない
+   muted … 単体で見せる写真。青空・駐車場の白線の主張だけ落とす
+   dark  … 上に文字が乗る場所でだけ。可読性のオーバーレイと必ずセット
    ---------------------------------------------------------------- */
 .rv .fig { position: relative; }
+/* 本文の途中に写真を置くとき。正方形の写真をそのまま流すと本文列いっぱいの
+   高さになって主役を食うので、高さを決めて object-fit で収める */
+.rv .fig.mt { margin-top: 40px; }
+.rv .fig.mt img { width: 100%; height: 420px; object-fit: cover; }
+@media (max-width: 700px) {
+  .rv .fig.mt img { height: 240px; }
+}
+.rv .fig.mt + .cap { margin-top: 10px; font-size: 11.5px; color: var(--ink-4); letter-spacing: 0.04em; }
+
+/* 目安は saturate(.72) だったが、それでは青空と草がまだ主張していたので
+   彩度だけ .45 まで落としてある（コントラストと明度は目安のまま）。
+   .32 まで下げると白黒写真に見え始めるので、その手前。 */
+.rv .fig-muted img { filter: saturate(0.45) contrast(1.06) brightness(0.94); }
+
 .rv .fig-dark img { filter: saturate(0.16) contrast(1.16) brightness(0.46); }
+/* ::after は1つしか使えないので、可読性のグラデーションと
+   rgb(16,23,32) 34% のブレンドを多重背景で重ねている。
+   これを2つのクラスに分けると、後から書いたほうが前を丸ごと消してしまう。 */
 .rv .fig-dark::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgb(16, 23, 32);
-  opacity: 0.34;
   pointer-events: none;
-}
-/* ヒーローに敷く場合の、文字を読ませるためのオーバーレイ */
-.rv .fig-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(9, 14, 20, 0.76) 0%,
-    rgba(9, 14, 20, 0.46) 55%,
-    rgba(9, 14, 20, 0.3) 100%
-  );
-  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(9, 14, 20, 0.76) 0%,
+      rgba(9, 14, 20, 0.46) 55%,
+      rgba(9, 14, 20, 0.3) 100%
+    ),
+    rgba(16, 23, 32, 0.34);
 }
 
 /* ---- 許認可の帯：文字だけ ---- */
@@ -395,6 +411,53 @@ body.rv {
     padding-bottom: 30px;
     margin-bottom: 30px;
   }
+}
+
+/* ---- 品目リスト：罫線1本ずつ。箱で囲まない ------------------------
+   600px より広いとき  … 品目 ／ 補足 の2カラム
+   600px 以下         … 補足が品目名の下に落ちる
+   補足のない行では、余白も罫線も足さない（半分以上の行に補足がないため、
+   空の枠が残ると抜けているように見える）。
+   ---------------------------------------------------------------- */
+.rv .items + .items { margin-top: 44px; }
+.rv .items h3 {
+  font-size: 15px;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .items ul { list-style: none; }
+/* 見出しを省いた場合、リストの開始を示す罫線が無くなるので ul 側に付ける */
+.rv .items.no-title ul { border-top: 1px solid var(--ink); }
+.rv .items li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 13em);
+  gap: 0 28px;
+  align-items: baseline;
+  position: relative;
+  padding: 15px 0 15px 20px;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 14px;
+  line-height: 1.85;
+}
+.rv .items li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  top: 15px;
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--ink-4);
+}
+/* 受けられない物。差し色は使わない（--accent は1ページに1〜2箇所までのため、
+   7行に赤を並べると、そこだけで使い切ってしまう）。濃さで区別する。 */
+.rv .items.deny li::before { content: "×"; color: var(--ink); }
+.rv .items .nt { font-size: 12.5px; color: var(--ink-3); line-height: 1.8; }
+@media (max-width: 600px) {
+  .rv .items li { grid-template-columns: 1fr; gap: 0; }
+  .rv .items .nt { display: block; margin-top: 5px; }
 }
 
 /* ---- 流れ：番号つきの縦リスト ---- */

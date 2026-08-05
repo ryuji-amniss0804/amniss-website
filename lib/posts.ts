@@ -7,6 +7,19 @@ import { BLOG_POSTS_META, type BlogPostMeta } from "./posts-meta";
 
 const CONTENT_DIR = path.join(process.cwd(), "content/blog");
 
+/**
+ * フロントマターの `date:` を必ず文字列にする。
+ *
+ * `date: 2026-08-05` と引用符なしで書くと YAML が Date オブジェクトとして読む。
+ * それをそのまま React の子として描画しようとして記事ページが 500 になっていた。
+ * Date のときは YYYY-MM-DD に揃える（String() をそのまま通すと
+ * "Wed Aug 05 2026 ..." になり、日付の降順ソートも狂うため）。
+ */
+function toDateString(value: unknown): string {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value ?? "");
+}
+
 function readMarkdownMetas(): BlogPostMeta[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   const staticSlugs = new Set(BLOG_POSTS_META.map((p) => p.slug));
@@ -23,7 +36,7 @@ function readMarkdownMetas(): BlogPostMeta[] {
           slug,
           title: data.title ?? slug,
           excerpt: data.excerpt ?? "",
-          date: data.date ?? "",
+          date: toDateString(data.date),
           category: data.category ?? "ブログ",
           categoryBg: data.categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50",
           accent: data.accent ?? "bg-emerald-50 text-emerald-700",
@@ -59,7 +72,7 @@ export async function getPostBySlug(
       slug,
       title: data.title ?? slug,
       excerpt: data.excerpt ?? "",
-      date: data.date ?? "",
+      date: toDateString(data.date),
       category: data.category ?? "ブログ",
       categoryBg: data.categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50",
       accent: data.accent ?? "bg-emerald-50 text-emerald-700",

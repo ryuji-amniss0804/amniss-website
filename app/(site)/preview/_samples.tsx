@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import LicenseStrip from "../_components/LicenseStrip";
 import Split from "../_components/Split";
 import PriceTable from "../_components/PriceTable";
+import ItemList from "../_components/ItemList";
 import ReasonList from "../_components/ReasonList";
 import Spec from "../_components/Spec";
 import Faq from "../_components/Faq";
@@ -193,23 +194,58 @@ export const PREVIEWS: Record<string, PreviewEntry> = {
     ),
   },
 
+  itemlist: {
+    title: "ItemList",
+    note: "品目リスト。600px以下で補足が品目名の下に落ちる",
+    render: () => (
+      <Split kicker="対 象 品 目" title="買い取れる物" first>
+        <ItemList items={SAMPLE_CAN} />
+        <ItemList title="お受けできない物" items={SAMPLE_CANNOT} deny />
+      </Split>
+    ),
+  },
+
   photo: {
     title: "Photo（画像処理）",
-    note: "暗くするのは背景が散らかっている写真だけ。PC系はそのまま",
+    note: "plain / muted / dark の3値。dark はオーバーレイと必ずセット",
     render: () => (
       <>
-        <Split kicker="画 像" title="暗くする" note="屋外・作業風景。青空や白線を落とす。" first>
-          <Photo image={images.vanExterior01} sizes={SIZES_CONTENT} caption="van-exterior-01.jpg ／ treatment: dark" />
+        <Split kicker="画 像" title="plain" note="何もしない。背景が整理されている写真。" first>
+          <Photo image={images.pcDellSsd} sizes={SIZES_CONTENT} caption="pc-dell-ssd.jpg ／ plain" />
         </Split>
-        <Split kicker="画 像" title="そのまま" note="背景が整理されている。暗くすると情報が潰れる。">
-          <Photo image={images.pcDellSsd} sizes={SIZES_CONTENT} caption="pc-dell-ssd.jpg ／ treatment: plain" />
+        <Split kicker="画 像" title="muted" note="単体で見せる写真。青空・白線の主張だけ落とす。">
+          <Photo
+            image={images.vanExterior01}
+            sizes={SIZES_CONTENT}
+            caption="van-exterior-01.jpg ／ muted（saturate .72 / contrast 1.06 / brightness .94）"
+          />
         </Split>
-        <Split kicker="画 像" title="ヒーローに敷く場合" note="文字を読ませるためのグラデーションを重ねる。">
-          <Photo image={images.sagyouLoading01} sizes={SIZES_CONTENT} overlay caption="sagyou-loading-01.jpg ／ dark + overlay" />
+        <Split kicker="画 像" title="dark" note="上に文字が乗る場所でだけ。オーバーレイは外せない。">
+          <Photo
+            image={images.sagyouLoading01}
+            sizes={SIZES_CONTENT}
+            caption="sagyou-loading-01.jpg ／ dark（下端をクロップ済み）"
+          />
         </Split>
       </>
     ),
   },
 };
+
+/** ItemList の見本。note なしの行が過半数であることを確認するための並び */
+const SAMPLE_CAN = [
+  { name: "デジタルカメラ・レンズ", note: "ジャンク・カビ・曇り・動作未確認も" },
+  { name: "パソコン・ノートパソコン", note: "起動しない物も" },
+  { name: "電動工具・農機具" },
+  { name: "時計", note: "電池切れ・止まっている物も" },
+  { name: "アウトドア用品・楽器" },
+];
+
+const SAMPLE_CANNOT = [
+  { name: "廃棄物の有料回収", note: "一般廃棄物収集運搬業の許可がないため" },
+  { name: "ソファ、カラーボックスなど、中古で値のつかない家具" },
+  { name: "リサイクル料が必要な家電4品目（エアコン・テレビ・冷蔵庫・洗濯機）の処分" },
+  { name: "危険物、生き物" },
+];
 
 export const PREVIEW_KEYS = Object.keys(PREVIEWS);

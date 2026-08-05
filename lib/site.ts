@@ -51,8 +51,10 @@ export const FOOTER_SERVICES = [
   { label: "お見積りシミュレーター", href: "/simulator" },
 ] as const;
 
+// サービス列と行数を揃えてある（5行）。減らすときは両方見ること
 export const FOOTER_COMPANY = [
   { label: "会社概要", href: "/company" },
+  { label: "よくある質問", href: "/#faq" },
   { label: "お役立ち情報", href: "/blog" },
   { label: "特定商取引法に基づく表記", href: "/tokushoho" },
   { label: "プライバシーポリシー", href: "/privacy" },
