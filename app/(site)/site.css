@@ -72,7 +72,13 @@ body.rv {
    line-break: strict は禁則（行頭の「、」「。」「ー」など）。 */
 .rv p,
 .rv .sub,
-.rv .lead {
+.rv .lead,
+/* 見出しにも要る。284px の見出し列で「積める寸法を公開していま／す」、
+   390px のヒーローで「今日決めた引越しにも、行けま／す。」と、
+   1文字だけ次行に落ちていた */
+.rv h1,
+.rv h2,
+.rv h3 {
   word-break: auto-phrase;
   line-break: strict;
 }
