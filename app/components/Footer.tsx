@@ -107,6 +107,11 @@ export default function Footer() {
             貨物軽自動車運送事業 届出済<br />
             富山県SDGs宣言企業
           </p>
+
+          {/* 一般廃棄物収集運搬業の許可がないことの明示。文言は変更しないこと */}
+          <p className="text-[10px] leading-loose" style={{ color: "rgba(255,255,255,0.45)" }}>
+            当社は一般廃棄物収集運搬業の許可を受けていないため、廃棄物の有料回収は行っておりません。
+          </p>
         </div>
       </div>
 

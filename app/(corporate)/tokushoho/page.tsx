@@ -57,7 +57,7 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
   },
   {
     label: "事業内容",
-    value: "単身引越し／軽貨物運送・配送代行／出張買取／不用品の運搬・処分",
+    value: "単身引越し／軽貨物運送・配送代行／出張買取／不用品の買取",
   },
   {
     label: "許認可",
@@ -77,13 +77,14 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "サービス料金",
     value: (
       <>
-        <span className="block">・らくらく2時間パック　15,000円</span>
-        <span className="block">・単身引越しパック（3時間）　25,000円</span>
-        <span className="block">・単身引越しパック 大盛（4時間・2往復まで）　35,000円</span>
-        <span className="block">・延長　1時間 6,000円</span>
-        <span className="block">・家具・家電1点配送　8,000円〜</span>
-        <span className="block">・不用品処分（軽トラ積み放題）　15,000円</span>
-        <span className="block">・法人スポット便　8,000円〜／時間チャーター 1時間 6,000円</span>
+        <span className="block">・単身引越し　20,000円〜（富山市内・ワンルーム〜1K・平日）</span>
+        <span className="block">・家具・家電の運搬　12,000円〜（富山市内・1〜3点・平日）</span>
+        <span className="block">・出張買取　査定無料</span>
+        <span className="block">・県外への引越し　30,000円〜（片道距離による。東京・横浜は150,000円〜）</span>
+        <span className="block">・法人スポット便　8,000円〜（富山県内・1配送）</span>
+        <span className="block">
+          　時間チャーター　1時間 8,000円（2時間〜／4時間を超える場合は1時間 7,000円）
+        </span>
         <span className="block text-xs mt-2" style={{ color: "var(--color-muted)" }}>
           いずれも税込。毛布・養生材・運送保険・2階までの階段作業を含みます。
           作業前にお見積り金額を確定させ、当日の追加請求は行いません。
@@ -96,8 +97,6 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     value: (
       <>
         ・県外への輸送にかかる高速道路料金・燃料費
-        <br />
-        ・リサイクル料金、処分場の受入費用（実費）
         <br />
         ・有料駐車場を利用する場合の駐車料金
         <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
@@ -136,8 +135,17 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
   },
   {
     label: "お受けできない物品",
-    value:
-      "危険物、引火性のある液体、産業廃棄物、生き物、現金・有価証券・貴重品、ピアノ・金庫などの特殊重量物、軽バンの最大積載量（350kg）を超える物量。お見積りの段階でお伝えします。",
+    value: (
+      <>
+        危険物、引火性のある液体、産業廃棄物、生き物、現金・有価証券・貴重品、ピアノ・金庫などの特殊重量物、軽バンの最大積載量（350kg）を超える物量。お見積りの段階でお伝えします。
+        <span className="block mt-2">
+          ・リサイクル料が必要な家電4品目（エアコン・テレビ・冷蔵庫・洗濯機）の処分
+        </span>
+        <span className="block">
+          ・廃棄物の収集・運搬・処分（一般廃棄物収集運搬業の許可がないため）
+        </span>
+      </>
+    ),
   },
   {
     label: "買取について",

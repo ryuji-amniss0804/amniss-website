@@ -62,7 +62,7 @@ export default function BlogIndex() {
             AmNiss 公式ブログ
           </h1>
           <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-            富山のお客様へ届ける、引越し・お片付け・不用品の処分に関する役立つ情報をお届けします。
+            富山のお客様へ届ける、引越し・お片付け・不用品の買取に関する役立つ情報をお届けします。
           </p>
           <div className="w-10 h-0.5 mt-6" style={{ backgroundColor: "var(--color-primary)" }} />
         </div>
@@ -86,7 +86,7 @@ export default function BlogIndex() {
             >
               <p className="text-sm leading-loose mb-8" style={{ color: "var(--color-muted)" }}>
                 現在、公開中の記事はありません。<br />
-                引越しや不用品の処分でお困りのことがあれば、記事をお待ちいただかなくても
+                引越しや不用品の買取でお困りのことがあれば、記事をお待ちいただかなくても
                 LINEで直接ご相談いただけます。写真を送っていただくだけで見積もりが可能です。
               </p>
               <a

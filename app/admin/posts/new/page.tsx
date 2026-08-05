@@ -21,8 +21,8 @@ const CATEGORY_OPTIONS = [
     accent: "bg-violet-50 text-violet-600",
   },
   {
-    label: "不用品回収・お片付け",
-    category: "不用品回収・お片付け",
+    label: "不用品の買取・お片付け",
+    category: "不用品の買取・お片付け",
     categoryBg: "bg-amber-50 text-amber-800 border-amber-200/50",
     accent: "bg-amber-50 text-amber-700",
   },

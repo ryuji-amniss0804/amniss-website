@@ -151,7 +151,7 @@ export default async function BlogPostPage({
             className="text-sm font-medium mb-8 leading-relaxed"
             style={{ color: "var(--color-muted)" }}
           >
-            引越し・買取・不用品回収など、ご不明な点はLINEで気軽にご相談ください。
+            引越し・運送・不用品の買取など、ご不明な点はLINEで気軽にご相談ください。
           </p>
           <a
             href={LINE_URL}

@@ -257,9 +257,9 @@ export default function TopPage() {
             <h3 className="text-lg font-black mb-6">料金目安</h3>
             <div style={{ borderTop: "1px solid var(--color-border)" }}>
               {[
-                { label: "市内近距離（〜10km）", price: "15,000円〜" },
-                { label: "市内中距離（10〜30km）", price: "20,000円〜" },
-                { label: "県内遠距離（30km〜）", price: "25,000円〜" },
+                { label: "富山市内（〜15km）", price: "20,000円〜" },
+                { label: "市外・近距離（〜30km）", price: "23,000円〜" },
+                { label: "市外・中距離（〜50km）", price: "26,000円〜" },
                 { label: "不用品買取セット割引", price: "買取額を引越し代から差引" },
               ].map((row) => (
                 <div
@@ -272,7 +272,9 @@ export default function TopPage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs mt-4" style={{ color: "var(--color-muted)" }}>
+            <p className="text-xs mt-4 leading-relaxed" style={{ color: "var(--color-muted)" }}>
+              ※ ワンルーム〜1K・作業員1名・平日の目安です。土日祝は1.2倍、当日は1.5倍になります。
+              <br />
               ※ 料金は目安です。荷物量・距離・作業内容により変動します。正確な金額は現地見積もりにてご確認ください。
             </p>
           </div>
@@ -444,26 +446,52 @@ export default function TopPage() {
             </h2>
             <div className="w-10 h-0.5" style={{ backgroundColor: "var(--color-primary)" }} />
           </div>
-          <p {...anim(iihinInView, 80)} className="text-sm sm:text-base leading-relaxed mb-8" style={{ color: "var(--color-muted)" }}>
-            大切な方の遺品を丁寧に仕分け・買取・処分します。
-            現在サービス準備中です。お問い合わせはLINEよりお気軽にどうぞ。
+          <p {...anim(iihinInView, 80)} className="text-sm sm:text-base leading-relaxed mb-10" style={{ color: "var(--color-muted)" }}>
+            大切な方の遺品を、古物商許可を持つ代表が丁寧に仕分けいたします。
+            値がつく物はその場で買取し、作業代と相殺できます。
           </p>
+
+          <div {...anim(iihinInView, 120)} className="mb-12">
+            <h3 className="text-lg font-black mb-6">お受けできること</h3>
+            <div style={{ borderTop: "1px solid var(--color-border)" }}>
+              {[
+                { item: "遺品の仕分け・整理", note: "残す物と手放す物を一緒に分けます" },
+                { item: "値がつく物のその場買取", note: "買取額は作業代から差し引けます" },
+                { item: "形見分けの品の配送", note: "ご親族のもとへ。県外も対応" },
+              ].map((row) => (
+                <div
+                  key={row.item}
+                  className="flex items-center justify-between gap-4 py-4"
+                  style={{ borderBottom: "1px solid var(--color-border)" }}
+                >
+                  <span className="text-sm font-bold" style={{ color: "var(--color-text)" }}>{row.item}</span>
+                  <span className="text-xs text-right" style={{ color: "var(--color-muted)" }}>{row.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div
-            {...anim(iihinInView, 120)}
-            className="py-10 px-8 text-center"
-            style={{ border: "1px dashed var(--color-border)" }}
+            {...anim(iihinInView, 160)}
+            className="py-6 px-6 mb-12"
+            style={{ border: "1px solid var(--color-border)" }}
           >
-            <p className="text-sm tracking-widest uppercase mb-4" style={{ color: "var(--color-muted)" }}>
-              Coming Soon
+            <p className="text-sm font-black mb-2">廃棄物の処分は行っておりません</p>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted)" }}>
+              一般廃棄物収集運搬業の許可がないため、廃棄物の回収・運搬・処分はお受けできません。
+              処分が必要な物が出た場合は、許可のある業者をご案内します。
             </p>
+          </div>
+
+          <div {...anim(iihinInView, 200)} className="text-center">
             <a
               href={LINE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-bold px-6 py-3 transition-opacity hover:opacity-70"
-              style={{ border: "1px solid var(--color-primary)", color: "var(--color-primary)" }}
+              className="inline-block text-white font-black text-base px-10 py-4 transition-opacity hover:opacity-80"
+              style={{ backgroundColor: "var(--color-primary)" }}
             >
-              お問い合わせはこちら
+              LINEで遺品整理を相談する
             </a>
           </div>
         </div>
