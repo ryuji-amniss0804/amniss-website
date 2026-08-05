@@ -366,30 +366,70 @@ export default function TopPage() {
             </div>
           </div>
 
-          <div {...anim(kaitorInView, 120)} className="mb-20">
-            <h3 className="text-lg font-black mb-6">買取できるもの</h3>
+          <div {...anim(kaitorInView, 120)} className="mb-16">
+            <h3 className="text-lg font-black mb-6">買い取れる物</h3>
             <div style={{ borderTop: "1px solid var(--color-border)" }}>
               {[
-                { item: "デジタルカメラ・レンズ", note: "ジャンク・動作未確認でもOK" },
-                { item: "PC・ノートパソコン", note: "壊れていても可" },
-                { item: "家電・AV機器", note: "動作品・不動品問わず" },
-                { item: "ゲーム機・ソフト", note: "旧型・破損品も相談可" },
-                { item: "ベビー用品・日用品", note: "ベビーカー・チャイルドシート・生活雑貨など" },
-                { item: "その他精密機器", note: "他店断り品歓迎" },
+                { item: "デジタルカメラ・レンズ", note: "ジャンク・カビ・曇り・動作未確認も" },
+                { item: "パソコン・ノートパソコン", note: "起動しない物も" },
+                { item: "その他の精密機器", note: "他店で断られた物こそ見せてください" },
+                { item: "家電・AV機器", note: "不動品も査定します" },
+                { item: "ゲーム機・ゲームソフト", note: "旧型・箱なしも" },
+                { item: "ベビー用品", note: "ベビーカー、チャイルドシートなど" },
+                { item: "電動工具・農機具", note: "" },
+                { item: "時計", note: "電池切れ・止まっている物も" },
+                { item: "アウトドア用品・楽器", note: "" },
+                { item: "ブランド家具・食器", note: "" },
+                { item: "未使用の生活用品ストック", note: "" },
               ].map((row) => (
                 <div
                   key={row.item}
-                  className="flex items-center justify-between py-4"
+                  className="flex items-center justify-between gap-4 py-4"
                   style={{ borderBottom: "1px solid var(--color-border)" }}
                 >
                   <span className="text-sm font-bold" style={{ color: "var(--color-text)" }}>{row.item}</span>
-                  <span className="text-xs" style={{ color: "var(--color-muted)" }}>{row.note}</span>
+                  <span className="text-xs text-right" style={{ color: "var(--color-muted)" }}>{row.note}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div {...anim(kaitorInView, 160)} className="mb-20">
+          <div {...anim(kaitorInView, 150)} className="mb-10">
+            <h3 className="text-lg font-black mb-6">お受けできない物</h3>
+            <div style={{ borderTop: "1px solid var(--color-border)" }}>
+              {[
+                { item: "廃棄物の有料回収", note: "一般廃棄物収集運搬業の許可がないため" },
+                { item: "マットレス、布団、使用済みの寝具", note: "中古の需要がなく、衛生面でお預かりできません" },
+                { item: "ソファ、カラーボックスなど、中古で値のつかない家具", note: "" },
+                { item: "リサイクル料が必要な家電4品目（エアコン・テレビ・冷蔵庫・洗濯機）の処分", note: "" },
+                { item: "危険物、生き物", note: "" },
+                { item: "他人名義の物、盗品の疑いがある物", note: "" },
+                { item: "本人確認書類をご提示いただけない場合", note: "" },
+              ].map((row) => (
+                <div
+                  key={row.item}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4 py-4"
+                  style={{ borderBottom: "1px solid var(--color-border)" }}
+                >
+                  <span className="text-sm font-bold" style={{ color: "var(--color-text)" }}>{row.item}</span>
+                  <span className="text-xs shrink-0 sm:text-right" style={{ color: "var(--color-muted)" }}>{row.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            {...anim(kaitorInView, 180)}
+            className="py-6 px-6 mb-20"
+            style={{ border: "1px solid var(--color-border)" }}
+          >
+            <p className="text-sm leading-relaxed" style={{ color: "var(--color-text)" }}>
+              壊れている物も査定します。ただし査定額が0円になった物をお引き取りすることはできません。
+              一般廃棄物収集運搬業の許可がないためです。
+            </p>
+          </div>
+
+          <div {...anim(kaitorInView, 210)} className="mb-20">
             <h3 className="text-lg font-black mb-6">買取の流れ</h3>
             <div style={{ borderTop: "1px solid var(--color-border)" }}>
               {[
@@ -417,7 +457,7 @@ export default function TopPage() {
             </p>
           </div>
 
-          <div {...anim(kaitorInView, 200)} className="text-center">
+          <div {...anim(kaitorInView, 250)} className="text-center">
             <a
               href={LINE_URL}
               target="_blank"
