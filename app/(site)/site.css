@@ -1,0 +1,525 @@
+/* ============================================================
+   re'vive 新デザインのデザインシステム
+   出典：D:\re'vive_toyama_marketing\design_tokens.css
+
+   【重要】このファイルはグローバルに読み込まないこと。
+   元ファイルは素の CSS で、`*{margin:0}` のリセットと `body{}` 指定を含む。
+   Tailwind Preflight と衝突するため、すべて `.rv` 配下にスコープしてある。
+   `.rv` は app/(site)/layout.tsx が <body> に付ける。
+   (site) ルートグループは Tailwind を読み込んでいないので、
+   このファイルが /blog 側に漏れることも、Preflight がここに漏れることもない。
+
+   トークンも :root ではなく .rv に載せている（グローバルを汚さないため）。
+   ============================================================ */
+
+/* ---- ルート要素（<html>）---- */
+.rv-html {
+  scroll-behavior: smooth;
+}
+
+/* ---- トークン ---- */
+.rv {
+  --ink: #16202b;   /* 本文・見出し */
+  --ink-3: #5c6672; /* 補助 */
+  --ink-4: #8d949c; /* 弱い */
+  --paper: #ffffff;
+  --paper-2: #f7f5f2; /* 温かいオフホワイト */
+  --rule: #ddd8d1;    /* 罫線 */
+  --rule-2: #ebe7e1;
+  --accent: #a8331c;  /* 使うのは1ページに1〜2箇所だけ */
+  --w: 1060px;
+}
+
+/* ---- リセット（.rv 配下だけ）---- */
+.rv,
+.rv *,
+.rv *::before,
+.rv *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.rv {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 15px;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* モバイル固定バーの高さぶん。バーが出る幅でだけ空ける
+   （元ファイルは常時 60px 空けていたが、PCでは無駄な余白になるため） */
+@media (max-width: 960px) {
+  body.rv { padding-bottom: 60px; }
+}
+
+/* height:auto は next/image 用。width だけを CSS で変えると
+   縦横比が崩れ、Next が「width or height modified, but not the other」と警告する。
+   .hero や .svc のように両方を明示している箇所は、そちらの指定が勝つ。 */
+.rv img { max-width: 100%; height: auto; display: block; }
+.rv a { color: inherit; text-decoration: none; }
+
+.rv .w { max-width: var(--w); margin: 0 auto; padding: 0 28px; }
+.rv .mincho { font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif; }
+
+/* ---- 見出し体系 ---- */
+.rv h1,
+.rv h2,
+.rv h3 {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.rv h2.t { font-size: 27px; line-height: 1.7; }
+.rv h3 { font-size: 18px; line-height: 1.8; }
+/* ラベルは字間を開けた日本語で書く。英語の eyebrow は使わない */
+.rv .kicker {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink-4);
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.rv .lead { color: var(--ink-3); font-size: 14.5px; margin-top: 18px; max-width: 34em; }
+
+/* ---- セクション：罫線で区切る。箱は使わない ---- */
+.rv .sec { padding: 78px 0; border-top: 1px solid var(--rule-2); }
+.rv .sec.first { border-top: none; }
+.rv .sec.tint { background: var(--paper-2); }
+
+/* 左に見出し、右に本文の非対称2カラム */
+.rv .split { display: grid; grid-template-columns: 284px 1fr; gap: 56px; align-items: start; }
+.rv .split .hd { position: sticky; top: 96px; }
+.rv .split .hd h2.t { font-size: 22.5px; line-height: 1.8; }
+@media (max-width: 840px) {
+  .rv .split { grid-template-columns: 1fr; gap: 26px; }
+  .rv .split .hd { position: static; }
+  .rv .split .hd h2.t { font-size: 25px; }
+}
+
+/* ---- リンク ---- */
+.rv .tl {
+  display: inline-block;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  font-size: 14px;
+}
+.rv .tl:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---- ボタン（最小限）---- */
+.rv .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 14.5px;
+  padding: 15px 30px;
+  border: 1px solid var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: 0.15s;
+  background: none;
+  color: var(--ink);
+}
+.rv .btn:hover { background: var(--ink); color: #fff; }
+.rv .btn-fill { background: var(--ink); color: #fff; }
+.rv .btn-fill:hover { background: var(--accent); border-color: var(--accent); }
+.rv .btn-line { border-color: #fff; color: #fff; }
+.rv .btn-line:hover { background: #fff; color: var(--ink); }
+
+/* ---- ヘッダー ---- */
+.rv header.site {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .hd-in { display: flex; align-items: center; height: 74px; gap: 38px; }
+.rv .logo {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 19px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+.rv .logo span {
+  display: block;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--ink-4);
+  margin-top: 3px;
+  font-weight: 600;
+}
+.rv nav.main { display: flex; gap: 26px; font-size: 13.5px; letter-spacing: 0.04em; }
+.rv nav.main a { padding: 4px 0; border-bottom: 1px solid transparent; }
+.rv nav.main a:hover,
+.rv nav.main a.cur { border-color: var(--ink); }
+.rv .hd-r { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+.rv .hd-tel { text-align: right; line-height: 1.3; }
+.rv .hd-tel b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.rv .hd-tel span { display: block; font-size: 10px; color: var(--ink-4); letter-spacing: 0.06em; }
+@media (max-width: 960px) {
+  .rv nav.main,
+  .rv .hd-tel { display: none; }
+}
+
+/* ---- ヒーロー：帯ではなく紙面 ---- */
+.rv .hero { border-bottom: 1px solid var(--rule-2); }
+.rv .hero .in { padding: 78px 0 0; }
+.rv .hero h1 { font-size: 40px; line-height: 1.62; letter-spacing: 0.01em; }
+.rv .hero .sub { margin-top: 26px; color: var(--ink-3); font-size: 15px; max-width: 33em; line-height: 2.1; }
+.rv .hero .acts { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+.rv .hero .fig { margin-top: 56px; position: relative; }
+.rv .hero .fig img { width: 100%; height: 390px; object-fit: cover; }
+.rv .hero .cap { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
+@media (max-width: 700px) {
+  .rv .hero h1 { font-size: 26px; line-height: 1.75; }
+  .rv .hero .in { padding: 48px 0 0; }
+  .rv .hero .fig img { height: 230px; }
+}
+
+/* ---- 画像の処理 ------------------------------------------------
+   暗くするのは「スタイル」ではなく「散らかった背景を消す道具」。
+   一律には当てない。lib/images.ts の treatment に従うこと。
+   パラメータ：彩度 0.16 ／ コントラスト 1.16 ／ 明度 0.46 ／
+   rgb(16,23,32) を 34% でブレンド。
+   ---------------------------------------------------------------- */
+.rv .fig { position: relative; }
+.rv .fig-dark img { filter: saturate(0.16) contrast(1.16) brightness(0.46); }
+.rv .fig-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(16, 23, 32);
+  opacity: 0.34;
+  pointer-events: none;
+}
+/* ヒーローに敷く場合の、文字を読ませるためのオーバーレイ */
+.rv .fig-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(9, 14, 20, 0.76) 0%,
+    rgba(9, 14, 20, 0.46) 55%,
+    rgba(9, 14, 20, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* ---- 許認可の帯：文字だけ ---- */
+.rv .lic {
+  border-top: 1px solid var(--rule-2);
+  border-bottom: 1px solid var(--rule-2);
+  background: var(--paper-2);
+}
+.rv .lic .w {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 40px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.03em;
+}
+.rv .lic b { color: var(--ink); font-weight: 600; }
+
+/* ---- 事業一覧：カードではなく記事の並び ---- */
+.rv .svc { border-top: 1px solid var(--rule); }
+.rv .svc .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: stretch;
+}
+.rv .svc .row .ph { overflow: hidden; background: var(--paper-2); position: relative; }
+.rv .svc .row .ph img { width: 100%; height: 100%; min-height: 280px; object-fit: cover; }
+.rv .svc .row .bd { padding: 44px 0 44px 52px; display: flex; flex-direction: column; justify-content: center; }
+.rv .svc .row:nth-child(even) .ph { order: 2; }
+.rv .svc .row:nth-child(even) .bd { padding: 44px 52px 44px 0; }
+.rv .svc .num { font-size: 11px; letter-spacing: 0.2em; color: var(--ink-4); font-weight: 600; }
+.rv .svc h3 { margin-top: 12px; font-size: 23px; }
+.rv .svc p { color: var(--ink-3); font-size: 14px; margin-top: 14px; max-width: 30em; }
+.rv .svc .pz { margin-top: 22px; font-size: 13px; color: var(--ink-3); letter-spacing: 0.03em; }
+.rv .svc .pz b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  margin-right: 2px;
+}
+.rv .svc .go { margin-top: 20px; }
+@media (max-width: 840px) {
+  .rv .svc .row { grid-template-columns: 1fr; }
+  .rv .svc .row .ph { order: 0 !important; }
+  .rv .svc .row .bd,
+  .rv .svc .row:nth-child(even) .bd { padding: 32px 0 40px; }
+  .rv .svc .row .ph img { min-height: 220px; }
+}
+
+/* ---- 理由：箱をやめて、ぶら下げ番号のリスト ---- */
+.rv .reasons { counter-reset: r; }
+.rv .reasons .it {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 0 24px;
+  padding: 34px 0;
+  border-top: 1px solid var(--rule-2);
+}
+.rv .reasons .it:first-child { border-top: none; padding-top: 0; }
+.rv .reasons .n {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 15px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+  padding-top: 4px;
+}
+.rv .reasons p { color: var(--ink-3); font-size: 14px; margin-top: 12px; max-width: 38em; }
+.rv .reasons .ev {
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  border-left: 2px solid var(--ink);
+  padding-left: 14px;
+  line-height: 1.85;
+}
+@media (max-width: 560px) {
+  .rv .reasons .it { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ---- 料金：仕様書のような罫線表 ---- */
+.rv table.price { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.rv table.price th {
+  text-align: left;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv table.price th.r { text-align: right; }
+.rv table.price td { padding: 22px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+.rv table.price td.r {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.rv table.price .nm { font-size: 15.5px; }
+.rv table.price .ds { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.8; }
+.rv .pnote { font-size: 12.5px; color: var(--ink-3); margin-top: 22px; line-height: 1.9; }
+
+/* スマホ：横並びをやめて、名称→説明→金額の縦積みにする */
+@media (max-width: 600px) {
+  .rv table.price,
+  .rv table.price thead,
+  .rv table.price tbody,
+  .rv table.price tr,
+  .rv table.price td,
+  .rv table.price th { display: block; width: 100%; }
+  .rv table.price thead { display: none; }
+  .rv table.price tbody tr { border-bottom: 1px solid var(--rule-2); padding: 20px 0; }
+  .rv table.price tbody tr:first-child { border-top: 1px solid var(--ink); }
+  .rv table.price td { padding: 0; border: none; }
+  .rv table.price td.r { text-align: left; font-size: 23px; margin-top: 12px; line-height: 1.3; }
+  .rv table.price .nm { font-size: 16px; font-weight: 600; }
+  .rv table.price .ds { margin-top: 7px; }
+}
+
+/* ---- 仕様（積載など）---- */
+.rv .spec { border: 1px solid var(--ink); padding: 26px 30px; margin-top: 34px; }
+.rv .spec .k { font-size: 11.5px; letter-spacing: 0.14em; color: var(--ink-4); font-weight: 600; }
+.rv .spec .v {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 22px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.rv .spec .d { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.95; }
+@media (max-width: 640px) {
+  .rv .spec { padding: 20px; }
+  .rv .spec .v { font-size: 16px; }
+}
+
+/* ---- できる／できない：箱なし・縦罫で二分 ---- */
+.rv .cando { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.rv .cando > div { padding: 0 40px; }
+.rv .cando > div:first-child { padding-left: 0; border-right: 1px solid var(--rule-2); }
+.rv .cando > div:last-child { padding-right: 0; }
+.rv .cando h3 {
+  font-size: 15px;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .cando ul { list-style: none; margin-top: 18px; }
+.rv .cando li {
+  font-size: 14px;
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 12px;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.rv .cando li::before { position: absolute; left: 0; top: 0; font-size: 12px; color: var(--ink-4); }
+.rv .cando .y li::before { content: "—"; }
+.rv .cando .n li::before { content: "×"; color: var(--accent); }
+@media (max-width: 760px) {
+  .rv .cando { grid-template-columns: 1fr; }
+  .rv .cando > div { padding: 0; }
+  .rv .cando > div:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--rule-2);
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+/* ---- 流れ：番号つきの縦リスト ---- */
+.rv .flow { border-top: 1px solid var(--rule-2); }
+.rv .flow .s {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .flow .n {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 15px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+}
+.rv .flow h3 { font-size: 16px; }
+.rv .flow p { font-size: 13.5px; color: var(--ink-3); margin-top: 6px; }
+@media (max-width: 560px) {
+  .rv .flow .s { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ---- 声 ---- */
+.rv .voice .v { padding: 28px 0; border-bottom: 1px solid var(--rule-2); }
+.rv .voice .v:first-child { border-top: 1px solid var(--rule); }
+.rv .voice .st { font-size: 12px; letter-spacing: 0.3em; color: var(--ink-3); }
+.rv .voice p { font-size: 14.5px; margin-top: 10px; line-height: 2; }
+.rv .voice .who { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
+.rv .voice .vnote p { font-size: 12.5px; color: var(--ink-4); margin-top: 0; line-height: 2.1; }
+
+/* ---- FAQ ---- */
+.rv .faq { border-top: 1px solid var(--rule); }
+.rv .faq details { border-bottom: 1px solid var(--rule-2); }
+.rv .faq summary {
+  padding: 22px 40px 22px 30px;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  list-style: none;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+}
+.rv .faq summary::-webkit-details-marker { display: none; }
+.rv .faq summary::before {
+  content: "Q";
+  position: absolute;
+  left: 0;
+  color: var(--ink-4);
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  top: 24px;
+}
+.rv .faq summary::after { content: "＋"; position: absolute; right: 2px; top: 23px; font-size: 13px; color: var(--ink-4); }
+.rv .faq details[open] summary::after { content: "−"; }
+.rv .faq .a { padding: 0 0 24px 30px; font-size: 14px; color: var(--ink-3); line-height: 2; }
+
+/* ---- CTA：濃紺の帯・装飾なし ---- */
+.rv .cta { background: var(--ink); color: #fff; }
+.rv .cta .w {
+  padding-top: 66px;
+  padding-bottom: 66px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: end;
+}
+.rv .cta h2 { font-size: 25px; line-height: 1.75; color: #fff; }
+.rv .cta p { font-size: 13.5px; color: #a7b0ba; margin-top: 16px; max-width: 30em; line-height: 2; }
+.rv .cta .tel {
+  display: block;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 36px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.rv .cta .hrs { font-size: 12px; color: #a7b0ba; margin-top: 8px; letter-spacing: 0.03em; }
+.rv .cta .acts { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+@media (max-width: 820px) {
+  .rv .cta .w { grid-template-columns: 1fr; gap: 32px; align-items: start; }
+  .rv .cta .tel { font-size: 29px; }
+}
+
+/* ---- フッター ---- */
+.rv footer.site { border-top: 1px solid var(--rule-2); padding: 56px 0 34px; font-size: 13px; color: var(--ink-3); }
+.rv .fg { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 44px; }
+@media (max-width: 800px) {
+  .rv .fg { grid-template-columns: 1fr; gap: 32px; }
+}
+.rv footer.site .lg { font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif; font-size: 17px; color: var(--ink); }
+.rv footer.site h4 { font-size: 10.5px; letter-spacing: 0.18em; color: var(--ink-4); font-weight: 600; margin-bottom: 14px; }
+.rv footer.site ul { list-style: none; }
+.rv footer.site li { margin-bottom: 9px; font-size: 13px; }
+.rv footer.site li a:hover { border-bottom: 1px solid var(--ink); }
+.rv .fnote {
+  border-top: 1px solid var(--rule-2);
+  margin-top: 38px;
+  padding-top: 20px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  line-height: 2;
+}
+
+/* ---- モバイル固定バー ---- */
+.rv .mbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 850;
+  background: #fff;
+  border-top: 1px solid var(--rule);
+  display: none;
+  padding: 8px 12px;
+  gap: 8px;
+}
+.rv .mbar a {
+  flex: 1;
+  text-align: center;
+  padding: 13px 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--ink);
+}
+.rv .mbar a.p { background: var(--ink); color: #fff; }
+@media (max-width: 960px) {
+  .rv .mbar { display: flex; }
+}

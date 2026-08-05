@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 開発中の丸いインジケーターを消す。デザイン確認のスクリーンショットに写り込むため。
+  // ビルド／実行時のエラー表示はこれを切っても出る。
+  devIndicators: false,
+
   async redirects() {
     return [
-      // ヘッダーはもともと /#moving /#kaitori のアンカーを使っている。
-      // 実体のないページを残す意味がないので、アンカーへ寄せる。
-      { source: "/moving", destination: "/#moving", permanent: true },
-      { source: "/kaitori", destination: "/#kaitori", permanent: true },
+      // ※ /moving /kaitori の 301 はここから外した（2026-08-05、段階2）。
+      //    実ページとして作り直すため。実体は段階3で入る。
 
       // 旧サイトの遺物。どこからもリンクされていなかったが公開はされていたため、
       // 404にせず 301 でトップへ逃がす（インデックス済みの分の受け皿）。
