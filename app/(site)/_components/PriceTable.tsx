@@ -32,8 +32,10 @@ export default function PriceTable({ head = ["サービス", "料金の目安"],
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.name}>
+          {/* 名称は一意とは限らない（「1K一式・富山市内」が日程違いで3行並ぶなど）ので
+              key に使わない */}
+          {rows.map((row, i) => (
+            <tr key={`${row.name}-${i}`}>
               <td>
                 <div className="nm">{row.name}</div>
                 {row.desc ? <div className="ds">{row.desc}</div> : null}

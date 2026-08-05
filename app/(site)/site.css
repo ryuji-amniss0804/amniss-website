@@ -66,6 +66,17 @@ body.rv {
 .rv .w { max-width: var(--w); margin: 0 auto; padding: 0 28px; }
 .rv .mincho { font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif; }
 
+/* 本文は文節で折る。`査定だ／けで終わっても` のように単語の途中で切れるのを止める。
+   max-width を詰めても文章を1つ変えるたびに同じ問題が出るので、幅ではなく折り方で直す。
+   auto-phrase に対応していないブラウザは、これまでどおりの折り返しになるだけ。
+   line-break: strict は禁則（行頭の「、」「。」「ー」など）。 */
+.rv p,
+.rv .sub,
+.rv .lead {
+  word-break: auto-phrase;
+  line-break: strict;
+}
+
 /* ---- 見出し体系 ---- */
 .rv h1,
 .rv h2,
@@ -177,7 +188,10 @@ body.rv {
 
 /* ---- ヒーロー：帯ではなく紙面 ---- */
 .rv .hero { border-bottom: 1px solid var(--rule-2); }
-.rv .hero .in { padding: 78px 0 0; }
+/* padding のショートハンドで書くと、同じ要素（class="w in"）に付いている
+   .rv .w の左右 28px まで 0 に上書きされる（.rv .hero .in のほうが詳細度が高い）。
+   ヒーローだけ本文が画面端に接していたのはこれ。上だけを指定すること */
+.rv .hero .in { padding-top: 78px; }
 .rv .hero h1 { font-size: 40px; line-height: 1.62; letter-spacing: 0.01em; }
 /* 下層ページ。トップより一段小さくする */
 .rv .hero.md h1 { font-size: 33px; line-height: 1.68; }
@@ -190,8 +204,14 @@ body.rv {
 @media (max-width: 700px) {
   .rv .hero h1,
   .rv .hero.md h1 { font-size: 26px; line-height: 1.75; }
-  .rv .hero .in { padding: 48px 0 0; }
+  .rv .hero .in { padding-top: 48px; }
   .rv .hero .fig img { height: 230px; }
+}
+/* ボタンは幅が中身まかせなので、2つ並べると別々の幅で左に寄る。
+   横に並べられない幅では全幅にして縦に積む */
+@media (max-width: 600px) {
+  .rv .hero .acts { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rv .hero .acts .btn { width: 100%; }
 }
 
 /* ---- 画像の処理 ------------------------------------------------
@@ -344,6 +364,10 @@ body.rv {
 .rv table.price .nm { font-size: 15.5px; }
 .rv table.price .ds { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.8; }
 .rv .pnote { font-size: 12.5px; color: var(--ink-3); margin-top: 22px; line-height: 1.9; }
+/* 表を続けて置くとき（/moving の 荷物の量・距離・建物の条件・日程）。
+   前の表の最終行の罫線と次の表の見出しがくっつくのを離す。
+   見出しは各表の thead に置いてあるので、表の外に見出しを足さない */
+.rv .pt { margin-top: 46px; }
 
 /* スマホ：横並びをやめて、名称→説明→金額の縦積みにする */
 @media (max-width: 600px) {
@@ -353,9 +377,13 @@ body.rv {
   .rv table.price tr,
   .rv table.price td,
   .rv table.price th { display: block; width: 100%; }
-  .rv table.price thead { display: none; }
+  /* 見出し行ごと落とすと、表が4つ続く /moving で「何の表か」が消える。
+     左の見出し（表の名前）だけ残す。金額側の見出しは、縦積みでは
+     金額ではなく行の頭に来てしまうので落とす。
+     左の見出しが border-bottom を持っているので、tbody 側の上罫線は外す */
+  .rv table.price thead th.r { display: none; }
   .rv table.price tbody tr { border-bottom: 1px solid var(--rule-2); padding: 20px 0; }
-  .rv table.price tbody tr:first-child { border-top: 1px solid var(--ink); }
+  .rv table.price tbody tr:first-child { padding-top: 20px; }
   .rv table.price td { padding: 0; border: none; }
   .rv table.price td.r { text-align: left; font-size: 23px; margin-top: 12px; line-height: 1.3; }
   .rv table.price .nm { font-size: 16px; font-weight: 600; }
@@ -433,7 +461,11 @@ body.rv {
 .rv .items.no-title ul { border-top: 1px solid var(--ink); }
 .rv .items li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 13em);
+  /* 補足列は 280px。13em（約182px）では最長の「他店で断られた物こそ見せてください」
+     「ジャンク・カビ・曇り・動作未確認も」が3行に折り返していた。
+     品目名の右に余白が余っているのに補足だけが折り返すのは配分のミス。
+     品目名が長い行が折り返すのは構わないが、補足は折り返させない。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
   gap: 0 28px;
   align-items: baseline;
   position: relative;
