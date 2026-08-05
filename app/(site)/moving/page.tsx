@@ -11,13 +11,41 @@ import Cta from "../_components/Cta";
 import Photo from "../_components/Photo";
 import { images, SIZES_BODY } from "@/lib/images";
 import { TEL, TEL_HREF } from "@/lib/site";
+import {
+  CAP,
+  COEF,
+  DEPART,
+  DIST,
+  DISASSEMBLE_FEE,
+  LONG_HAUL,
+  MOVING_ITEMS,
+  ROUNDTRIP_MAX_KM,
+  ROUNDTRIP_WORK_RATE,
+  SCHEDULE_TABLE,
+  SLOT_FEE,
+  STAIRS_FEE,
+  TIER,
+  itemOf,
+  plainTotal,
+  yen,
+  type CoefKey,
+} from "@/lib/pricing";
 
 /**
  * 単身引越し。
  *
- * 【料金の出どころ】D:\re'vive_toyama_marketing\moving_final.md（2026/8/4 確定）。
+ * 【料金の出どころ】**lib/pricing.ts**。
+ * このページの表（荷物の量・距離・建物の条件・日程・代表品目・実際の金額）は
+ * 全部そこから生成している。**数字をこのファイルに書き足さないこと。**
+ * /simulator と同じ出どころなので、片方だけ古くなることがない。
+ * 元データは D:\re'vive_toyama_marketing\moving_final.md（2026/8/4 確定）。
  * mockup_v2.html の料金表は旧パック料金のままなので、そちらから数字を写さないこと。
  * 「らくらく2時間パック15,000円」「単身引越しパック25,000円」「大盛35,000円」は廃止済み。
+ *
+ * 【本文に数字を埋め込まないこと】
+ * `{CAP}m³を…` と書くと、React が text node の境目に `<!-- -->` を入れるため
+ * ビルド後のHTMLで文字列が分断される。文字列の属性（note / value / q など）は
+ * テンプレートリテラルで丸ごと1つにしてから渡している。
  *
  * 【変えてはいけない文言】
  *  - 富山市の戸別収集の電話番号 076-428-4040
@@ -44,100 +72,88 @@ export const metadata: Metadata = {
   },
 };
 
-/** ② 作業料。moving_final.md の「② 作業料（荷物の量 × 人員）」 */
-const VOLUME_ROWS = [
-  { name: "小口", desc: "〜0.9m³　作業員2名なら16,000円", price: "7,000円" },
-  { name: "軽バン半分", desc: "〜1.9m³　作業員2名なら20,000円", price: "11,000円" },
-  { name: "軽バン満載", desc: "〜2.8m³　作業員2名なら24,000円", price: "15,000円" },
-];
+/** 品目は id で引く。id を書き間違えたらビルドで落とす（黙って空欄にしない） */
+function item(id: string) {
+  const it = itemOf(id);
+  if (!it) throw new Error(`品目 "${id}" が lib/pricing.ts にありません`);
+  return it;
+}
 
-/** ③ 距離料。片道。高速代と燃料を含む */
+/** ② 作業料（荷物の量 × 人員）。TIER から */
+const VOLUME_ROWS = TIER.map((t) => ({
+  name: t.name,
+  desc: `〜${t.cap.toFixed(1)}m³　作業員2名なら${yen(t.work[1])}`,
+  price: yen(t.work[0]),
+}));
+
+/** ③ 距離料。片道。高速代と燃料を含む。DIST ＋ 300km超の LONG_HAUL */
 const DISTANCE_ROWS = [
-  { name: "〜15km", desc: "富山市内", price: "0円" },
-  { name: "〜30km", desc: "射水・滑川", price: "3,000円" },
-  { name: "〜50km", desc: "高岡・氷見・黒部・南砺", price: "6,000円" },
-  { name: "〜75km", desc: "金沢", price: "12,000円" },
-  { name: "〜100km", desc: "七尾・上越・飛騨高山", price: "16,000円" },
-  { name: "〜150km", desc: "長野・松本", price: "28,000円" },
-  { name: "〜200km", desc: "福井・新潟市", price: "38,000円" },
-  { name: "〜250km", desc: "名古屋・岐阜", price: "48,000円" },
-  { name: "〜300km", desc: "京都・彦根", price: "56,000円" },
-  { name: "大阪方面", desc: "1泊2日", price: "120,000円〜" },
-  { name: "東京方面", desc: "1泊2日", price: "150,000円〜" },
+  ...DIST.map((d) => ({ name: `〜${d.km}km`, desc: d.area, price: yen(d.fee) })),
+  ...LONG_HAUL.map((l) => ({ name: l.name, desc: "1泊2日", price: `${yen(l.from)}〜` })),
 ];
 
-/** ④ 条件加算 */
+/** ④ 条件加算。金額は定数から。行の説明だけがこのページの文言 */
 const CONDITION_ROWS = [
-  { name: "階段", desc: "エレベーターなし・1フロアにつき", price: "2,000円" },
-  { name: "時刻指定", desc: "◯時ちょうどのご指定", price: "2,000円" },
-  { name: "家具の分解・組み立て", desc: "ベッドフレームなど", price: "3,000円" },
+  { name: "階段", desc: "エレベーターなし・1フロアにつき", price: yen(STAIRS_FEE) },
+  { name: "時刻指定", desc: "◯時ちょうどのご指定", price: yen(SLOT_FEE) },
+  { name: "家具の分解・組み立て", desc: "ベッドフレームなど", price: yen(DISASSEMBLE_FEE) },
   { name: "有料駐車場代", desc: "コインパーキングしかない場合", price: "実費" },
 ];
 
 /** ⑤ 日程係数。複数該当は高いほうだけ */
-const SCHEDULE_ROWS = [
-  { name: "日程おまかせ", desc: "平日のうち、当社が日を選びます", price: "×0.85" },
-  { name: "平日・4日以上先", desc: "基準になる日程です", price: "×1.00" },
-  { name: "平日・3日以内", price: "×1.15" },
-  { name: "土日祝", price: "×1.20" },
-  { name: "翌日", price: "×1.30" },
-  { name: "当日", price: "×1.50" },
-];
+const SCHEDULE_ROWS = SCHEDULE_TABLE.map((s) => ({
+  name: s.name,
+  desc: s.desc,
+  price: `×${COEF[s.key].coef.toFixed(2)}`,
+}));
 
 /**
- * 代表品目の容積。全29品目は載せない（シミュレーターが受ける。段階3-3）。
- * 寸法・容積は moving_final.md の「2. 積載の判定」から。
+ * 代表品目の容積。全29品目は載せない（/simulator が受ける）。
+ * どの8品目を出すかは lib/pricing.ts の MOVING_ITEMS。寸法・容積も同じ品目定義から。
  */
-const ITEM_VOLUME_ROWS = [
-  { name: "マットレス（シングル）", desc: "97×195×20　最後に一番上へ載せます", price: "0.40m³" },
-  {
-    name: "マットレス（セミダブル）",
-    desc: "120×195×20　荷室の3分の1を使います",
-    price: "0.90m³",
-  },
-  { name: "ソファ（3人掛け）", desc: "185×88×85", price: "1.38m³" },
-  {
-    name: "冷蔵庫（2ドア・高さ142cmまで）",
-    desc: "48×60×140　400L以上の大型は積めません",
-    price: "0.40m³",
-  },
-  { name: "洗濯機（縦型）", desc: "57×60×100", price: "0.34m³" },
-  {
-    name: "自転車（26〜27インチ）",
-    desc: "190×60×105　駐輪場1台分。荷室の奥行をまるごと使います",
-    price: "1.20m³",
-  },
-  { name: "段ボール 大", desc: "50×35×35　引越し業者が配る大サイズ", price: "0.06m³" },
-  { name: "段ボール 小", desc: "33×35×32　みかん箱・スーパーの箱くらい", price: "0.04m³" },
+const ITEM_VOLUME_ROWS = MOVING_ITEMS.map((pick) => {
+  const it = item(pick.id);
+  return { name: pick.name ?? it.name, desc: it.size, price: `${it.m3.toFixed(2)}m³` };
+});
+
+/**
+ * ⑦ 実際の金額。moving_final.md の「4. 実際の金額（検算）」の8行。
+ * **金額は書かずに、条件から計算している。**検算表に手で書いた数字を置くと、
+ * 上の表を直したときにここだけ古くなる。
+ * 「1K一式」は 1.9〜2.8m³ ＝ 軽バン満載の区分。
+ */
+const EXAMPLE_CASES: {
+  name: string;
+  cond: string;
+  /** 強調する条件（日程）。desc の末尾に <b> で付く */
+  strong?: string;
+  tier: number;
+  km: number;
+  crew: 1 | 2;
+  coef: CoefKey;
+}[] = [
+  { name: "冷蔵庫1点・富山市内", cond: "作業員1名・平日", tier: 0, km: 12, crew: 1, coef: "heijitsu" },
+  { name: "冷蔵庫1点・富山市内", cond: "作業員1名・", strong: "当日", tier: 0, km: 12, crew: 1, coef: "touji" },
+  { name: "1K一式・富山市内", cond: "作業員1名・", strong: "日程おまかせ", tier: 2, km: 12, crew: 1, coef: "omakase" },
+  { name: "1K一式・富山市内", cond: "作業員1名・平日", tier: 2, km: 12, crew: 1, coef: "heijitsu" },
+  { name: "1K一式・富山市内", cond: "作業員1名・土日祝", tier: 2, km: 12, crew: 1, coef: "donichi" },
+  { name: "1K一式・高岡（40km）", cond: "作業員1名・平日", tier: 2, km: 40, crew: 1, coef: "heijitsu" },
+  { name: "1K一式・金沢（60km）", cond: "作業員1名・土日祝", tier: 2, km: 60, crew: 1, coef: "donichi" },
+  { name: "1K一式・名古屋（250km）", cond: "作業員1名・平日", tier: 2, km: 250, crew: 1, coef: "heijitsu" },
 ];
 
-/** ⑦ 実際の金額。moving_final.md の「4. 実際の金額（検算）」から */
-const EXAMPLE_ROWS = [
-  { name: "冷蔵庫1点・富山市内", desc: "作業員1名・平日", price: "12,000円" },
-  {
-    name: "冷蔵庫1点・富山市内",
-    desc: (
-      <>
-        作業員1名・<b>当日</b>
-      </>
-    ),
-    price: "18,000円",
-  },
-  {
-    name: "1K一式・富山市内",
-    desc: (
-      <>
-        作業員1名・<b>日程おまかせ</b>
-      </>
-    ),
-    price: "17,000円",
-  },
-  { name: "1K一式・富山市内", desc: "作業員1名・平日", price: "20,000円" },
-  { name: "1K一式・富山市内", desc: "作業員1名・土日祝", price: "24,000円" },
-  { name: "1K一式・高岡（40km）", desc: "作業員1名・平日", price: "26,000円" },
-  { name: "1K一式・金沢（60km）", desc: "作業員1名・土日祝", price: "38,400円" },
-  { name: "1K一式・名古屋（250km）", desc: "作業員1名・平日", price: "68,000円" },
-];
+const EXAMPLE_ROWS = EXAMPLE_CASES.map((c) => ({
+  name: c.name,
+  desc: c.strong ? (
+    <>
+      {c.cond}
+      <b>{c.strong}</b>
+    </>
+  ) : (
+    c.cond
+  ),
+  price: yen(plainTotal({ tier: TIER[c.tier], crew: c.crew, km: c.km, coefKey: c.coef })),
+}));
 
 export default function MovingPage() {
   return (
@@ -179,9 +195,13 @@ export default function MovingPage() {
           見積りは作業前に確定します。あとから増えることはありません。
         </Spec>
 
-        <Spec label="出 動 料　5,000円" value="全案件に共通してかかります。" small>
-          軽バン1台／毛布・養生材・ラップ／ラッシングベルト／運送保険（補償上限500万円）／
-          2階までの階段作業／搬入後の設置。ここまで含めた金額です。
+        {/* ラベルに金額を入れると、5,000円がページでいちばん小さい字（11.5px・灰色）に
+            なってしまう。ラベル＝短い名前／本文＝いちばん大事な事実ひとつ／補足＝説明、
+            という Spec 本来の形に戻した。文言は1文字も足していない */}
+        <Spec label="出 動 料" value={yen(DEPART)}>
+          {/* JSX の行末で折ると、そこに半角スペースが1つ入る。
+              1つづきの文なので、文字列を1本にして渡す */}
+          {"全案件に共通してかかります。軽バン1台／毛布・養生材・ラップ／ラッシングベルト／運送保険（補償上限500万円）／2階までの階段作業／搬入後の設置。ここまで含めた金額です。"}
         </Spec>
 
         {/* 表の見出しは thead に置いてある。表の外にもう1段見出しを足すと、
@@ -190,7 +210,7 @@ export default function MovingPage() {
           <PriceTable
             head={["荷物の量", "金額"]}
             rows={VOLUME_ROWS}
-            note="2.8m³を超える場合は、往復プランか、荷物を減らすご相談になります。"
+            note={`${CAP.toFixed(1)}m³を超える場合は、往復プランか、荷物を減らすご相談になります。`}
           />
         </div>
 
@@ -218,22 +238,36 @@ export default function MovingPage() {
 
       {/* ⑤⑥ 積める量と、積みきれない場合 */}
       <Split kicker="積 め る 量" title="積める寸法を公開しています" tint>
+        {/* 2.8 は CAP から。JSX の本文に {CAP} を混ぜると text node が割れて
+            HTML に <!-- --> が入るので、文字列を1つに組んでから渡す */}
         <Spec label="積 め る サ イ ズ" value="幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg">
-          スズキ・エブリイ（ハイルーフ）のカタログ表記です。
-          隙間ができるぶんを引いて、実際に積める量は 2.8m³ を目安にしています。
-          冷蔵庫は高さ142cmまで、洗濯機は縦型・ドラム式とも積めます。
+          {`スズキ・エブリイ（ハイルーフ）のカタログ表記です。 隙間ができるぶんを引いて、実際に積める量は ${CAP.toFixed(
+            1,
+          )}m³ を目安にしています。 冷蔵庫は高さ142cmまで、洗濯機は縦型・ドラム式とも積めます。`}
         </Spec>
 
-        {/* 代表品目だけ。全29品目は /simulator が受ける（段階3-3）。
-            シミュレーターへの導線は、ページができるまで書かない */}
+        {/* 代表品目だけ。全29品目は /simulator が受ける */}
         <div className="pt">
-          <PriceTable head={["品目（寸法 cm）", "容積"]} rows={ITEM_VOLUME_ROWS} />
+          <PriceTable
+            head={["品目（寸法 cm）", "容積"]}
+            rows={ITEM_VOLUME_ROWS}
+            note={
+              <>
+                全品目を選んで自動で計算できます →{" "}
+                <Link className="tl" href="/simulator">
+                  お見積りシミュレーター
+                </Link>
+              </>
+            }
+          />
         </div>
 
         {/* ⑥ 電話番号と但し書きは一字一句このまま */}
         <Spec
           label="積 み き れ な い 場 合"
-          value="片道75kmまでは、往復プランをご提案します。出動料は1回分のまま、作業料70%と距離料を加算します。"
+          value={`片道${ROUNDTRIP_MAX_KM}kmまでは、往復プランをご提案します。出動料は1回分のまま、作業料${Math.round(
+            ROUNDTRIP_WORK_RATE * 100,
+          )}%と距離料を加算します。`}
           small
         >
           75kmを超える場合は往復が現実的ではないので、
@@ -300,11 +334,11 @@ export default function MovingPage() {
           items={[
             {
               q: "当日でもお願いできますか？",
-              a: "空いていれば伺います。当日は日程係数が1.5倍になります。まずはお電話かLINEでご相談ください。",
+              a: `空いていれば伺います。当日は日程係数が${COEF.touji.coef.toFixed(1)}倍になります。まずはお電話かLINEでご相談ください。`,
             },
             {
-              q: "荷物が2.8m³に入りきらない場合は？",
-              a: "片道75kmまでなら往復プランをご提案します。それ以上の距離では、荷物を減らすか、買い取れる物を買取に回すご相談になります。",
+              q: `荷物が${CAP.toFixed(1)}m³に入りきらない場合は？`,
+              a: `片道${ROUNDTRIP_MAX_KM}kmまでなら往復プランをご提案します。それ以上の距離では、荷物を減らすか、買い取れる物を買取に回すご相談になります。`,
             },
             {
               q: "お手伝いは必要ですか？",

@@ -28,6 +28,14 @@ export type SiteImage = {
   width: number;
   height: number;
   treatment: ImageTreatment;
+  /**
+   * object-fit で切り取るときの位置。既定（中央）でよければ書かない。
+   *
+   * treatment と同じで、**切り取り位置は写真ごとの性質**なので、
+   * 使う側（Hero や本文）ではなくここに持たせる。
+   * 置き場所を Photo 側にすると、1枚のために全ページの見え方が動く。
+   */
+  objectPosition?: string;
   /** 取り込み元のファイル名（リネームしたものだけ） */
   originalName?: string;
 };
@@ -51,6 +59,19 @@ export const images = {
     treatment: "muted",
     originalName: "van_外観01.jpg",
   },
+  /*
+   * 下端にナンバープレート（原本 y975〜1090／全1261）が写っている。
+   *
+   * **objectPosition では消せないので、あえて指定していない。**
+   * 390px のヒーローは枠 334×230px で、cover の倍率が横（334/1600）で決まる。
+   * cover 後の高さは 263px で、縦に切り落とせるのは 33px＝原本換算159pxしかない。
+   * プレートは原本の 77〜86% の高さにあるので、0% でも 100% でも必ず枠に残る。
+   * 消すには枠を203px以下にするしかなく、そのときタイヤが切れる（09で見送ったA案と同じ）。
+   *
+   * 一方 1280px（枠1004×390px）では、既定の 50% でプレートは枠の外にある。
+   * 30% を当てると 390px では何も変わらないまま、1280px で車体の下だけが余計に切れる。
+   * **足すと損しかしないので、既定（中央）のままにしてある。** 10_simulator の報告を参照。
+   */
   vanExterior02: {
     src: "/images/van-exterior-02.jpg",
     alt: "軽バンの外観",

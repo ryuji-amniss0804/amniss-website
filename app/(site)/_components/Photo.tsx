@@ -22,6 +22,8 @@ type Props = {
  *  dark  … 強い減光 ＋ 可読性のオーバーレイ。**オーバーレイは外せない。**
  *          この数字は上に白い文字を乗せて初めて成立するもので、
  *          文字が乗らない場所に当てると露出に失敗した写真になる。
+ *
+ * object-fit で切り取るときの位置（objectPosition）も同じ理由で lib/images.ts 側にある。
  */
 export default function Photo({ image, sizes, priority, caption, className }: Props) {
   const treat =
@@ -38,6 +40,7 @@ export default function Photo({ image, sizes, priority, caption, className }: Pr
           height={image.height}
           sizes={sizes}
           priority={priority}
+          style={image.objectPosition ? { objectPosition: image.objectPosition } : undefined}
         />
       </div>
       {caption ? <figcaption className="cap">{caption}</figcaption> : null}

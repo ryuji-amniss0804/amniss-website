@@ -599,6 +599,199 @@ body.rv {
   line-height: 2;
 }
 
+/* ---- お見積りシミュレーター（/simulator）------------------------------
+   元の price_simulator.html の CSS は持ち込んでいない。ここで組み直したもの。
+
+   クラス名を `sim-` で始めているのは、`.reasons .it` `.spec .v` のような
+   短い名前とぶつかるため。ReasonList と Spec をこの中に入れ子で使うので、
+   `.rv .sim .it` のような同じ詳細度の指定を作ると、あとに書いたほうが勝つ。
+
+   **`--accent` を使うのは積載バーの超過表示だけ。**
+   ---------------------------------------------------------------------- */
+.rv .sim fieldset { border: none; }
+.rv .sim fieldset + fieldset { margin-top: 46px; }
+.rv .sim .sim-leg {
+  float: left;
+  width: 100%;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.rv .sim .sim-leg + * { clear: both; }
+.rv .sim .sim-hint { font-size: 12.5px; color: var(--ink-4); margin-top: 16px; line-height: 1.9; }
+.rv .sim .sim-hint b { color: var(--ink-3); font-weight: 600; }
+
+/* 品目。ItemList と同じ「見出しの下に罫線1本、行は細い罫線で区切る」 */
+.rv .sim .sim-grp + .sim-grp { margin-top: 34px; }
+.rv .sim .sim-gh {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .sim .sim-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0 18px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .sim .sim-nm { font-size: 14px; line-height: 1.7; }
+.rv .sim .sim-nm small { display: block; font-size: 11.5px; color: var(--ink-4); line-height: 1.7; }
+.rv .sim .sim-row.on .sim-nm { font-weight: 600; }
+.rv .sim .sim-v {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rv .sim .sim-st { display: flex; align-items: center; border: 1px solid var(--rule); }
+.rv .sim .sim-st button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ink-3);
+}
+.rv .sim .sim-st button:hover { background: var(--paper-2); color: var(--ink); }
+.rv .sim .sim-n {
+  width: 34px;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.rv .sim .sim-dis {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 0 12px 20px;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.rv .sim .sim-dis input { margin-top: 5px; accent-color: var(--ink); width: 15px; height: 15px; flex: none; }
+.rv .sim .sim-dis em { font-style: normal; color: var(--ink-4); font-size: 11.5px; margin-left: 7px; }
+/* 品目名・容積・ボタンを1行に並べられない幅では、名前を上の行に回す */
+@media (max-width: 560px) {
+  .rv .sim .sim-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; }
+  .rv .sim .sim-nm { grid-column: 1 / -1; }
+  .rv .sim .sim-v { text-align: left; }
+}
+
+/* 選択肢（作業人数・日程） */
+.rv .sim .sim-opts { display: flex; flex-wrap: wrap; gap: 9px; }
+.rv .sim .sim-opts label { display: block; cursor: pointer; position: relative; }
+.rv .sim .sim-opts input { position: absolute; opacity: 0; pointer-events: none; }
+.rv .sim .sim-opts span {
+  display: block;
+  border: 1px solid var(--rule);
+  padding: 11px 18px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: 0.12s;
+}
+.rv .sim .sim-opts span small { display: block; font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+.rv .sim .sim-opts label:hover span { border-color: var(--ink-4); }
+.rv .sim .sim-opts input:checked + span { background: var(--ink); color: #fff; border-color: var(--ink); }
+.rv .sim .sim-opts input:checked + span small { color: #b9c1c9; }
+/* キーボード操作でどこにいるか分かるように（見えない radio の代わり） */
+.rv .sim .sim-opts input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* 数値入力 */
+.rv .sim .sim-num { display: flex; align-items: center; gap: 12px; font-size: 13.5px; flex-wrap: wrap; }
+.rv .sim .sim-num input {
+  width: 96px;
+  border: 1px solid var(--rule);
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 15px;
+  text-align: right;
+  background: var(--paper);
+  color: var(--ink);
+}
+.rv .sim .sim-chk { margin-top: 16px; }
+.rv .sim .sim-chk label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13.5px; }
+.rv .sim .sim-chk input { margin-top: 5px; accent-color: var(--ink); width: 15px; height: 15px; flex: none; }
+.rv .sim .sim-chk em { font-style: normal; color: var(--ink-4); font-size: 12px; margin-left: 6px; }
+
+/* 積載バー。罫線1本と塗りだけ。角丸・影・グラデーションは使わない */
+.rv .sim .sim-load { margin-top: 46px; }
+.rv .sim .sim-lt {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.rv .sim .sim-lt b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 21px;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.rv .sim .sim-bar { height: 7px; border-bottom: 1px solid var(--rule); margin-top: 10px; }
+.rv .sim .sim-bar i { display: block; height: 7px; background: var(--ink); }
+.rv .sim .sim-bar.over i { background: var(--accent); }
+.rv .sim .sim-ls { font-size: 12.5px; color: var(--ink-3); margin-top: 12px; line-height: 1.85; }
+.rv .sim .sim-warn {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  line-height: 1.85;
+  border-left: 2px solid var(--rule);
+  padding-left: 12px;
+  margin-top: 12px;
+}
+
+/* 明細と合計。枠は Spec と同じ */
+.rv .sim .sim-result { margin-top: 46px; }
+.rv .sim .sim-total { font-size: 34px; line-height: 1.3; margin-top: 8px; }
+.rv .sim .sim-total small { font-size: 15px; font-weight: 400; margin-left: 2px; }
+.rv .sim .sim-taxnote { font-size: 11.5px; color: var(--ink-4); margin-top: 4px; }
+.rv .sim table.sim-bd { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 13px; }
+.rv .sim table.sim-bd td {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-2);
+  vertical-align: top;
+  line-height: 1.7;
+}
+.rv .sim table.sim-bd td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rv .sim table.sim-bd td small { display: block; color: var(--ink-4); font-size: 11px; line-height: 1.7; }
+.rv .sim table.sim-bd tr.sub td { border-bottom: 1px solid var(--ink); font-weight: 600; }
+.rv .sim table.sim-bd tr:last-child td { border-bottom: none; }
+@media (max-width: 640px) {
+  .rv .sim .sim-total { font-size: 27px; }
+}
+
+/* 2案。ReasonList をそのまま使うので、上下の間隔だけ */
+.rv .sim .sim-plans { margin-top: 46px; }
+
+/* 送信 */
+.rv .sim .sim-send { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 46px; }
+.rv .sim .sim-send .btn:disabled { color: var(--ink-4); border-color: var(--rule); background: none; cursor: default; }
+.rv .sim .sim-send .btn:disabled:hover { background: none; color: var(--ink-4); }
+@media (max-width: 600px) {
+  .rv .sim .sim-send { flex-direction: column; align-items: stretch; }
+}
+
+.rv .sim .sim-note { font-size: 12.5px; color: var(--ink-3); margin-top: 26px; line-height: 1.95; }
+.rv .sim .sim-note.sub { color: var(--ink-4); font-size: 11.5px; margin-top: 16px; }
+
 /* ---- モバイル固定バー ---- */
 .rv .mbar {
   position: fixed;
