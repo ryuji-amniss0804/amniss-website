@@ -1,0 +1,1102 @@
+/* ============================================================
+   re'vive 新デザインのデザインシステム
+   出典：D:\re'vive_toyama_marketing\design_tokens.css
+
+   【重要】このファイルはグローバルに読み込まないこと。
+   元ファイルは素の CSS で、`*{margin:0}` のリセットと `body{}` 指定を含む。
+   Tailwind Preflight と衝突するため、すべて `.rv` 配下にスコープしてある。
+   `.rv` は app/(site)/layout.tsx が <body> に付ける。
+   (site) ルートグループは Tailwind を読み込んでいないので、
+   このファイルが /blog 側に漏れることも、Preflight がここに漏れることもない。
+
+   トークンも :root ではなく .rv に載せている（グローバルを汚さないため）。
+   ============================================================ */
+
+/* ---- ルート要素（<html>）---- */
+.rv-html {
+  scroll-behavior: smooth;
+}
+
+/* ---- トークン ---- */
+.rv {
+  --ink: #16202b;   /* 本文・見出し */
+  --ink-3: #5c6672; /* 補助 */
+  --ink-4: #8d949c; /* 弱い */
+  --paper: #ffffff;
+  --paper-2: #f7f5f2; /* 温かいオフホワイト */
+  --rule: #ddd8d1;    /* 罫線 */
+  --rule-2: #ebe7e1;
+  --accent: #a8331c;  /* 使うのは1ページに1〜2箇所だけ */
+  --w: 1060px;
+}
+
+/* ---- リセット（.rv 配下だけ）---- */
+.rv,
+.rv *,
+.rv *::before,
+.rv *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.rv {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 15px;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* モバイル固定バーの高さぶん。バーが出る幅でだけ空ける
+   （元ファイルは常時 60px 空けていたが、PCでは無駄な余白になるため） */
+@media (max-width: 960px) {
+  body.rv { padding-bottom: 60px; }
+}
+
+/* height:auto は next/image 用。width だけを CSS で変えると
+   縦横比が崩れ、Next が「width or height modified, but not the other」と警告する。
+   .hero や .svc のように両方を明示している箇所は、そちらの指定が勝つ。 */
+.rv img { max-width: 100%; height: auto; display: block; }
+.rv a { color: inherit; text-decoration: none; }
+
+.rv .w { max-width: var(--w); margin: 0 auto; padding: 0 28px; }
+.rv .mincho { font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif; }
+
+/* 本文は文節で折る。`査定だ／けで終わっても` のように単語の途中で切れるのを止める。
+   max-width を詰めても文章を1つ変えるたびに同じ問題が出るので、幅ではなく折り方で直す。
+   auto-phrase に対応していないブラウザは、これまでどおりの折り返しになるだけ。
+   line-break: strict は禁則（行頭の「、」「。」「ー」など）。 */
+.rv p,
+.rv .sub,
+.rv .lead,
+/* 見出しにも要る。284px の見出し列で「積める寸法を公開していま／す」、
+   390px のヒーローで「今日決めた引越しにも、行けま／す。」と、
+   1文字だけ次行に落ちていた */
+.rv h1,
+.rv h2,
+.rv h3 {
+  word-break: auto-phrase;
+  line-break: strict;
+}
+
+/* ---- 見出し体系 ---- */
+.rv h1,
+.rv h2,
+.rv h3 {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.rv h2.t { font-size: 27px; line-height: 1.7; }
+.rv h3 { font-size: 18px; line-height: 1.8; }
+/* ラベルは字間を開けた日本語で書く。英語の eyebrow は使わない */
+.rv .kicker {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink-4);
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.rv .lead { color: var(--ink-3); font-size: 14.5px; margin-top: 18px; max-width: 34em; }
+
+/* ---- セクション：罫線で区切る。箱は使わない ---- */
+.rv .sec { padding: 78px 0; border-top: 1px solid var(--rule-2); }
+.rv .sec.first { border-top: none; }
+.rv .sec.tint { background: var(--paper-2); }
+
+/* 左に見出し、右に本文の非対称2カラム */
+.rv .split { display: grid; grid-template-columns: 284px 1fr; gap: 56px; align-items: start; }
+.rv .split .hd { position: sticky; top: 96px; }
+.rv .split .hd h2.t { font-size: 22.5px; line-height: 1.8; }
+@media (max-width: 840px) {
+  .rv .split { grid-template-columns: 1fr; gap: 26px; }
+  .rv .split .hd { position: static; }
+  .rv .split .hd h2.t { font-size: 25px; }
+}
+
+/* ---- リンク ---- */
+.rv .tl {
+  display: inline-block;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 2px;
+  font-size: 14px;
+}
+.rv .tl:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---- ボタン（最小限）---- */
+.rv .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 14.5px;
+  padding: 15px 30px;
+  border: 1px solid var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: 0.15s;
+  background: none;
+  color: var(--ink);
+}
+.rv .btn:hover { background: var(--ink); color: #fff; }
+.rv .btn-fill { background: var(--ink); color: #fff; }
+.rv .btn-fill:hover { background: var(--accent); border-color: var(--accent); }
+.rv .btn-line { border-color: #fff; color: #fff; }
+.rv .btn-line:hover { background: #fff; color: var(--ink); }
+/* 濃い面の上に置く主ボタン。--ink の面（トップのヒーロー・CTA帯）では
+   .btn-fill が背景と同じ色になって消えるので、白で塗るほう。
+   .btn-line と対で使う（.btn-line が従、これが主） */
+.rv .btn-w { background: #fff; border-color: #fff; color: var(--ink); }
+.rv .btn-w:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ---- ヘッダー ---- */
+.rv header.site {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .hd-in { display: flex; align-items: center; height: 74px; gap: 38px; }
+.rv .logo {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 19px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+.rv .logo span {
+  display: block;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--ink-4);
+  margin-top: 3px;
+  font-weight: 600;
+}
+.rv nav.main { display: flex; gap: 26px; font-size: 13.5px; letter-spacing: 0.04em; }
+.rv nav.main a { padding: 4px 0; border-bottom: 1px solid transparent; }
+.rv nav.main a:hover,
+.rv nav.main a.cur { border-color: var(--ink); }
+.rv .hd-r { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+.rv .hd-tel { text-align: right; line-height: 1.3; }
+.rv .hd-tel b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.rv .hd-tel span { display: block; font-size: 10px; color: var(--ink-4); letter-spacing: 0.06em; }
+/* ヘッダーのCTA。ヒーローのボタンより一段小さい。
+   .rv .btn と詳細度が同じなので、必ず .btn より後ろに置くこと */
+.rv .hd-cta { padding: 12px 22px; font-size: 13.5px; }
+@media (max-width: 960px) {
+  .rv nav.main,
+  .rv .hd-tel { display: none; }
+}
+/* 狭い幅でヘッダーのCTAが「見積りを／依頼」と2行に割れていた。
+   読みではなく押しやすさの問題なので、字と余白のほうを詰める。
+
+   ヘッダーは flex。行が足りないとロゴもボタンも縮むので、
+   直すべきは「3つの合計が本文幅に収まるかどうか」だけ。
+
+     ロゴ 115.83（"AMNISS & CO. JAPAN" の幅で決まる）
+     ＋ gap 38 ＋ ボタン 126.94（13.5px／左右22px）＝ 280.77
+     本文幅は 320px で 249（320 − スクロールバー15 − 左右パディング28×2）
+
+   31.77px 足りない。字を1段（13.5→12.5px）落として左右を22→15pxにしても
+   ボタンは 106.94px で、合計 260.77。**ボタン側だけでは足りない。**
+   249px の行に gap 38px のほうが大きすぎるので、20px にする。
+   合計 242.77 で 6.23px 余る。
+   ボタンを 12px/12px まで縮めれば gap 38 のままでも入るが、
+   それは2行に割れているより押しにくい。
+
+   実機の320px はスクロールバーがないぶん 264px 使えるので余りは 21.23px。
+   フォント読み込み前はロゴが 100.67px と細いので、余りは増えるほうに動く。
+
+   ブレークポイントは 320px ではなく 360px。**2行に割れ始めるのは実機で幅337px**
+   （この計測環境ではスクロールバーぶん増えて352px）。
+   320px だけを見ていると 337〜360px の端末で同じことが起きる */
+@media (max-width: 360px) {
+  .rv .hd-in { gap: 20px; }
+  .rv .hd-cta { padding: 12px 15px; font-size: 12.5px; }
+}
+
+/* ---- ヒーロー：帯ではなく紙面 ---- */
+.rv .hero { border-bottom: 1px solid var(--rule-2); }
+/* padding のショートハンドで書くと、同じ要素（class="w in"）に付いている
+   .rv .w の左右 28px まで 0 に上書きされる（.rv .hero .in のほうが詳細度が高い）。
+   ヒーローだけ本文が画面端に接していたのはこれ。上だけを指定すること */
+.rv .hero .in { padding-top: 78px; }
+.rv .hero h1 { font-size: 40px; line-height: 1.62; letter-spacing: 0.01em; }
+/* 下層ページ。トップより一段小さくする */
+.rv .hero.md h1 { font-size: 33px; line-height: 1.68; }
+.rv .hero .kicker { margin-bottom: 22px; }
+.rv .hero .sub { margin-top: 26px; color: var(--ink-3); font-size: 15px; max-width: 33em; line-height: 2.1; }
+.rv .hero .acts { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+.rv .hero .fig { margin-top: 56px; position: relative; }
+.rv .hero .fig img { width: 100%; height: 390px; object-fit: cover; }
+.rv .hero .cap { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
+@media (max-width: 700px) {
+  .rv .hero h1,
+  .rv .hero.md h1 { font-size: 26px; line-height: 1.75; }
+  .rv .hero .in { padding-top: 48px; }
+  .rv .hero .fig img { height: 230px; }
+}
+/* word-break: auto-phrase は文節で折るが、文節そのものが1行より長いと効かず、
+   文字単位の折り返しに落ちて文節の途中で切れる。ヒーロー見出しでいちばん長い文節は
+   「多くないんですけど。」の10文字で、320px（本文幅249px）では26pxだと262.6px＝入らない。
+   24pxなら242.4pxで収まる（25pxは252.5pxで溢れる。実測値）。
+   話し言葉の見出しなので、文節の途中で切らない。字のほうを1段落とす */
+@media (max-width: 360px) {
+  .rv .hero h1,
+  .rv .hero.md h1 { font-size: 24px; }
+}
+/* ボタンは幅が中身まかせなので、2つ並べると別々の幅で左に寄る。
+   横に並べられない幅では全幅にして縦に積む */
+@media (max-width: 600px) {
+  .rv .hero .acts { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rv .hero .acts .btn { width: 100%; }
+}
+
+/* ---- トップのヒーロー：写真 → 濃紺パネルにテキスト --------------------
+   下層ページの .hero とは別物。あちらは「文字が先、写真はその下」。
+
+   【17_hero で作り直した】**写真の上に文字を置かない。**
+   14では写真に重ねて左端だけグラデーションを敷いていたが、実測で
+   リード1.61・電話ボタン2.38（1280px）と読めていなかった。濃くすれば通るが、
+   そのぶん立山連峰と富山市街が沈む。この写真は image_decision.md の
+   **枠A（証拠）**で、テキストの背景（枠C）ではない。
+
+   840px以下がもともと正しく組めていたので、デスクトップをそれに合わせた。
+   **オーバーレイもグラデーションも無い。写真は無加工・左右も切らない。**
+   （高さを詰めるときに切るのは上下だけ。object-fit: cover ＋
+     枠の高さ < 幅÷2.333 の関係が保たれているかぎり、左右は切れない）
+   ---------------------------------------------------------------------- */
+/* Photo は <figure> を出す。ここでは1枚を敷くだけなので余白を持たせない */
+.rv .hero-top figure { display: block; }
+.rv .ht-fig { aspect-ratio: 21 / 9; overflow: hidden; }
+/* .rv img の height:auto を上書きする。枠を決めて cover で収める。
+   切り取り位置（object-position）は lib/images.ts の heroTop 側 */
+.rv .ht-fig img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 濃紺のパネル。文字はここにしか乗らない */
+.rv .ht-txt { background: var(--ink); padding-top: 44px; padding-bottom: 48px; }
+.rv .ht-txt > .w { width: 100%; }
+/* パネルの中は既定では2カラムにしない（display: contents で枠が消える）。
+   DOM の並び（ラベル → 見出し → リード → ボタン）がそのまま流れる */
+.rv .ht-grid { display: contents; }
+.rv .ht-txt .kicker { color: rgba(255, 255, 255, 0.62); margin-bottom: 22px; }
+.rv .ht-txt h1 { font-size: 26px; line-height: 1.75; letter-spacing: 0.01em; color: #fff; }
+.rv .ht-txt .sub {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+  max-width: 33em;
+  line-height: 2.1;
+}
+.rv .ht-txt .acts { display: flex; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+
+/* 841px以上：**ヒーロー全体（写真＋パネル）を1画面に収める。**
+   高さを固定値で決めない。ヘッダー(74px)を引いた1画面から
+   パネルの実高を引いた残りを、そのまま写真に渡す（flex: 1）。
+
+   min-height 34vw … 写真の下限。これを割ると写真が
+     「立山連峰の稜線から軽バンの足元まで」を含めきれなくなる。
+     21:9（＝42.86vw）に対する 34vw は、画（3000×1286）の縦およそ79%。
+   max-height 41.5vw … 上限。21:9 を超えて縦に伸ばすと cover が
+     **左右を切り始める。**それは決定に反するので、その手前で止める。 */
+@media (min-width: 841px) {
+  /* 75px はヘッダーの実高（.hd-in 74px ＋ border-bottom 1px）。
+     min-height であって height ではない。**画面が低いときは、
+     写真を下限まで詰めたうえでヒーローのほうが伸びる**（文字を潰さない）。 */
+  .rv .hero-top {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 75px);
+    min-height: calc(100dvh - 75px);
+  }
+  /* flex-basis を 0 にするのが要点。auto のままだと写真の実寸（21:9）が
+     コンテナの中身の高さになってしまい、min-height が効かず余りが生まれない。 */
+  /* grow を 1000 にしてあるのは、余りを**まず写真に全部渡す**ため。
+     写真が max-height で止まったあとの残りだけがパネルへ回る（下の flex: 1 0 auto）。
+     grow を等分にすると、写真が上限で止まった瞬間に
+     パネルの下へ白い余白が残る（1280×900 で10.2px出ていた）。 */
+  .rv .hero-top > figure {
+    position: relative;
+    flex: 1000 1 0;
+    min-height: 34vw;
+    max-height: 41.5vw;
+  }
+  /* inset で高さを確定させる。%高さは、親の高さが確定していないと
+     auto に落ちて画像が実寸のまま出る（枠からはみ出す）。
+     セレクタを .hero-top で1段深くしてあるのは、下の `.rv .fig { position: relative }`
+     と詳細度が並ぶため。**メディアクエリは詳細度を上げない。**
+     後ろに書いてあるほうが勝つので、負けていた。 */
+  .rv .hero-top .ht-fig { position: absolute; inset: 0; aspect-ratio: auto; }
+  /* 写真が上限で止まったあとの余りはこちらが飲む。
+     中身は縦中央に置くので、増えたぶんは濃紺の面が広がるだけになる。 */
+  .rv .ht-txt {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 52px;
+    padding-bottom: 56px;
+  }
+  .rv .ht-txt h1 { font-size: 33px; line-height: 1.68; }
+
+  /* パネルの中を2カラムにする（見出し ／ リードとボタン）。
+     **縦に積むとパネルだけで435px使い、写真の取り分が無くなる。**
+     左300pxは、見出しの1行目「軽バン1台ぶんの、」が33pxで281.1px＝
+     <br /> で決めた2行を保てる幅。右は本文列の残り（841pxで430px、
+     920px以上で485px以上）で、狭いところではリードが3行になる。
+     align-items: end は、見出しの下端とボタンの下端を揃えるため
+     （上で揃えると、右列だけが浮いて見える）。 */
+  .rv .ht-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    align-items: end;
+  }
+  /* 2カラムでは右列の先頭になるので、見出しとの間の余白は要らない */
+  .rv .ht-txt .sub { margin-top: 0; }
+  .rv .ht-txt .acts { margin-top: 26px; }
+}
+
+/* 1061px以上（本文幅 --w に達したところ）：見出しを40pxに戻し、
+   左列もそれに合わせて広げる。40pxの1行目は340.7px なので420pxで足りる。 */
+@media (min-width: 1061px) {
+  .rv .ht-grid { grid-template-columns: 420px 1fr; gap: 56px; }
+  .rv .ht-txt h1 { font-size: 40px; line-height: 1.62; }
+  .rv .ht-txt .acts { margin-top: 34px; }
+}
+
+/* .hero h1 と同じ理由。320px（本文幅249px）では26pxだと文節の途中で切れる */
+@media (max-width: 360px) {
+  .rv .ht-txt h1 { font-size: 24px; }
+}
+/* ボタンは幅が中身まかせなので、横に並べられない幅では全幅にして縦に積む */
+@media (max-width: 600px) {
+  .rv .ht-txt .acts { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rv .ht-txt .acts .btn { width: 100%; }
+}
+
+/* ---- 画像の処理 ------------------------------------------------
+   加工は「スタイル」ではなく「散らかった背景を消す道具」。
+   一律には当てない。lib/images.ts の treatment に従うこと。
+
+   plain … 何もしない
+   muted … 単体で見せる写真。青空・駐車場の白線の主張だけ落とす
+   dark  … 上に文字が乗る場所でだけ。可読性のオーバーレイと必ずセット
+   ---------------------------------------------------------------- */
+.rv .fig { position: relative; }
+/* 本文の途中に写真を置くとき。正方形の写真をそのまま流すと本文列いっぱいの
+   高さになって主役を食うので、高さを決めて object-fit で収める */
+.rv .fig.mt { margin-top: 40px; }
+.rv .fig.mt img { width: 100%; height: 420px; object-fit: cover; }
+@media (max-width: 700px) {
+  .rv .fig.mt img { height: 240px; }
+}
+.rv .fig.mt + .cap { margin-top: 10px; font-size: 11.5px; color: var(--ink-4); letter-spacing: 0.04em; }
+
+/* 目安は saturate(.72) だったが、それでは青空と草がまだ主張していたので
+   彩度だけ .45 まで落としてある（コントラストと明度は目安のまま）。
+   .32 まで下げると白黒写真に見え始めるので、その手前。 */
+.rv .fig-muted img { filter: saturate(0.45) contrast(1.06) brightness(0.94); }
+
+/* **この2つを使っている画像は1枚もない。**
+   唯一の dark だった sagyou-loading-01 をサイトから外したため。
+   **17_hero でトップのヒーローからも文字を外したので、写真に文字が乗る場所は
+   サイト内に1つも無くなった。**（トップの左だけのオーバーレイも削除済み）
+   「文字が写真の上に乗る」ケースが将来また出たときのために残してある。 */
+.rv .fig-dark img { filter: saturate(0.16) contrast(1.16) brightness(0.46); }
+/* ::after は1つしか使えないので、可読性のグラデーションと
+   rgb(16,23,32) 34% のブレンドを多重背景で重ねている。
+   これを2つのクラスに分けると、後から書いたほうが前を丸ごと消してしまう。 */
+.rv .fig-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(9, 14, 20, 0.76) 0%,
+      rgba(9, 14, 20, 0.46) 55%,
+      rgba(9, 14, 20, 0.3) 100%
+    ),
+    rgba(16, 23, 32, 0.34);
+}
+
+/* ---- 図版：SVGをインラインで置く ------------------------------------
+   色は全部こちら側。**SVG の中に色を直書きしないこと。**
+   トークン（--ink / --ink-4 / --paper-2）を変えたときに図版だけ取り残される。
+   クラスを `fg-` で始めているのは、`.spec .v` `.reasons .it` のような
+   短い名前とぶつからないようにするため。
+   ---------------------------------------------------------------------- */
+/* 荷室の断面図は 460×372（比 1.24）。本文列いっぱいに流すと 1280px で
+   高さ810pxになり、図が主役を食う。実寸の図面として読める大きさで止める */
+.rv .figv { max-width: 560px; }
+.rv .figv svg { width: 100%; height: auto; display: block; }
+.rv .figv .fg-ln { stroke: var(--ink-4); stroke-width: 1; }
+.rv .figv .fg-bx { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.rv .figv .fg-it { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1; }
+.rv .figv .fg-gd { fill: none; stroke: var(--ink); stroke-width: 1; }
+/* 寸法線の上に文字を置くための目隠し。**紙色（白）で塗っている。**
+   tint（--paper-2）のセクションに図版を置くと、ここだけ白く抜ける。
+   図版は白い面にだけ置くこと */
+.rv .figv .fg-mask { fill: var(--paper); }
+.rv .figv .fg-t {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 11px;
+  fill: var(--ink-4);
+  letter-spacing: 0.04em;
+}
+.rv .figv .fg-tb {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 11px;
+  fill: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+/* .rv .hero .cap と同じ詳細度なので、あちらより後ろに置くこと */
+.rv .figv .cap {
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  line-height: 1.9;
+  max-width: 34em;
+}
+/* 図版は viewBox ごと拡縮するので、幅が狭くなると**文字だけが読めない大きさになる。**
+   390px では図版の幅が319pxで、460ユーザー単位が0.69倍。11pxの字が実寸7.6pxになる。
+   狭い幅では user unit のほうを上げて、実寸で10pxを切らないようにする
+   （15 × 0.69 ＝ 10.4px）。寸法線の目隠し（88単位）にはまだ収まる */
+@media (max-width: 560px) {
+  .rv .figv .fg-t,
+  .rv .figv .fg-tb { font-size: 15px; }
+}
+
+/* /moving のヒーロー。写真だったときの .hero .fig と同じ空け方 */
+.rv .hero .figv { margin-top: 56px; }
+@media (max-width: 700px) {
+  .rv .hero .figv { margin-top: 36px; }
+}
+
+/* ---- 許認可の帯：文字だけ ---- */
+.rv .lic {
+  border-top: 1px solid var(--rule-2);
+  border-bottom: 1px solid var(--rule-2);
+  background: var(--paper-2);
+}
+.rv .lic .w {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 40px;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.03em;
+}
+.rv .lic b { color: var(--ink); font-weight: 600; }
+
+/* ---- 事業一覧：カードではなく記事の並び ---- */
+.rv .svc { border-top: 1px solid var(--rule); }
+.rv .svc .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: stretch;
+}
+.rv .svc .row .ph { overflow: hidden; background: var(--paper-2); position: relative; }
+.rv .svc .row .ph img { width: 100%; height: 100%; min-height: 280px; object-fit: cover; }
+.rv .svc .row .bd { padding: 44px 0 44px 52px; display: flex; flex-direction: column; justify-content: center; }
+.rv .svc .row:nth-child(even) .ph { order: 2; }
+.rv .svc .row:nth-child(even) .bd { padding: 44px 52px 44px 0; }
+.rv .svc .num { font-size: 11px; letter-spacing: 0.2em; color: var(--ink-4); font-weight: 600; }
+.rv .svc h3 { margin-top: 12px; font-size: 23px; }
+.rv .svc p { color: var(--ink-3); font-size: 14px; margin-top: 14px; max-width: 30em; }
+.rv .svc .pz { margin-top: 22px; font-size: 13px; color: var(--ink-3); letter-spacing: 0.03em; }
+.rv .svc .pz b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  margin-right: 2px;
+}
+.rv .svc .go { margin-top: 20px; }
+@media (max-width: 840px) {
+  .rv .svc .row { grid-template-columns: 1fr; }
+  .rv .svc .row .ph { order: 0 !important; }
+  .rv .svc .row .bd,
+  .rv .svc .row:nth-child(even) .bd { padding: 32px 0 40px; }
+  .rv .svc .row .ph img { min-height: 220px; }
+}
+
+/* ---- 理由：箱をやめて、ぶら下げ番号のリスト ---- */
+.rv .reasons { counter-reset: r; }
+.rv .reasons .it {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 0 24px;
+  padding: 34px 0;
+  border-top: 1px solid var(--rule-2);
+}
+.rv .reasons .it:first-child { border-top: none; padding-top: 0; }
+.rv .reasons .n {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 15px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+  padding-top: 4px;
+}
+.rv .reasons p { color: var(--ink-3); font-size: 14px; margin-top: 12px; max-width: 38em; }
+.rv .reasons .ev {
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  border-left: 2px solid var(--ink);
+  padding-left: 14px;
+  line-height: 1.85;
+}
+@media (max-width: 560px) {
+  .rv .reasons .it { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ---- 料金：仕様書のような罫線表 ---- */
+.rv table.price { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.rv table.price th {
+  text-align: left;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv table.price th.r { text-align: right; }
+.rv table.price td { padding: 22px 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+.rv table.price td.r {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.rv table.price .nm { font-size: 15.5px; }
+.rv table.price .ds { font-size: 12.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.8; }
+.rv .pnote { font-size: 12.5px; color: var(--ink-3); margin-top: 22px; line-height: 1.9; }
+/* 表を続けて置くとき（/moving の 荷物の量・距離・建物の条件・日程）。
+   前の表の最終行の罫線と次の表の見出しがくっつくのを離す。
+   見出しは各表の thead に置いてあるので、表の外に見出しを足さない */
+.rv .pt { margin-top: 46px; }
+
+/* スマホ：横並びをやめて、名称→説明→金額の縦積みにする */
+@media (max-width: 600px) {
+  .rv table.price,
+  .rv table.price thead,
+  .rv table.price tbody,
+  .rv table.price tr,
+  .rv table.price td,
+  .rv table.price th { display: block; width: 100%; }
+  /* 見出し行ごと落とすと、表が4つ続く /moving で「何の表か」が消える。
+     左の見出し（表の名前）だけ残す。金額側の見出しは、縦積みでは
+     金額ではなく行の頭に来てしまうので落とす。
+     左の見出しが border-bottom を持っているので、tbody 側の上罫線は外す */
+  .rv table.price thead th.r { display: none; }
+  .rv table.price tbody tr { border-bottom: 1px solid var(--rule-2); padding: 20px 0; }
+  .rv table.price tbody tr:first-child { padding-top: 20px; }
+  .rv table.price td { padding: 0; border: none; }
+  .rv table.price td.r { text-align: left; font-size: 23px; margin-top: 12px; line-height: 1.3; }
+  .rv table.price .nm { font-size: 16px; font-weight: 600; }
+  .rv table.price .ds { margin-top: 7px; }
+}
+
+/* ---- 仕様（積載など）---- */
+.rv .spec { border: 1px solid var(--ink); padding: 26px 30px; margin-top: 34px; }
+.rv .spec .k { font-size: 11.5px; letter-spacing: 0.14em; color: var(--ink-4); font-weight: 600; }
+.rv .spec .v {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 22px;
+  margin-top: 10px;
+  line-height: 1.6;
+  /* .rv p などと同じ折り方。ここにも要る */
+  word-break: auto-phrase;
+  line-break: strict;
+}
+/* 折ってはいけないひとまとまり。auto-phrase は「第」と数字を別の文節と見るので、
+   許可番号のようなものは自分で束ねる必要がある */
+.rv .nw { white-space: nowrap; }
+.rv .spec .d { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.95; }
+@media (max-width: 640px) {
+  .rv .spec { padding: 20px; }
+  .rv .spec .v { font-size: 16px; }
+}
+
+/* ---- 先に出している数字：3つ横並び。縦罫で区切る。箱で囲まない --------
+   数字だけを大きく出す場所なので、ラベルと補足はいつもどおりの小ささに置く。
+
+   【数字が46pxである理由】3つのうちいちばん長い「20,000円」で決まっている。
+   Split の本文列は 1280px で 664px、3等分して1列 221.33px、
+   左右の余白20pxずつを引いて **1列に使えるのは 180px。**
+   14_top の指示は52pxだが、実測で 191.61px あり **11.61px 入らない。**
+
+     44px → 165.81   46px → 172.27   48px → 178.72   52px → 191.61   ／ 180
+
+   48pxは1.28pxしか余らない。46pxなら7.73px（4.3%）余る。
+   余白を14pxまで詰めれば52pxも入るが、縦罫のすぐ横に数字が来る。
+   Noto Serif JP と読み込み前のフォールバック serif は同じ幅（実測で一致）なので、
+   この7.73pxがフォント差で消えることはない。
+
+   【横並びが1060px以上だけである理由】
+   1fr は auto 最小幅を持つので、列が足りなくなると**黙って列幅が不揃いになる**
+   （841pxで 119.3 / 213.3 / 138.5px）。横スクロールは出ないぶん気づきにくい。
+   3列が等幅で並ぶには1列213.3px＝本文列640pxが要り、そこから逆算すると
+   本文幅が --w（1060px）に達しているときだけ。ブレークポイントをそこに置いてある。
+   ---------------------------------------------------------------------- */
+.rv .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.rv .nums .it { padding: 0 20px; }
+.rv .nums .it:first-child { padding-left: 0; }
+.rv .nums .it:last-child { padding-right: 0; }
+.rv .nums .it + .it { border-left: 1px solid var(--rule); }
+.rv .nums .k { font-size: 11.5px; letter-spacing: 0.14em; color: var(--ink-4); font-weight: 600; }
+.rv .nums .v {
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 12px;
+  letter-spacing: 0;
+  /* 「20,000」と「円」を別の行に割らない。単位だけ落ちると読めなくなる */
+  white-space: nowrap;
+}
+.rv .nums .v .u { font-size: 22px; margin-left: 2px; }
+.rv .nums p { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.9; }
+/* 縦積み。全幅を使えるので数字の幅は問題にならない */
+@media (max-width: 1060px) {
+  .rv .nums { grid-template-columns: 1fr; }
+  .rv .nums .it { padding: 26px 0 0; }
+  .rv .nums .it:first-child { padding-top: 0; }
+  .rv .nums .it + .it { border-left: none; border-top: 1px solid var(--rule); margin-top: 26px; }
+  .rv .nums .v { font-size: 42px; }
+}
+
+/* 表・図版・仕様のあとに置くリンクやボタン。.svc .go とは別（あちらが優先） */
+.rv .go { margin-top: 26px; }
+
+/* ---- できる／できない：箱なし・縦罫で二分 ---- */
+.rv .cando { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.rv .cando > div { padding: 0 40px; }
+.rv .cando > div:first-child { padding-left: 0; border-right: 1px solid var(--rule-2); }
+.rv .cando > div:last-child { padding-right: 0; }
+.rv .cando h3 {
+  font-size: 15px;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .cando ul { list-style: none; margin-top: 18px; }
+.rv .cando li {
+  font-size: 14px;
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 12px;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.rv .cando li::before { position: absolute; left: 0; top: 0; font-size: 12px; color: var(--ink-4); }
+.rv .cando .y li::before { content: "—"; }
+.rv .cando .n li::before { content: "×"; color: var(--accent); }
+@media (max-width: 760px) {
+  .rv .cando { grid-template-columns: 1fr; }
+  .rv .cando > div { padding: 0; }
+  .rv .cando > div:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--rule-2);
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+/* ---- 品目リスト：罫線1本ずつ。箱で囲まない ------------------------
+   600px より広いとき  … 品目 ／ 補足 の2カラム
+   600px 以下         … 補足が品目名の下に落ちる
+   補足のない行では、余白も罫線も足さない（半分以上の行に補足がないため、
+   空の枠が残ると抜けているように見える）。
+   ---------------------------------------------------------------- */
+.rv .items + .items { margin-top: 44px; }
+.rv .items h3 {
+  font-size: 15px;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .items ul { list-style: none; }
+/* 見出しを省いた場合、リストの開始を示す罫線が無くなるので ul 側に付ける */
+.rv .items.no-title ul { border-top: 1px solid var(--ink); }
+.rv .items li {
+  display: grid;
+  /* 補足列は 280px。13em（約182px）では最長の「他店で断られた物こそ見せてください」
+     「ジャンク・カビ・曇り・動作未確認も」が3行に折り返していた。
+     品目名の右に余白が余っているのに補足だけが折り返すのは配分のミス。
+     品目名が長い行が折り返すのは構わないが、補足は折り返させない。 */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+  gap: 0 28px;
+  align-items: baseline;
+  position: relative;
+  padding: 15px 0 15px 20px;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 14px;
+  line-height: 1.85;
+}
+.rv .items li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  top: 15px;
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--ink-4);
+}
+/* 受けられない物。差し色は使わない（--accent は1ページに1〜2箇所までのため、
+   7行に赤を並べると、そこだけで使い切ってしまう）。濃さで区別する。 */
+.rv .items.deny li::before { content: "×"; color: var(--ink); }
+.rv .items .nt { font-size: 12.5px; color: var(--ink-3); line-height: 1.8; }
+@media (max-width: 600px) {
+  .rv .items li { grid-template-columns: 1fr; gap: 0; }
+  .rv .items .nt { display: block; margin-top: 5px; }
+}
+
+/* ---- 流れ：番号つきの縦リスト ---- */
+.rv .flow { border-top: 1px solid var(--rule-2); }
+.rv .flow .s {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .flow .n {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 15px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+}
+.rv .flow h3 { font-size: 16px; }
+.rv .flow p { font-size: 13.5px; color: var(--ink-3); margin-top: 6px; }
+@media (max-width: 560px) {
+  .rv .flow .s { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ---- 声 ---- */
+.rv .voice .v { padding: 28px 0; border-bottom: 1px solid var(--rule-2); }
+.rv .voice .v:first-child { border-top: 1px solid var(--rule); }
+.rv .voice .st { font-size: 12px; letter-spacing: 0.3em; color: var(--ink-3); }
+.rv .voice p { font-size: 14.5px; margin-top: 10px; line-height: 2; }
+.rv .voice .who { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
+.rv .voice .vnote p { font-size: 12.5px; color: var(--ink-4); margin-top: 0; line-height: 2.1; }
+
+/* ---- FAQ ---- */
+.rv .faq { border-top: 1px solid var(--rule); }
+.rv .faq details { border-bottom: 1px solid var(--rule-2); }
+.rv .faq summary {
+  padding: 22px 40px 22px 30px;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  list-style: none;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+}
+.rv .faq summary::-webkit-details-marker { display: none; }
+.rv .faq summary::before {
+  content: "Q";
+  position: absolute;
+  left: 0;
+  color: var(--ink-4);
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  top: 24px;
+}
+.rv .faq summary::after { content: "＋"; position: absolute; right: 2px; top: 23px; font-size: 13px; color: var(--ink-4); }
+.rv .faq details[open] summary::after { content: "−"; }
+.rv .faq .a { padding: 0 0 24px 30px; font-size: 14px; color: var(--ink-3); line-height: 2; }
+
+/* ---- CTA：濃紺の帯・装飾なし ---- */
+.rv .cta { background: var(--ink); color: #fff; }
+.rv .cta .w {
+  padding-top: 66px;
+  padding-bottom: 66px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: end;
+}
+.rv .cta h2 { font-size: 25px; line-height: 1.75; color: #fff; }
+.rv .cta p { font-size: 13.5px; color: #a7b0ba; margin-top: 16px; max-width: 30em; line-height: 2; }
+.rv .cta .tel {
+  display: block;
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 36px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.rv .cta .hrs { font-size: 12px; color: #a7b0ba; margin-top: 8px; letter-spacing: 0.03em; }
+.rv .cta .acts { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+@media (max-width: 820px) {
+  .rv .cta .w { grid-template-columns: 1fr; gap: 32px; align-items: start; }
+  .rv .cta .tel { font-size: 29px; }
+}
+
+/* ---- フッター ---- */
+.rv footer.site { border-top: 1px solid var(--rule-2); padding: 56px 0 34px; font-size: 13px; color: var(--ink-3); }
+.rv .fg { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 44px; }
+@media (max-width: 800px) {
+  .rv .fg { grid-template-columns: 1fr; gap: 32px; }
+}
+.rv footer.site .lg { font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif; font-size: 17px; color: var(--ink); }
+.rv footer.site h4 { font-size: 10.5px; letter-spacing: 0.18em; color: var(--ink-4); font-weight: 600; margin-bottom: 14px; }
+.rv footer.site ul { list-style: none; }
+.rv footer.site li { margin-bottom: 9px; font-size: 13px; }
+.rv footer.site li a:hover { border-bottom: 1px solid var(--ink); }
+.rv .fnote {
+  border-top: 1px solid var(--rule-2);
+  margin-top: 38px;
+  padding-top: 20px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  line-height: 2;
+}
+
+/* ---- お見積りシミュレーター（/simulator）------------------------------
+   元の price_simulator.html の CSS は持ち込んでいない。ここで組み直したもの。
+
+   クラス名を `sim-` で始めているのは、`.reasons .it` `.spec .v` のような
+   短い名前とぶつかるため。ReasonList と Spec をこの中に入れ子で使うので、
+   `.rv .sim .it` のような同じ詳細度の指定を作ると、あとに書いたほうが勝つ。
+
+   **`--accent` を使うのは積載バーの超過表示だけ。**
+   ---------------------------------------------------------------------- */
+.rv .sim fieldset { border: none; }
+.rv .sim fieldset + fieldset { margin-top: 46px; }
+.rv .sim .sim-leg {
+  float: left;
+  width: 100%;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.rv .sim .sim-leg + * { clear: both; }
+.rv .sim .sim-hint { font-size: 12.5px; color: var(--ink-4); margin-top: 16px; line-height: 1.9; }
+.rv .sim .sim-hint b { color: var(--ink-3); font-weight: 600; }
+
+/* 品目。ItemList と同じ「見出しの下に罫線1本、行は細い罫線で区切る」 */
+.rv .sim .sim-grp + .sim-grp { margin-top: 34px; }
+.rv .sim .sim-gh {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .sim .sim-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0 18px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .sim .sim-nm { font-size: 14px; line-height: 1.7; }
+.rv .sim .sim-nm small { display: block; font-size: 11.5px; color: var(--ink-4); line-height: 1.7; }
+.rv .sim .sim-row.on .sim-nm { font-weight: 600; }
+.rv .sim .sim-v {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rv .sim .sim-st { display: flex; align-items: center; border: 1px solid var(--rule); }
+.rv .sim .sim-st button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ink-3);
+}
+.rv .sim .sim-st button:hover { background: var(--paper-2); color: var(--ink); }
+.rv .sim .sim-n {
+  width: 34px;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.rv .sim .sim-dis {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 0 12px 20px;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.rv .sim .sim-dis input { margin-top: 5px; accent-color: var(--ink); width: 15px; height: 15px; flex: none; }
+.rv .sim .sim-dis em { font-style: normal; color: var(--ink-4); font-size: 11.5px; margin-left: 7px; }
+/* 品目名・容積・ボタンを1行に並べられない幅では、名前を上の行に回す */
+@media (max-width: 560px) {
+  .rv .sim .sim-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; }
+  .rv .sim .sim-nm { grid-column: 1 / -1; }
+  .rv .sim .sim-v { text-align: left; }
+}
+
+/* 選択肢（作業人数・日程） */
+.rv .sim .sim-opts { display: flex; flex-wrap: wrap; gap: 9px; }
+.rv .sim .sim-opts label { display: block; cursor: pointer; position: relative; }
+.rv .sim .sim-opts input { position: absolute; opacity: 0; pointer-events: none; }
+.rv .sim .sim-opts span {
+  display: block;
+  border: 1px solid var(--rule);
+  padding: 11px 18px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: 0.12s;
+}
+.rv .sim .sim-opts span small { display: block; font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+.rv .sim .sim-opts label:hover span { border-color: var(--ink-4); }
+.rv .sim .sim-opts input:checked + span { background: var(--ink); color: #fff; border-color: var(--ink); }
+.rv .sim .sim-opts input:checked + span small { color: #b9c1c9; }
+/* キーボード操作でどこにいるか分かるように（見えない radio の代わり） */
+.rv .sim .sim-opts input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* 数値入力 */
+.rv .sim .sim-num { display: flex; align-items: center; gap: 12px; font-size: 13.5px; flex-wrap: wrap; }
+.rv .sim .sim-num input {
+  width: 96px;
+  border: 1px solid var(--rule);
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 15px;
+  text-align: right;
+  background: var(--paper);
+  color: var(--ink);
+}
+.rv .sim .sim-chk { margin-top: 16px; }
+.rv .sim .sim-chk label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13.5px; }
+.rv .sim .sim-chk input { margin-top: 5px; accent-color: var(--ink); width: 15px; height: 15px; flex: none; }
+.rv .sim .sim-chk em { font-style: normal; color: var(--ink-4); font-size: 12px; margin-left: 6px; }
+
+/* 積載バー。罫線1本と塗りだけ。角丸・影・グラデーションは使わない */
+.rv .sim .sim-load { margin-top: 46px; }
+.rv .sim .sim-lt {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.rv .sim .sim-lt b {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 21px;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.rv .sim .sim-bar { height: 7px; border-bottom: 1px solid var(--rule); margin-top: 10px; }
+.rv .sim .sim-bar i { display: block; height: 7px; background: var(--ink); }
+.rv .sim .sim-bar.over i { background: var(--accent); }
+.rv .sim .sim-ls { font-size: 12.5px; color: var(--ink-3); margin-top: 12px; line-height: 1.85; }
+.rv .sim .sim-warn {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  line-height: 1.85;
+  border-left: 2px solid var(--rule);
+  padding-left: 12px;
+  margin-top: 12px;
+}
+
+/* 明細と合計。枠は Spec と同じ */
+.rv .sim .sim-result { margin-top: 46px; }
+.rv .sim .sim-total { font-size: 34px; line-height: 1.3; margin-top: 8px; }
+.rv .sim .sim-total small { font-size: 15px; font-weight: 400; margin-left: 2px; }
+.rv .sim .sim-taxnote { font-size: 11.5px; color: var(--ink-4); margin-top: 4px; }
+.rv .sim table.sim-bd { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 13px; }
+.rv .sim table.sim-bd td {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-2);
+  vertical-align: top;
+  line-height: 1.7;
+}
+.rv .sim table.sim-bd td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rv .sim table.sim-bd td small { display: block; color: var(--ink-4); font-size: 11px; line-height: 1.7; }
+.rv .sim table.sim-bd tr.sub td { border-bottom: 1px solid var(--ink); font-weight: 600; }
+.rv .sim table.sim-bd tr:last-child td { border-bottom: none; }
+@media (max-width: 640px) {
+  .rv .sim .sim-total { font-size: 27px; }
+}
+
+/* 2案。ReasonList をそのまま使うので、上下の間隔だけ */
+.rv .sim .sim-plans { margin-top: 46px; }
+
+/* 送信 */
+.rv .sim .sim-send { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 46px; }
+.rv .sim .sim-send .btn:disabled { color: var(--ink-4); border-color: var(--rule); background: none; cursor: default; }
+.rv .sim .sim-send .btn:disabled:hover { background: none; color: var(--ink-4); }
+@media (max-width: 600px) {
+  .rv .sim .sim-send { flex-direction: column; align-items: stretch; }
+}
+
+.rv .sim .sim-note { font-size: 12.5px; color: var(--ink-3); margin-top: 26px; line-height: 1.95; }
+.rv .sim .sim-note.sub { color: var(--ink-4); font-size: 11.5px; margin-top: 16px; }
+
+/* ---- モバイル固定バー ---- */
+.rv .mbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 850;
+  background: #fff;
+  border-top: 1px solid var(--rule);
+  display: none;
+  padding: 8px 12px;
+  gap: 8px;
+}
+.rv .mbar a {
+  flex: 1;
+  text-align: center;
+  padding: 13px 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--ink);
+}
+.rv .mbar a.p { background: var(--ink); color: #fff; }
+@media (max-width: 960px) {
+  .rv .mbar { display: flex; }
+}

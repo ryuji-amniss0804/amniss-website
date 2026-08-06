@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "re'vive 富山 | 単身引越し・出張買取・軽貨物運送",
     description:
-      "富山県全域対応。単身引越し20,000円〜・出張買取 査定無料。養生材・運送保険込み。不用品はその場で買取査定。",
+      "富山県の単身引越しと出張買取ならre'vive 富山（リバイブ）。単身引越し20,000円〜・出張買取 査定無料。富山県全域、当日対応可。引越し費用を不用品買取で実質削減。古物商許可・貨物軽自動車運送事業届出済。富山県SDGs宣言企業。",
     url: "https://amniss-japan.jp",
     siteName: "re'vive 富山",
     locale: "ja_JP",
