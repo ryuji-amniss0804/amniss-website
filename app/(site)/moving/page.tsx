@@ -8,8 +8,8 @@ import Spec from "../_components/Spec";
 import ReasonList from "../_components/ReasonList";
 import Faq from "../_components/Faq";
 import Cta from "../_components/Cta";
-import Photo from "../_components/Photo";
-import { images, SIZES_BODY } from "@/lib/images";
+import Figure, { CARGO_CAPTION } from "../_components/Figure";
+import { MOVING_REASONS } from "../_reasons";
 import { TEL, TEL_HREF } from "@/lib/site";
 import {
   CAP,
@@ -158,8 +158,10 @@ const EXAMPLE_ROWS = EXAMPLE_CASES.map((c) => ({
 export default function MovingPage() {
   return (
     <>
-      {/* ① ヒーロー。写真は muted。文字を重ねない。
-          van-exterior-02 を使う（01 はナンバープレートと駐車枠が写り込んでいる）。
+      {/* ① ヒーロー。文字を重ねない。
+          **写真ではなく荷室の断面図（14_top）。**実車の写真は「軽バンだ」としか言えず、
+          このページで先に知りたいのは「自分の荷物が入るか」なので、寸法のほうを出す。
+          ナンバープレートの写り込みの件も、写真をやめたことで一緒に消えている。
           見出しはお客さんの言葉、リードの一言目でこちらが名乗る、という組み立て。
           ダッシュは全角2倍ダーシ（——）。ハイフンやマイナス記号にしない。
           リードは JSX で折らずに文字列1本で渡す。行末で折ると半角スペースが1つ入る */}
@@ -178,8 +180,7 @@ export default function MovingPage() {
             </a>
           </>
         }
-        image={images.vanExterior02}
-        caption="荷室は 幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg"
+        figure={<Figure name="cargo" caption={CARGO_CAPTION} />}
       />
 
       {/* ② 許認可 */}
@@ -275,43 +276,18 @@ export default function MovingPage() {
         </Spec>
       </Split>
 
-      {/* ⑦ 実際の金額 */}
+      {/* ⑦ 実際の金額。
+          養生の写真（youjou-01）はここにあったが、14_top でサイトから外してブログへ回した。
+          「養生と保険まで込み」は下の⑧の三番目（ReasonList）が文章で受けている */}
       <Split kicker="実 際 の 金 額" title="だいたい、こんな金額です">
         <PriceTable head={["ケース", "お支払額"]} rows={EXAMPLE_ROWS} />
-        <Photo
-          image={images.youjou01}
-          sizes={SIZES_BODY}
-          caption="毛布と養生材での保護、ラッシングベルトでの固定まで含んだ金額です"
-          className="mt"
-        />
       </Split>
 
       {/* ⑧⑨ 考え方と、日帰りの上限 */}
       <Split kicker="考 え 方" title="あとから困らないように" tint>
-        <ReasonList
-          items={[
-            {
-              title: "積める寸法を、先に出しています",
-              body: "荷室の内寸と最大積載量を明記しています。「行ってみたら運べませんでした」が一番ご迷惑をおかけするので、先に潰しています。",
-              evidence: "幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg",
-            },
-            {
-              title: "お手伝いをお願いしません",
-              body: "大型家具の積み下ろしをお客様に手伝っていただくことはありません。2名必要と判断した内容は2名で伺います。",
-              evidence: "人数が増えても追加料金はいただきません",
-            },
-            {
-              title: "養生と保険を別料金にしません",
-              body: "毛布・養生材・ラップでの保護、ラッシングベルトでの固定、運送保険。安く見せるために外す、という考え方は取っていません。",
-              evidence: "運送保険 補償上限500万円に加入済み",
-            },
-            {
-              title: "できないことを先に伝えます",
-              body: "400L以上の大型冷蔵庫、2トントラックが必要な物量、ピアノ・金庫。そして廃棄物の有料回収は、許可がないため行っていません。",
-              evidence: "一般廃棄物収集運搬業の許可は受けていません",
-            },
-          ]}
-        />
+        {/* 4項目は ../_reasons.ts。トップ（/）と同じものを出すので、
+            どちらかに書き写さない。文言はそのまま */}
+        <ReasonList items={MOVING_REASONS} />
 
         {/* ⑨ 「できないことを先に伝えます」の続き。距離の上限がどこから来ているか */}
         <Spec
