@@ -1,4 +1,32 @@
 import React from "react";
+import Link from "next/link";
+import { INDOOR_FEE, SPOT_FEE } from "@/app/(site)/_fees";
+import { DEPART, yen } from "@/lib/pricing";
+
+/**
+ * 特定商取引法に基づく表記（法定表示）。
+ *
+ * 【金額をこのファイルに書かない】
+ * 18で、ここの「時間チャーター 1時間8,000円（2時間〜／4時間超は1時間7,000円）」が、
+ * `/houjin` の「1時間からお受けします。2時間・4時間単位の縛りはありません」を
+ * **正面から否定している**のが見つかった。7,000円という単価は、
+ * サイトのどこにも `lib/pricing.ts` にも `_fees.ts` にも存在しなかった。
+ *
+ * 原因は、**法定表示ページに数字がベタ書きされていたこと**。だから誰も更新せず、
+ * 料金改定から取り残された。文言だけ直しても、次の改定でまた同じことが起きる。
+ *
+ * **金額は必ず、ほかのページと同じソースから引くこと。**
+ *  - 出動料 5,000 … `lib/pricing.ts` の DEPART
+ *  - 室内作業のみ 8,000 … `app/(site)/_fees.ts` の INDOOR_FEE
+ *  - 法人スポット便 8,000 … `app/(site)/_fees.ts` の SPOT_FEE
+ *
+ * INDOOR_FEE と SPOT_FEE は**同額だが別の定数のまま**にしてある。
+ * 片方を改定したときに、もう片方が黙って一緒に動かないようにするため。
+ *
+ * 個別の金額（荷物の量・距離・建物の条件）はここに並べない。
+ * 式の全項目は `/moving`、条件を入れた実額は `/simulator` が受ける。
+ * **この2ページへのリンクが、役務の対価の開示の一部**なので外さないこと。
+ */
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | re'vive 富山",
@@ -87,33 +115,57 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     value: "富山県全域（県外への輸送はご相談ください）",
   },
   {
-    label: "サービス料金",
+    label: "役務の対価",
     value: (
       <>
-        <span className="block">・単身引越し　20,000円〜（富山市内・ワンルーム〜1K・平日）</span>
-        <span className="block">・家具・家電の運搬　12,000円〜（富山市内・1〜3点・平日）</span>
-        <span className="block">・出張買取　査定無料</span>
-        <span className="block">・県外への引越し　30,000円〜（片道距離による。東京・横浜は150,000円〜）</span>
-        <span className="block">・法人スポット便　8,000円〜（富山県内・1配送）</span>
-        <span className="block">
-          　時間チャーター　1時間 8,000円（2時間〜／4時間を超える場合は1時間 7,000円）
+        <span className="block font-black">お引越し・運搬</span>
+        <span className="block mt-1">
+          （出動料 {yen(DEPART)} ＋ 荷物の量 ＋ 距離 ＋ 建物の条件）× 日程係数
         </span>
-        <span className="block text-xs mt-2" style={{ color: "var(--color-muted)" }}>
-          いずれも税込。毛布・養生材・運送保険・2階までの階段作業を含みます。
+        <span className="block">100円未満切り捨て・すべて税込。</span>
+        <span className="block mt-2">
+          計算式の全項目と金額は
+          <Link href="/moving" className="underline underline-offset-2">
+            単身引越し
+          </Link>
+          のページに掲載しています。
+          <Link href="/simulator" className="underline underline-offset-2">
+            お見積りシミュレーター
+          </Link>
+          で、ご自身の条件のまま金額をご確認いただけます。
+        </span>
+
+        <span className="block font-black mt-5">
+          室内での作業のみ（車を出さない場合）　{yen(INDOOR_FEE)}
+        </span>
+
+        <span className="block font-black mt-5">
+          法人のお客様のスポット便　富山市内・1時間まで {yen(SPOT_FEE)}
+        </span>
+        <span className="block mt-1">富山市外は距離に応じて加算します。</span>
+        <span className="block">
+          長時間のチャーター・事務所移転は、個別にお見積りします。
+        </span>
+
+        <span className="block font-black mt-5">出張買取</span>
+        <span className="block mt-1">
+          査定は無料です。買取価格は品物ごとに、その場で提示します。
+        </span>
+
+        <span className="block text-xs mt-4" style={{ color: "var(--color-muted)" }}>
+          毛布・養生材・運送保険・2階までの階段作業を含みます。
           作業前にお見積り金額を確定させ、当日の追加請求は行いません。
         </span>
       </>
     ),
   },
   {
-    label: "料金以外の必要料金",
+    label: "対価以外に必要な料金",
     value: (
       <>
-        ・県外への輸送にかかる高速道路料金・燃料費
-        <br />
-        ・有料駐車場を利用する場合の駐車料金
+        高速道路料金・有料駐車場代　実費
         <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
-          いずれも発生する場合は、お見積り時に金額をお伝えします。
+          発生する場合は、お見積り時に金額をお伝えします。
         </span>
       </>
     ),
@@ -232,7 +284,7 @@ export default function TokushohoPage() {
             re&apos;vive 富山（運営：AmNiss&amp;Co. Japan）
           </p>
           <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>
-            最終更新：2026年8月2日
+            最終更新：2026年8月7日
           </p>
         </div>
 
