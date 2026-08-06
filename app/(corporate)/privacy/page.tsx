@@ -2,6 +2,8 @@ export const metadata = {
   title: "プライバシーポリシー | re'vive",
   description:
     "AmNiss & Co. Japan / re'viveのプライバシーポリシー・免責事項。個人情報の取得・利用目的・管理方針を掲載しています。",
+  // canonical はレイアウトに置けない（子に継承されるため）。各ページで自分自身を指す。
+  alternates: { canonical: "/privacy" },
   // og:title は <title> と、og:description は description と同じにする。
   // 書かないとレイアウトのもの（トップの文）がそのまま継承される
   openGraph: {
