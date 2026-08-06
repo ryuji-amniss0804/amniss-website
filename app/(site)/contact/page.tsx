@@ -17,17 +17,28 @@ import { AREA, HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 export const metadata: Metadata = {
   title: "お問い合わせ ｜ re'vive 富山",
   description:
-    "re'vive 富山へのお問い合わせ。電話・LINEで承っています。富山県全域、9:00〜21:00 年中無休。運びたい物・売りたい物の写真があれば、その場で金額をお出しします。",
+    "re'vive 富山へのお問い合わせ。入力フォームは準備中です。お急ぎの方は、お電話かLINEでご連絡ください。富山県全域、受付9:00〜21:00・年中無休。",
   alternates: { canonical: "/contact" },
+  // openGraph を書かないとレイアウトのもの（トップの文）がそのまま継承される。
+  // og:title は <title> と、og:description は description と同じにする。
+  openGraph: {
+    title: "お問い合わせ ｜ re'vive 富山",
+    description:
+      "re'vive 富山へのお問い合わせ。入力フォームは準備中です。お急ぎの方は、お電話かLINEでご連絡ください。富山県全域、受付9:00〜21:00・年中無休。",
+    url: "https://amniss-japan.jp/contact",
+    siteName: "re'vive 富山",
+    locale: "ja_JP",
+    type: "website",
+  },
 };
 
 export default function ContactPage() {
   return (
     <>
       <Split kicker="お 問 い 合 わ せ" title="お問い合わせ" first>
+        {/* 1つづきの文なので、JSX で折らずに文字列1本で渡す */}
         <p className="lead" style={{ marginTop: 0 }}>
-          お電話かLINEで承っています。運びたい物・売りたい物の写真があれば、
-          その場で金額をお出しします。見積りだけのご相談も歓迎です。
+          {"入力フォームは準備中です。お急ぎの方は、お電話かLINEでご連絡ください。"}
         </p>
         <p className="lead">
           電話
@@ -43,10 +54,6 @@ export default function ContactPage() {
           </a>
         </p>
         <p className="lead">対応エリア　{AREA}</p>
-        {/* 1つづきの文なので、JSX で折らずに文字列1本で渡す */}
-        <p className="pnote">
-          {"入力フォームは準備中です。お急ぎの方は、お電話かLINEでご連絡ください。"}
-        </p>
       </Split>
 
       <Cta />

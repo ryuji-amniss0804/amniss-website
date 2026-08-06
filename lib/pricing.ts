@@ -14,9 +14,9 @@
  * 元は配列（タプル）だったが、TypeScript で添字アクセスが読めなくなるため、
  * 入れ物だけオブジェクトにしてある。**値は1つも変えていない。**
  *
- * 【丸め】合計は Math.round(base * 係数 / 100) * 100。
- * moving_final.md の「100円未満切り捨て」とは厳密には違うが、
- * 本人が承認して使っているのは price_simulator.html のこの式なので、元のとおりにする。
+ * 【丸め】合計は Math.floor(base * 係数 / 100) * 100（100円未満切り捨て）。
+ * 元の price_simulator.html は Math.round だったが、moving_final.md とサイトの表記が
+ * 「100円未満切り捨て」なので、原典（price_simulator.html）ごと Math.floor に直してある。
  */
 
 /* ============ 定数 ============ */
@@ -379,7 +379,7 @@ export type QuoteInput = {
 
 /**
  * 明細を組み立てて合計を出す。price_simulator.html の build() と同じ。
- * 丸めは Math.round(base * 係数 / 100) * 100（100円未満は四捨五入）。
+ * 丸めは Math.floor(base * 係数 / 100) * 100（100円未満は切り捨て）。
  */
 export function buildQuote(p: QuoteInput): Quote {
   const rows: Row[] = [
@@ -430,11 +430,11 @@ export function buildQuote(p: QuoteInput): Quote {
 
 /**
  * 係数を掛けて100円単位にする。price_simulator.html の
- * `Math.round(base * c[0] / 100) * 100` と同じ。**切り捨てではなく四捨五入。**
+ * `Math.floor(base * c[0] / 100) * 100` と同じ。**100円未満は切り捨て。**
  * 丸め方を書いてよいのはここだけ。
  */
 export function applyCoef(base: number, coefKey: CoefKey): number {
-  return Math.round((base * COEF[coefKey].coef) / 100) * 100;
+  return Math.floor((base * COEF[coefKey].coef) / 100) * 100;
 }
 
 /**
@@ -450,6 +450,6 @@ export function plainTotal(p: { tier: Tier; crew: 1 | 2; km: number; coefKey: Co
 /** 往復プランで加算する額（2回目の積み下ろしと走行ぶん） */
 export function roundtripExtra(crew: 1 | 2, dist: Dist): number {
   const full = TIER[TIER.length - 1];
-  const addWork = Math.round((full.work[crew === 1 ? 0 : 1] * ROUNDTRIP_WORK_RATE) / 100) * 100;
+  const addWork = Math.floor((full.work[crew === 1 ? 0 : 1] * ROUNDTRIP_WORK_RATE) / 100) * 100;
   return addWork + dist.fee;
 }

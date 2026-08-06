@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "富山の単身引越し｜最短当日・軽バン1台 20,000円〜 ｜ re'vive 富山",
     description:
-      "ワンルーム〜1Kを軽バン1台・作業員1名、富山市内・平日 20,000円から。料金の出し方を全部公開しています。最短当日対応。",
+      "富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員1名で、富山市内・平日 20,000円から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。",
     url: "https://amniss-japan.jp/moving",
     siteName: "re'vive 富山",
     locale: "ja_JP",
