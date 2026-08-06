@@ -43,8 +43,9 @@ export default function ContactPage() {
           </a>
         </p>
         <p className="lead">対応エリア　{AREA}</p>
+        {/* 1つづきの文なので、JSX で折らずに文字列1本で渡す */}
         <p className="pnote">
-          入力フォームは準備中です。ご不便をおかけしますが、当面はお電話かLINEでお願いします。
+          {"入力フォームは準備中です。お急ぎの方は、お電話かLINEでご連絡ください。"}
         </p>
       </Split>
 

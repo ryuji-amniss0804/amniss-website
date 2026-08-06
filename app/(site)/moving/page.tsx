@@ -59,7 +59,7 @@ import {
 export const metadata: Metadata = {
   title: "富山の単身引越し｜最短当日・軽バン1台 20,000円〜 ｜ re'vive 富山",
   description:
-    "富山県全域の単身引越し。ワンルーム〜1Kを軽バン1台・作業員1名、富山市内・平日 20,000円から。料金の出し方を全部公開しています。最短当日対応。貨物軽自動車運送事業 届出済。",
+    "富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員1名で、富山市内・平日 20,000円から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。",
   alternates: { canonical: "/moving" },
   openGraph: {
     title: "富山の単身引越し｜最短当日・軽バン1台 20,000円〜 ｜ re'vive 富山",
@@ -159,17 +159,15 @@ export default function MovingPage() {
   return (
     <>
       {/* ① ヒーロー。写真は muted。文字を重ねない。
-          van-exterior-02 を使う（01 はナンバープレートと駐車枠が写り込んでいる） */}
+          van-exterior-02 を使う（01 はナンバープレートと駐車枠が写り込んでいる）。
+          見出しはお客さんの言葉、リードの一言目でこちらが名乗る、という組み立て。
+          ダッシュは全角2倍ダーシ（——）。ハイフンやマイナス記号にしない。
+          リードは JSX で折らずに文字列1本で渡す。行末で折ると半角スペースが1つ入る */}
       <Hero
         size="md"
         kicker="単 身 引 越 し ／ 富 山 県 全 域"
-        title="今日決めた引越しにも、行けます。"
-        lead={
-          <>
-            ワンルーム〜1K を、軽バン1台と作業員1名で。富山市内・平日 20,000円から。
-            最短で当日に伺います。
-          </>
-        }
+        title="荷物、そんなに多くないんですけど。"
+        lead="——という規模のお引越しだけ、やっています。ワンルームから1Kくらいを、軽バン1台と作業員1名で。富山市内・平日で20,000円から。予定が空いていれば、今日でも明日でも伺います。"
         actions={
           <>
             <Link className="btn btn-fill" href="/contact">
@@ -188,11 +186,10 @@ export default function MovingPage() {
       <LicenseStrip />
 
       {/* ③④ 金額の出し方。計算式 → 出動料 → 4つの表 */}
-      <Split kicker="考 え 方" title="金額の出し方を、全部公開しています" first>
+      <Split kicker="考 え 方" title="いくらかかるのか、先に分かります" first>
         <Spec label="計 算 式" value="（ 出動料 ＋ 荷物の量 ＋ 距離 ＋ 建物の条件 ）× 日程" small>
-          100円未満は切り捨て。すべて税込です。
-          <br />
-          見積りは作業前に確定します。あとから増えることはありません。
+          {/* 1つづきの文なので <br /> で割らず、文字列を1本にして渡す */}
+          {"すべて税込で、100円未満は切り捨てます。お見積りは作業を始める前に確定します。作業後に金額が増えることはありません。"}
         </Spec>
 
         {/* ラベルに金額を入れると、5,000円がページでいちばん小さい字（11.5px・灰色）に
@@ -237,7 +234,7 @@ export default function MovingPage() {
       </Split>
 
       {/* ⑤⑥ 積める量と、積みきれない場合 */}
-      <Split kicker="積 め る 量" title="積める寸法を公開しています" tint>
+      <Split kicker="積 め る 量" title="これ、積めますか？" tint>
         {/* 2.8 は CAP から。JSX の本文に {CAP} を混ぜると text node が割れて
             HTML に <!-- --> が入るので、文字列を1つに組んでから渡す */}
         <Spec label="積 め る サ イ ズ" value="幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg">
@@ -279,7 +276,7 @@ export default function MovingPage() {
       </Split>
 
       {/* ⑦ 実際の金額 */}
-      <Split kicker="実 際 の 金 額" title="こうなります">
+      <Split kicker="実 際 の 金 額" title="だいたい、こんな金額です">
         <PriceTable head={["ケース", "お支払額"]} rows={EXAMPLE_ROWS} />
         <Photo
           image={images.youjou01}
@@ -290,11 +287,11 @@ export default function MovingPage() {
       </Split>
 
       {/* ⑧⑨ 考え方と、日帰りの上限 */}
-      <Split kicker="考 え 方" title="安い業者との違い" tint>
+      <Split kicker="考 え 方" title="あとから困らないように" tint>
         <ReasonList
           items={[
             {
-              title: "積める寸法を公開しています",
+              title: "積める寸法を、先に出しています",
               body: "荷室の内寸と最大積載量を明記しています。「行ってみたら運べませんでした」が一番ご迷惑をおかけするので、先に潰しています。",
               evidence: "幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg",
             },
