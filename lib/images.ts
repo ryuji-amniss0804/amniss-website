@@ -11,9 +11,13 @@
  *  - "muted" … 彩度と明度を少しだけ落とす。青空・駐車場の白線の主張を消す。
  *              単体で見せる写真はこれ。文字は乗らない
  *  - "dark"  … 強く落として濃紺を重ねる。上に白い文字を乗せて初めて成立する数字なので、
- *              ヒーローの背景のように文字が乗る場所でだけ使う。
+ *              文字が乗る場所でだけ使う。
  *              単体で当てると「露出に失敗した写真」になる。
  *              Photo 側で、dark には必ず可読性のオーバーレイが入る
+ *              **この値を使っている画像は1枚もない。**
+ *              17_hero でトップのヒーローからも文字を外したので、
+ *              **写真の上に文字が乗る場所はサイト内に1つも無い。**
+ *              定義と CSS は、そういう場所がまた出てきたときのために残してある
  *
  * 元ファイルは D:\re'vive_toyama_marketing\images\ にある。
  * public/images へは ASCII 名にリネームして取り込んでいる（対応は originalName）。
@@ -50,56 +54,31 @@ export const images = {
     treatment: "plain",
   },
 
-  // ─── 軽バン・養生（単体で見せる。青空と白線の主張だけ落とす） ───
-  vanExterior01: {
-    src: "/images/van-exterior-01.jpg",
-    alt: "スズキ・エブリイ（ハイルーフ）の外観",
-    width: 1600,
-    height: 1067,
-    treatment: "muted",
-    originalName: "van_外観01.jpg",
-  },
+  // ─── トップのヒーロー（画面幅いっぱい・写真の下に濃紺パネル） ───
   /*
-   * 下端にナンバープレート（原本 y975〜1090／全1261）が写っている。
+   * 呉羽山からの立山連峰と富山市街。**軽バン・立山連峰・市街地の3つが
+   * 写っていることに意味がある写真。**（image_decision.md の枠A＝証拠）
    *
-   * **objectPosition では消せないので、あえて指定していない。**
-   * 390px のヒーローは枠 334×230px で、cover の倍率が横（334/1600）で決まる。
-   * cover 後の高さは 263px で、縦に切り落とせるのは 33px＝原本換算159pxしかない。
-   * プレートは原本の 77〜86% の高さにあるので、0% でも 100% でも必ず枠に残る。
-   * 消すには枠を203px以下にするしかなく、そのときタイヤが切れる（09で見送ったA案と同じ）。
+   * treatment は "plain"。**filter は当てない。オーバーレイも無い。**
+   * 17_hero で写真の上から文字を外したので、減光する理由がそもそも無くなった。
+   * treatment: "dark" を当ててはいけない。
    *
-   * 一方 1280px（枠1004×390px）では、既定の 50% でプレートは枠の外にある。
-   * 30% を当てると 390px では何も変わらないまま、1280px で車体の下だけが余計に切れる。
-   * **足すと損しかしないので、既定（中央）のままにしてある。** 10_simulator の報告を参照。
+   * objectPosition の縦75%について。
+   * デスクトップでは1画面に収めるため、枠の高さを 21:9 より詰める（site.css）。
+   * cover なので**切れるのは上下だけ**だが、中央（既定の50%）で切ると
+   * 下の軽バンの足元が先に落ちる。画（3000×1286）の中身は縦位置で
+   *   0.17 銅像の手 ／ 0.23 立山連峰の稜線 ／ 0.34-0.46 富山市街 ／ 0.28-0.95 軽バン
+   * で、下側のほうが余白が無い。75%まで下げると、枠が下限（縦79%）まで
+   * 詰まっても [0.148, 0.951] が残り、4つとも切れない。
    */
-  vanExterior02: {
-    src: "/images/van-exterior-02.jpg",
-    alt: "軽バンの外観",
-    width: 1600,
-    height: 1261,
-    treatment: "muted",
-    originalName: "van_外観02.jpg",
-  },
-  youjou01: {
-    src: "/images/youjou-01.jpg",
-    alt: "毛布と養生材で保護した荷物",
-    width: 1600,
-    height: 1511,
-    treatment: "muted",
-    originalName: "youjou_養生01.jpg",
-  },
-
-  // ─── ヒーローの背景用（上に文字が乗る前提） ───
-  // 元は 1050x1400。下端にナンバープレートが写っていて、暗い画面の中で
-  // 黄色が一番先に目に入るため、下 350px を切って 1050x1050 にしてある。
-  // 未加工の原本は D:\re'vive_toyama_marketing\images\sagyou_積込01.jpg。
-  sagyouLoading01: {
-    src: "/images/sagyou-loading-01.jpg",
-    alt: "軽バンの荷室。毛布と養生材で保護した家具を積み込んだ状態",
-    width: 1050,
-    height: 1050,
-    treatment: "dark",
-    originalName: "sagyou_積込01.jpg（下端をクロップ済み）",
+  heroTop: {
+    src: "/images/hero-top.jpg",
+    alt: "呉羽山から見た立山連峰と富山市街。手前に軽バン（スズキ・エブリイ）",
+    width: 3000,
+    height: 1286,
+    treatment: "plain",
+    objectPosition: "center 75%",
+    originalName: "hero_top.jpg",
   },
 
   // ─── 精密機器（そのまま。背景が整理されているため暗くしない） ───
@@ -165,10 +144,27 @@ export type SiteImageKey = keyof typeof images;
 
 /**
  * 保管のみ。このサイトでは使わない。
- * D:\re'vive_toyama_marketing\images\seimitsu_自作PC_RGB_未使用.jpg
- * → 使わないものを public/ に置くと配信対象になるので、リポジトリには取り込んでいない。
+ *
+ * **public/images からファイルは消していない。**参照を外しただけ。
+ * next/image は images に定義がある画像しかビルドしないので、
+ * 参照が無ければ配信も最適化も走らない。復活させるときは
+ * ここから images へ戻せば、ファイルを探し直さずに済む。
+ *
+ * 原本は D:\re'vive_toyama_marketing\images\。
  */
-export const UNUSED_ARCHIVE = ["seimitsu_自作PC_RGB_未使用.jpg"] as const;
+export const UNUSED_ARCHIVE = [
+  // 一度も使っていないもの
+  "seimitsu_自作PC_RGB_未使用.jpg",
+
+  // ─── 14_top でサイトから外したもの ───
+  // 実写の軽バン・養生・積込は**ブログへ移す。**サイト本体では図版に置き換えた。
+  // van_外観02 は /moving のヒーローだったが、荷室の断面図（fig_cargo.svg）に差し替え。
+  // これでナンバープレートの写り込みの件も一緒に消えている。
+  "van_外観01.jpg", // public/images/van-exterior-01.jpg
+  "van_外観02.jpg", // public/images/van-exterior-02.jpg
+  "youjou_養生01.jpg", // public/images/youjou-01.jpg
+  "sagyou_積込01.jpg（下端をクロップ済み）", // public/images/sagyou-loading-01.jpg
+] as const;
 
 /** ヒーローなど、幅いっぱいに敷く画像の sizes */
 export const SIZES_FULL = "100vw";
