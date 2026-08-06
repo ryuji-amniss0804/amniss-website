@@ -35,15 +35,17 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* PC ナビ */}
+        {/* PC ナビ
+            旧トップのアンカー（/#moving /#kaitori）は、トップが (site) 側に移った時点で
+            飛び先が消えている。実ページ（/moving /kaitori）へ向け直した。 */}
         <nav
           className="hidden lg:flex items-center gap-6 text-sm font-bold"
           style={{ color: "var(--color-text)" }}
         >
-          <Link href="/#moving" className="hover:opacity-60 transition-opacity">
+          <Link href="/moving" className="hover:opacity-60 transition-opacity">
             引越し
           </Link>
-          <Link href="/#kaitori" className="hover:opacity-60 transition-opacity">
+          <Link href="/kaitori" className="hover:opacity-60 transition-opacity">
             買取
           </Link>
           <Link href="/company" className="hover:opacity-60 transition-opacity">
@@ -83,10 +85,10 @@ export default function Header() {
             color: "var(--color-text)",
           }}
         >
-          <Link href="/#moving" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
+          <Link href="/moving" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
             引越し
           </Link>
-          <Link href="/#kaitori" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
+          <Link href="/kaitori" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">
             買取
           </Link>
           <Link href="/company" onClick={() => setOpen(false)} className="py-2 hover:opacity-60 transition-opacity">

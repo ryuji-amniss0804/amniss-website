@@ -50,9 +50,11 @@ export default function Footer() {
           >
             Navigation
           </span>
+          {/* 旧トップのアンカー（/#moving /#kaitori）は、トップが (site) 側に移った時点で
+              飛び先が消えている。実ページへ向け直した。 */}
           {[
-            { name: "単身引越し", href: "/#moving" },
-            { name: "出張買取", href: "/#kaitori" },
+            { name: "単身引越し", href: "/moving" },
+            { name: "出張買取", href: "/kaitori" },
             { name: "会社概要", href: "/company" },
           ].map((item) => (
             <Link
