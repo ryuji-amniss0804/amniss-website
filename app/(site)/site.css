@@ -149,6 +149,11 @@ body.rv {
 .rv .btn-fill:hover { background: var(--accent); border-color: var(--accent); }
 .rv .btn-line { border-color: #fff; color: #fff; }
 .rv .btn-line:hover { background: #fff; color: var(--ink); }
+/* 濃い面の上に置く主ボタン。--ink の面（トップのヒーロー・CTA帯）では
+   .btn-fill が背景と同じ色になって消えるので、白で塗るほう。
+   .btn-line と対で使う（.btn-line が従、これが主） */
+.rv .btn-w { background: #fff; border-color: #fff; color: var(--ink); }
+.rv .btn-w:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 /* ---- ヘッダー ---- */
 .rv header.site {
@@ -187,9 +192,39 @@ body.rv {
   letter-spacing: 0.03em;
 }
 .rv .hd-tel span { display: block; font-size: 10px; color: var(--ink-4); letter-spacing: 0.06em; }
+/* ヘッダーのCTA。ヒーローのボタンより一段小さい。
+   .rv .btn と詳細度が同じなので、必ず .btn より後ろに置くこと */
+.rv .hd-cta { padding: 12px 22px; font-size: 13.5px; }
 @media (max-width: 960px) {
   .rv nav.main,
   .rv .hd-tel { display: none; }
+}
+/* 狭い幅でヘッダーのCTAが「見積りを／依頼」と2行に割れていた。
+   読みではなく押しやすさの問題なので、字と余白のほうを詰める。
+
+   ヘッダーは flex。行が足りないとロゴもボタンも縮むので、
+   直すべきは「3つの合計が本文幅に収まるかどうか」だけ。
+
+     ロゴ 115.83（"AMNISS & CO. JAPAN" の幅で決まる）
+     ＋ gap 38 ＋ ボタン 126.94（13.5px／左右22px）＝ 280.77
+     本文幅は 320px で 249（320 − スクロールバー15 − 左右パディング28×2）
+
+   31.77px 足りない。字を1段（13.5→12.5px）落として左右を22→15pxにしても
+   ボタンは 106.94px で、合計 260.77。**ボタン側だけでは足りない。**
+   249px の行に gap 38px のほうが大きすぎるので、20px にする。
+   合計 242.77 で 6.23px 余る。
+   ボタンを 12px/12px まで縮めれば gap 38 のままでも入るが、
+   それは2行に割れているより押しにくい。
+
+   実機の320px はスクロールバーがないぶん 264px 使えるので余りは 21.23px。
+   フォント読み込み前はロゴが 100.67px と細いので、余りは増えるほうに動く。
+
+   ブレークポイントは 320px ではなく 360px。**2行に割れ始めるのは実機で幅337px**
+   （この計測環境ではスクロールバーぶん増えて352px）。
+   320px だけを見ていると 337〜360px の端末で同じことが起きる */
+@media (max-width: 360px) {
+  .rv .hd-in { gap: 20px; }
+  .rv .hd-cta { padding: 12px 15px; font-size: 12.5px; }
 }
 
 /* ---- ヒーロー：帯ではなく紙面 ---- */
@@ -229,6 +264,129 @@ body.rv {
   .rv .hero .acts .btn { width: 100%; }
 }
 
+/* ---- トップのヒーロー：写真 → 濃紺パネルにテキスト --------------------
+   下層ページの .hero とは別物。あちらは「文字が先、写真はその下」。
+
+   【17_hero で作り直した】**写真の上に文字を置かない。**
+   14では写真に重ねて左端だけグラデーションを敷いていたが、実測で
+   リード1.61・電話ボタン2.38（1280px）と読めていなかった。濃くすれば通るが、
+   そのぶん立山連峰と富山市街が沈む。この写真は image_decision.md の
+   **枠A（証拠）**で、テキストの背景（枠C）ではない。
+
+   840px以下がもともと正しく組めていたので、デスクトップをそれに合わせた。
+   **オーバーレイもグラデーションも無い。写真は無加工・左右も切らない。**
+   （高さを詰めるときに切るのは上下だけ。object-fit: cover ＋
+     枠の高さ < 幅÷2.333 の関係が保たれているかぎり、左右は切れない）
+   ---------------------------------------------------------------------- */
+/* Photo は <figure> を出す。ここでは1枚を敷くだけなので余白を持たせない */
+.rv .hero-top figure { display: block; }
+.rv .ht-fig { aspect-ratio: 21 / 9; overflow: hidden; }
+/* .rv img の height:auto を上書きする。枠を決めて cover で収める。
+   切り取り位置（object-position）は lib/images.ts の heroTop 側 */
+.rv .ht-fig img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 濃紺のパネル。文字はここにしか乗らない */
+.rv .ht-txt { background: var(--ink); padding-top: 44px; padding-bottom: 48px; }
+.rv .ht-txt > .w { width: 100%; }
+/* パネルの中は既定では2カラムにしない（display: contents で枠が消える）。
+   DOM の並び（ラベル → 見出し → リード → ボタン）がそのまま流れる */
+.rv .ht-grid { display: contents; }
+.rv .ht-txt .kicker { color: rgba(255, 255, 255, 0.62); margin-bottom: 22px; }
+.rv .ht-txt h1 { font-size: 26px; line-height: 1.75; letter-spacing: 0.01em; color: #fff; }
+.rv .ht-txt .sub {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+  max-width: 33em;
+  line-height: 2.1;
+}
+.rv .ht-txt .acts { display: flex; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+
+/* 841px以上：**ヒーロー全体（写真＋パネル）を1画面に収める。**
+   高さを固定値で決めない。ヘッダー(74px)を引いた1画面から
+   パネルの実高を引いた残りを、そのまま写真に渡す（flex: 1）。
+
+   min-height 34vw … 写真の下限。これを割ると写真が
+     「立山連峰の稜線から軽バンの足元まで」を含めきれなくなる。
+     21:9（＝42.86vw）に対する 34vw は、画（3000×1286）の縦およそ79%。
+   max-height 41.5vw … 上限。21:9 を超えて縦に伸ばすと cover が
+     **左右を切り始める。**それは決定に反するので、その手前で止める。 */
+@media (min-width: 841px) {
+  /* 75px はヘッダーの実高（.hd-in 74px ＋ border-bottom 1px）。
+     min-height であって height ではない。**画面が低いときは、
+     写真を下限まで詰めたうえでヒーローのほうが伸びる**（文字を潰さない）。 */
+  .rv .hero-top {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 75px);
+    min-height: calc(100dvh - 75px);
+  }
+  /* flex-basis を 0 にするのが要点。auto のままだと写真の実寸（21:9）が
+     コンテナの中身の高さになってしまい、min-height が効かず余りが生まれない。 */
+  /* grow を 1000 にしてあるのは、余りを**まず写真に全部渡す**ため。
+     写真が max-height で止まったあとの残りだけがパネルへ回る（下の flex: 1 0 auto）。
+     grow を等分にすると、写真が上限で止まった瞬間に
+     パネルの下へ白い余白が残る（1280×900 で10.2px出ていた）。 */
+  .rv .hero-top > figure {
+    position: relative;
+    flex: 1000 1 0;
+    min-height: 34vw;
+    max-height: 41.5vw;
+  }
+  /* inset で高さを確定させる。%高さは、親の高さが確定していないと
+     auto に落ちて画像が実寸のまま出る（枠からはみ出す）。
+     セレクタを .hero-top で1段深くしてあるのは、下の `.rv .fig { position: relative }`
+     と詳細度が並ぶため。**メディアクエリは詳細度を上げない。**
+     後ろに書いてあるほうが勝つので、負けていた。 */
+  .rv .hero-top .ht-fig { position: absolute; inset: 0; aspect-ratio: auto; }
+  /* 写真が上限で止まったあとの余りはこちらが飲む。
+     中身は縦中央に置くので、増えたぶんは濃紺の面が広がるだけになる。 */
+  .rv .ht-txt {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 52px;
+    padding-bottom: 56px;
+  }
+  .rv .ht-txt h1 { font-size: 33px; line-height: 1.68; }
+
+  /* パネルの中を2カラムにする（見出し ／ リードとボタン）。
+     **縦に積むとパネルだけで435px使い、写真の取り分が無くなる。**
+     左300pxは、見出しの1行目「軽バン1台ぶんの、」が33pxで281.1px＝
+     <br /> で決めた2行を保てる幅。右は本文列の残り（841pxで430px、
+     920px以上で485px以上）で、狭いところではリードが3行になる。
+     align-items: end は、見出しの下端とボタンの下端を揃えるため
+     （上で揃えると、右列だけが浮いて見える）。 */
+  .rv .ht-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+    align-items: end;
+  }
+  /* 2カラムでは右列の先頭になるので、見出しとの間の余白は要らない */
+  .rv .ht-txt .sub { margin-top: 0; }
+  .rv .ht-txt .acts { margin-top: 26px; }
+}
+
+/* 1061px以上（本文幅 --w に達したところ）：見出しを40pxに戻し、
+   左列もそれに合わせて広げる。40pxの1行目は340.7px なので420pxで足りる。 */
+@media (min-width: 1061px) {
+  .rv .ht-grid { grid-template-columns: 420px 1fr; gap: 56px; }
+  .rv .ht-txt h1 { font-size: 40px; line-height: 1.62; }
+  .rv .ht-txt .acts { margin-top: 34px; }
+}
+
+/* .hero h1 と同じ理由。320px（本文幅249px）では26pxだと文節の途中で切れる */
+@media (max-width: 360px) {
+  .rv .ht-txt h1 { font-size: 24px; }
+}
+/* ボタンは幅が中身まかせなので、横に並べられない幅では全幅にして縦に積む */
+@media (max-width: 600px) {
+  .rv .ht-txt .acts { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rv .ht-txt .acts .btn { width: 100%; }
+}
+
 /* ---- 画像の処理 ------------------------------------------------
    加工は「スタイル」ではなく「散らかった背景を消す道具」。
    一律には当てない。lib/images.ts の treatment に従うこと。
@@ -252,6 +410,11 @@ body.rv {
    .32 まで下げると白黒写真に見え始めるので、その手前。 */
 .rv .fig-muted img { filter: saturate(0.45) contrast(1.06) brightness(0.94); }
 
+/* **この2つを使っている画像は1枚もない。**
+   唯一の dark だった sagyou-loading-01 をサイトから外したため。
+   **17_hero でトップのヒーローからも文字を外したので、写真に文字が乗る場所は
+   サイト内に1つも無くなった。**（トップの左だけのオーバーレイも削除済み）
+   「文字が写真の上に乗る」ケースが将来また出たときのために残してある。 */
 .rv .fig-dark img { filter: saturate(0.16) contrast(1.16) brightness(0.46); }
 /* ::after は1つしか使えないので、可読性のグラデーションと
    rgb(16,23,32) 34% のブレンドを多重背景で重ねている。
@@ -269,6 +432,61 @@ body.rv {
       rgba(9, 14, 20, 0.3) 100%
     ),
     rgba(16, 23, 32, 0.34);
+}
+
+/* ---- 図版：SVGをインラインで置く ------------------------------------
+   色は全部こちら側。**SVG の中に色を直書きしないこと。**
+   トークン（--ink / --ink-4 / --paper-2）を変えたときに図版だけ取り残される。
+   クラスを `fg-` で始めているのは、`.spec .v` `.reasons .it` のような
+   短い名前とぶつからないようにするため。
+   ---------------------------------------------------------------------- */
+/* 荷室の断面図は 460×372（比 1.24）。本文列いっぱいに流すと 1280px で
+   高さ810pxになり、図が主役を食う。実寸の図面として読める大きさで止める */
+.rv .figv { max-width: 560px; }
+.rv .figv svg { width: 100%; height: auto; display: block; }
+.rv .figv .fg-ln { stroke: var(--ink-4); stroke-width: 1; }
+.rv .figv .fg-bx { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.rv .figv .fg-it { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1; }
+.rv .figv .fg-gd { fill: none; stroke: var(--ink); stroke-width: 1; }
+/* 寸法線の上に文字を置くための目隠し。**紙色（白）で塗っている。**
+   tint（--paper-2）のセクションに図版を置くと、ここだけ白く抜ける。
+   図版は白い面にだけ置くこと */
+.rv .figv .fg-mask { fill: var(--paper); }
+.rv .figv .fg-t {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 11px;
+  fill: var(--ink-4);
+  letter-spacing: 0.04em;
+}
+.rv .figv .fg-tb {
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  font-size: 11px;
+  fill: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+/* .rv .hero .cap と同じ詳細度なので、あちらより後ろに置くこと */
+.rv .figv .cap {
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  line-height: 1.9;
+  max-width: 34em;
+}
+/* 図版は viewBox ごと拡縮するので、幅が狭くなると**文字だけが読めない大きさになる。**
+   390px では図版の幅が319pxで、460ユーザー単位が0.69倍。11pxの字が実寸7.6pxになる。
+   狭い幅では user unit のほうを上げて、実寸で10pxを切らないようにする
+   （15 × 0.69 ＝ 10.4px）。寸法線の目隠し（88単位）にはまだ収まる */
+@media (max-width: 560px) {
+  .rv .figv .fg-t,
+  .rv .figv .fg-tb { font-size: 15px; }
+}
+
+/* /moving のヒーロー。写真だったときの .hero .fig と同じ空け方 */
+.rv .hero .figv { margin-top: 56px; }
+@media (max-width: 700px) {
+  .rv .hero .figv { margin-top: 36px; }
 }
 
 /* ---- 許認可の帯：文字だけ ---- */
@@ -413,12 +631,68 @@ body.rv {
   font-size: 22px;
   margin-top: 10px;
   line-height: 1.6;
+  /* .rv p などと同じ折り方。ここにも要る */
+  word-break: auto-phrase;
+  line-break: strict;
 }
+/* 折ってはいけないひとまとまり。auto-phrase は「第」と数字を別の文節と見るので、
+   許可番号のようなものは自分で束ねる必要がある */
+.rv .nw { white-space: nowrap; }
 .rv .spec .d { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.95; }
 @media (max-width: 640px) {
   .rv .spec { padding: 20px; }
   .rv .spec .v { font-size: 16px; }
 }
+
+/* ---- 先に出している数字：3つ横並び。縦罫で区切る。箱で囲まない --------
+   数字だけを大きく出す場所なので、ラベルと補足はいつもどおりの小ささに置く。
+
+   【数字が46pxである理由】3つのうちいちばん長い「20,000円」で決まっている。
+   Split の本文列は 1280px で 664px、3等分して1列 221.33px、
+   左右の余白20pxずつを引いて **1列に使えるのは 180px。**
+   14_top の指示は52pxだが、実測で 191.61px あり **11.61px 入らない。**
+
+     44px → 165.81   46px → 172.27   48px → 178.72   52px → 191.61   ／ 180
+
+   48pxは1.28pxしか余らない。46pxなら7.73px（4.3%）余る。
+   余白を14pxまで詰めれば52pxも入るが、縦罫のすぐ横に数字が来る。
+   Noto Serif JP と読み込み前のフォールバック serif は同じ幅（実測で一致）なので、
+   この7.73pxがフォント差で消えることはない。
+
+   【横並びが1060px以上だけである理由】
+   1fr は auto 最小幅を持つので、列が足りなくなると**黙って列幅が不揃いになる**
+   （841pxで 119.3 / 213.3 / 138.5px）。横スクロールは出ないぶん気づきにくい。
+   3列が等幅で並ぶには1列213.3px＝本文列640pxが要り、そこから逆算すると
+   本文幅が --w（1060px）に達しているときだけ。ブレークポイントをそこに置いてある。
+   ---------------------------------------------------------------------- */
+.rv .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.rv .nums .it { padding: 0 20px; }
+.rv .nums .it:first-child { padding-left: 0; }
+.rv .nums .it:last-child { padding-right: 0; }
+.rv .nums .it + .it { border-left: 1px solid var(--rule); }
+.rv .nums .k { font-size: 11.5px; letter-spacing: 0.14em; color: var(--ink-4); font-weight: 600; }
+.rv .nums .v {
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 12px;
+  letter-spacing: 0;
+  /* 「20,000」と「円」を別の行に割らない。単位だけ落ちると読めなくなる */
+  white-space: nowrap;
+}
+.rv .nums .v .u { font-size: 22px; margin-left: 2px; }
+.rv .nums p { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.9; }
+/* 縦積み。全幅を使えるので数字の幅は問題にならない */
+@media (max-width: 1060px) {
+  .rv .nums { grid-template-columns: 1fr; }
+  .rv .nums .it { padding: 26px 0 0; }
+  .rv .nums .it:first-child { padding-top: 0; }
+  .rv .nums .it + .it { border-left: none; border-top: 1px solid var(--rule); margin-top: 26px; }
+  .rv .nums .v { font-size: 42px; }
+}
+
+/* 表・図版・仕様のあとに置くリンクやボタン。.svc .go とは別（あちらが優先） */
+.rv .go { margin-top: 26px; }
 
 /* ---- できる／できない：箱なし・縦罫で二分 ---- */
 .rv .cando { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }

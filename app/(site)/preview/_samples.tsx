@@ -8,6 +8,7 @@ import Spec from "../_components/Spec";
 import Faq from "../_components/Faq";
 import Cta from "../_components/Cta";
 import Photo from "../_components/Photo";
+import Figure, { CARGO_CAPTION } from "../_components/Figure";
 import { images, SIZES_CONTENT } from "@/lib/images";
 
 /**
@@ -207,7 +208,7 @@ export const PREVIEWS: Record<string, PreviewEntry> = {
 
   photo: {
     title: "Photo（画像処理）",
-    note: "plain / muted / dark の3値。dark はオーバーレイと必ずセット",
+    note: "plain / muted / dark の3値。dark を使っている画像は今は無い",
     render: () => (
       <>
         <Split kicker="画 像" title="plain" note="何もしない。背景が整理されている写真。" first>
@@ -215,19 +216,40 @@ export const PREVIEWS: Record<string, PreviewEntry> = {
         </Split>
         <Split kicker="画 像" title="muted" note="単体で見せる写真。青空・白線の主張だけ落とす。">
           <Photo
-            image={images.vanExterior01}
+            image={images.gallery1438}
             sizes={SIZES_CONTENT}
-            caption="van-exterior-01.jpg ／ muted（saturate .72 / contrast 1.06 / brightness .94）"
+            caption="IMG_1438.JPG ／ muted（saturate .45 / contrast 1.06 / brightness .94）"
           />
         </Split>
-        <Split kicker="画 像" title="dark" note="上に文字が乗る場所でだけ。オーバーレイは外せない。">
-          <Photo
-            image={images.sagyouLoading01}
-            sizes={SIZES_CONTENT}
-            caption="sagyou-loading-01.jpg ／ dark（下端をクロップ済み）"
-          />
+        {/* 14_top で、dark を使っていた sagyou-loading-01 をサイトから外した。
+            見本に出せる画像が無いので、値の説明だけ残している。
+            **17_hero でトップのヒーローからも文字を外したので、写真の上に文字が乗る場所は
+            サイト内に1つも無い。**（左だけのオーバーレイも削除済み）
+            そういう場所がまた出てきたら、そのとき見本を戻すこと */}
+        <Split kicker="画 像" title="dark" note="今この値を使っている画像はありません。">
+          <p className="lead" style={{ marginTop: 0 }}>
+            強い減光（saturate .16 / contrast 1.16 / brightness .46）と、可読性のオーバーレイの組。
+            上に白い文字を乗せて初めて成立する数字なので、文字が乗らない場所に当てると
+            露出に失敗した写真になります。14_top で sagyou-loading-01 をサイトから外したため、
+            現在この値を持つ画像は lib/images.ts にありません。
+          </p>
         </Split>
       </>
+    ),
+  },
+
+  figure: {
+    title: "Figure（図版）",
+    note: "SVGをインライン。色は site.css 側。/moving のヒーローとトップの⑤",
+    render: () => (
+      <Split
+        kicker="図 版"
+        title="荷室の断面図"
+        note="next/image で読まずに DOM へ展開する。拡大してもぼやけない。"
+        first
+      >
+        <Figure name="cargo" caption={CARGO_CAPTION} />
+      </Split>
     ),
   },
 };

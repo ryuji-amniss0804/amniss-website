@@ -41,11 +41,9 @@ export default function Header() {
             <b>{TEL}</b>
             <span>{HOURS}</span>
           </div>
-          <Link
-            className="btn btn-fill"
-            href="/#cta"
-            style={{ padding: "12px 22px", fontSize: "13.5px" }}
-          >
+          {/* 寸法は site.css の .hd-cta。インラインで持つと 360px 以下の
+              メディアクエリが効かない（インラインのほうが必ず勝つ）ため */}
+          <Link className="btn btn-fill hd-cta" href="/#cta">
             見積りを依頼
           </Link>
         </div>
