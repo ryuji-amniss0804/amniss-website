@@ -22,6 +22,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { path: '/unpan', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/houjin', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/simulator', changeFrequency: 'monthly' as const, priority: 0.7 },
+      // 検索の入口としての価値は低いが、電話とLINEが載っている実ページなので入れる
+      { path: '/contact', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/company', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/tokushoho', changeFrequency: 'yearly' as const, priority: 0.3 },
       { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
