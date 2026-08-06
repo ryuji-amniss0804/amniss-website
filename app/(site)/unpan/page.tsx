@@ -45,7 +45,7 @@ const CITY_KM = 12;
 
 /** 運ぶ場合（富山市内・平日・作業員1名・階段なし）。荷物の量だけが違う3行 */
 const CARRY_CASES: { name: string; tier: number }[] = [
-  { name: "冷蔵庫・洗濯機・テレビ・机など1〜2点", tier: 0 },
+  { name: "冷蔵庫・洗濯機・テレビ・机など1〜3点", tier: 0 },
   { name: "ソファ（2人掛け）・自転車1台", tier: 1 },
   { name: "軽バン満載くらいの量", tier: 2 },
 ];
