@@ -237,7 +237,7 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 export default function TokushohoPage() {
   return (
     <>
-      <Hero size="md" kicker="Legal Notice" title="特定商取引法に基づく表記" />
+      <Hero size="md" kicker="特 商 法" title="特定商取引法に基づく表記" />
 
       <section className="sec first">
         <div className="w">

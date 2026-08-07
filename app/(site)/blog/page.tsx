@@ -46,7 +46,7 @@ export default function BlogIndex() {
     <>
       <Hero
         size="md"
-        kicker="Official Blog"
+        kicker="記 事"
         title="AmNiss 公式ブログ"
         lead="富山のお客様へ届ける、引越し・お片付け・不用品の買取に関する役立つ情報をお届けします。"
       />

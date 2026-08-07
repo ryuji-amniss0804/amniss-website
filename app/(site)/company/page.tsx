@@ -79,7 +79,7 @@ const TABLE_ROWS = [
 export default function CompanyPage() {
   return (
     <>
-      <Hero size="md" kicker="Company Profile" title="会社概要" />
+      <Hero size="md" kicker="会 社" title="会社概要" />
 
       {/* 代表。kicker / 見出し / その下の1行 が、そのまま
           Representative / 小川 竜司 / Ryuji Ogawa の並びになる */}

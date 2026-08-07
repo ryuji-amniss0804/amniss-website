@@ -69,7 +69,7 @@ const POLICY_SECTIONS = [
 export default function PrivacyPolicy() {
   return (
     <>
-      <Hero size="md" kicker="Privacy Policy" title="プライバシーポリシー" />
+      <Hero size="md" kicker="個 人 情 報" title="プライバシーポリシー" />
 
       {POLICY_SECTIONS.map((item, i) => (
         <Split key={item.title} title={item.title} first={i === 0} tint={i % 2 === 1}>
