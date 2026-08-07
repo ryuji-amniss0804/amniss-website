@@ -95,10 +95,13 @@ export default async function BlogPostPage({
       </section>
 
       {/* 記事末のご案内。トップや下層の Cta（濃紺の帯）とは文言が別なので、
-          共通コンポーネントに寄せていない。**文言は移設前のまま。** */}
+          共通コンポーネントに寄せていない。
+          **23_contact でラベル（kicker）だけを日本語にした。**見出し・本文・ボタンは移設前のまま。
+          字間は (site) の既存ラベルと同じ半角スペース1つ区切り
+          （`/contact` の `お 問 い 合 わ せ` と同じ文字列）。 */}
       <section className="sec tint">
         <div className="w">
-          <div className="kicker">Contact</div>
+          <div className="kicker">お 問 い 合 わ せ</div>
           <h2 className="t mincho">この記事についてのご相談</h2>
           <p className="lead">
             引越し・運送・不用品の買取など、ご不明な点はLINEで気軽にご相談ください。
