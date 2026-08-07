@@ -781,6 +781,50 @@ body.rv {
   .rv .items .nt { display: block; margin-top: 5px; }
 }
 
+/* ---- 定義表：項目名 ／ 内容 -----------------------------------------
+   `/tokushoho`（法定表示）と `/company`（会社概要）の表。
+   21_corporate で (corporate) から移してくるときに足した。
+
+   **`.items` とは主役の列が逆。**あちらは「品目（左・主役）／ 補足（右・小さい）」で、
+   こちらは「項目名（左・小さい）／ 内容（右・主役）」。
+   同じ見た目に寄せると、法定表示の本文が補足の大きさで出てしまう。
+
+   左列 150px は、いちばん長い項目名「対価以外に必要な料金」（10文字）で決めている。
+   12.5px × 10文字 ＝ 125px、letter-spacing .06em ぶん 7.5px を足して 132.5px。
+   17.5px 余る。
+
+   内容列の 38em は `.reasons p` と同じ。`.w` は 1060px あるので、
+   これを付けないと法定表示の1行が70文字を超える。
+   ---------------------------------------------------------------- */
+.rv .dl { border-top: 1px solid var(--ink); }
+.rv .dl > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 0 28px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .dl dt {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-4);
+  line-height: 1.85;
+}
+.rv .dl dd { font-size: 14px; line-height: 1.85; max-width: 38em; }
+/* 内容が数段に分かれる行（役務の対価など）。段は span で積む。
+   下に行くほど詳細度が上がる順に並べてあるので、順番を入れ替えないこと */
+.rv .dl dd > span { display: block; margin-top: 6px; }
+.rv .dl dd > span:first-child { margin-top: 0; }
+.rv .dl dd > span.h { font-weight: 600; margin-top: 22px; }
+.rv .dl dd > span.h:first-child { margin-top: 0; }
+.rv .dl dd > span.nt { font-size: 12.5px; color: var(--ink-3); line-height: 1.8; }
+.rv .dl dd > span.gap { margin-top: 16px; }
+@media (max-width: 600px) {
+  .rv .dl > div { grid-template-columns: 1fr; gap: 6px; }
+  .rv .dl dd { max-width: none; }
+}
+
 /* ---- 流れ：番号つきの縦リスト ---- */
 .rv .flow { border-top: 1px solid var(--rule-2); }
 .rv .flow .s {
@@ -1074,6 +1118,128 @@ body.rv {
 
 .rv .sim .sim-note { font-size: 12.5px; color: var(--ink-3); margin-top: 26px; line-height: 1.95; }
 .rv .sim .sim-note.sub { color: var(--ink-4); font-size: 11.5px; margin-top: 16px; }
+
+/* ---- お役立ち情報（/blog）--------------------------------------------
+   21_corporate で (corporate) から移してきた。あちらは Tailwind の
+   `prose`（@tailwindcss/typography）に載っていたが、**(site) は Tailwind を
+   読み込まない。**記事本文が素の HTML で出るので、ここに組み直してある。
+
+   `.rv *` のリセットが margin / padding を 0 にしているため、
+   本文の要素は自分で余白を持たないと全部くっつく。
+   足したのは 見出し・段落・リスト・引用・画像・リンク と、
+   マークダウンから出てくる code / pre / hr だけ。表は remark-html が
+   出さない（remark-gfm を入れていない）ので足していない。
+
+   クラス名を `post-` `p-` で始めず `.post` の子孫で書いているのは、
+   本文が dangerouslySetInnerHTML で出る素のタグ列で、
+   1つずつクラスを付けられないため。
+   ---------------------------------------------------------------------- */
+
+/* パンくず */
+.rv .bc { font-size: 11.5px; color: var(--ink-4); letter-spacing: 0.04em; }
+.rv .bc a:hover { border-bottom: 1px solid var(--ink-4); }
+.rv .bc span { margin: 0 8px; }
+
+/* カテゴリと日付。ヒーローの kicker の位置に置く */
+.rv .pmeta {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  font-weight: 600;
+  margin-top: 22px;
+}
+.rv .pmeta time { margin-left: 22px; letter-spacing: 0.06em; }
+
+/* 記事一覧。カードにしない。罫線1本ずつ */
+.rv .plist { border-top: 1px solid var(--ink); }
+.rv .plist article { border-bottom: 1px solid var(--rule-2); }
+.rv .plist a {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 0 28px;
+  padding: 26px 0;
+  align-items: start;
+}
+.rv .plist a:hover h2 { color: var(--accent); }
+.rv .plist .d { font-size: 11.5px; color: var(--ink-4); letter-spacing: 0.06em; line-height: 1.85; }
+.rv .plist .d span { display: block; letter-spacing: 0.14em; font-weight: 600; }
+.rv .plist h2 { font-size: 17px; line-height: 1.75; }
+.rv .plist p { font-size: 13px; color: var(--ink-3); margin-top: 8px; line-height: 1.9; max-width: 38em; }
+@media (max-width: 600px) {
+  .rv .plist a { grid-template-columns: 1fr; gap: 8px; }
+  .rv .plist .d span { display: inline; margin-left: 14px; }
+}
+
+/* 記事本文。
+   **max-width は 680px。**`.w` は 1060px あるので、これを付けないと
+   1280px で1行が100字を超える（実測。読める幅ではない）。
+   680px は `.split` の本文列（1280px で 664px）とほぼ同じで、
+   ほかのページの本文と同じ字数になる。写真とコードブロックも
+   ここで止まるので、記事の中の画像だけが極端に大きくなることもない。 */
+.rv .post { font-size: 15px; line-height: 2.05; max-width: 680px; }
+.rv .post > * + * { margin-top: 22px; }
+.rv .post h2,
+.rv .post h3,
+.rv .post h4,
+.rv .post h5,
+.rv .post h6 {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  word-break: auto-phrase;
+  line-break: strict;
+}
+.rv .post h2 {
+  font-size: 21px;
+  line-height: 1.8;
+  margin-top: 54px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+.rv .post h3 { font-size: 17px; line-height: 1.8; margin-top: 42px; }
+.rv .post h4,
+.rv .post h5,
+.rv .post h6 { font-size: 15px; line-height: 1.9; margin-top: 32px; }
+/* 見出しの直後は間を詰める。上の `> * + *` の 22px が二重になるため */
+.rv .post h2 + *,
+.rv .post h3 + *,
+.rv .post h4 + * { margin-top: 16px; }
+.rv .post strong,
+.rv .post b { font-weight: 600; }
+.rv .post a { border-bottom: 1px solid var(--ink); padding-bottom: 1px; }
+.rv .post a:hover { color: var(--accent); border-color: var(--accent); }
+/* リセットで padding が 0 になっているので、行頭記号のぶんを戻す */
+.rv .post ul { list-style: disc; padding-left: 1.5em; }
+.rv .post ol { list-style: decimal; padding-left: 1.7em; }
+.rv .post li { margin-top: 8px; word-break: auto-phrase; line-break: strict; }
+.rv .post li::marker { color: var(--ink-4); }
+.rv .post blockquote {
+  border-left: 2px solid var(--rule);
+  padding-left: 18px;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+.rv .post blockquote > * + * { margin-top: 14px; }
+.rv .post hr { border: none; border-top: 1px solid var(--rule-2); margin-top: 44px; }
+.rv .post code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: var(--paper-2);
+  padding: 2px 6px;
+}
+/* 長い行は本文ごと横に流さない。ブロックの中だけでスクロールさせる */
+.rv .post pre {
+  background: var(--paper-2);
+  padding: 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.rv .post pre code { background: none; padding: 0; }
+@media (max-width: 700px) {
+  .rv .post h2 { font-size: 19px; margin-top: 44px; }
+  .rv .post h3 { font-size: 16px; margin-top: 34px; }
+}
 
 /* ---- モバイル固定バー ---- */
 .rv .mbar {
