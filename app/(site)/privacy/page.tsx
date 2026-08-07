@@ -1,3 +1,19 @@
+import Hero from "../_components/Hero";
+import Split from "../_components/Split";
+
+/**
+ * プライバシーポリシー（法定表示に準じる）。
+ *
+ * 【21_corporate で (corporate) から (site) へ移した】
+ * 移したのはレイアウトだけ。**文言は1字も変えていない。**
+ * 条文は Split（左に見出し・右に本文）で1条ずつ置いている。
+ * 見出しの「1.」「2.」は文字列の一部なので、`.reasons` のぶら下げ番号には
+ * 割らないこと（「1.」と「基本方針」に分けると、そこで文言が動く）。
+ *
+ * 英語のラベル `Privacy Policy` も、(site) の流儀（字間を開けた日本語）とは
+ * 違うが**表示文言なので触っていない。**
+ */
+
 export const metadata = {
   title: "プライバシーポリシー | re'vive",
   description:
@@ -52,63 +68,26 @@ const POLICY_SECTIONS = [
 
 export default function PrivacyPolicy() {
   return (
-    <div
-      className="min-h-screen pt-28 pb-20"
-      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
-    >
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <Hero size="md" kicker="Privacy Policy" title="プライバシーポリシー" />
 
-        {/* ページタイトル */}
-        <div className="amn-animate mb-16" style={{ animationDelay: "0s" }}>
-          <span
-            className="text-xs font-black tracking-widest uppercase block mb-3"
-            style={{ color: "var(--color-primary-light)" }}
-          >
-            Privacy Policy
-          </span>
-          <h1
-            className="text-3xl sm:text-4xl font-black"
-            style={{ fontFamily: "'Noto Serif JP', serif" }}
-          >
-            プライバシーポリシー
-          </h1>
-          <div
-            className="w-10 h-0.5 mt-5"
-            style={{ backgroundColor: "var(--color-primary)" }}
-          />
+      {POLICY_SECTIONS.map((item, i) => (
+        <Split key={item.title} title={item.title} first={i === 0} tint={i % 2 === 1}>
+          <p className="lead" style={{ marginTop: 0 }}>
+            {item.content}
+          </p>
+        </Split>
+      ))}
+
+      <section className="sec">
+        <div className="w">
+          <p className="pnote" style={{ marginTop: 0, textAlign: "right" }}>
+            AmNiss &amp; Co. Japan
+            <br />
+            制定日：2026年5月30日
+          </p>
         </div>
-
-        {/* ポリシーセクション */}
-        <div style={{ borderTop: "1px solid var(--color-border)" }}>
-          {POLICY_SECTIONS.map((item, idx) => (
-            <section
-              key={idx}
-              className="amn-animate py-8"
-              style={{
-                animationDelay: `${0.1 + idx * 0.08}s`,
-                borderBottom: "1px solid var(--color-border)",
-              }}
-            >
-              <h2
-                className="text-base font-black mb-3"
-                style={{ color: "var(--color-primary)", fontFamily: "'Noto Serif JP', serif" }}
-              >
-                {item.title}
-              </h2>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-                {item.content}
-              </p>
-            </section>
-          ))}
-        </div>
-
-        {/* 制定日 */}
-        <div className="amn-animate mt-12 text-right" style={{ animationDelay: "0.7s" }}>
-          <p className="text-xs" style={{ color: "var(--color-muted)" }}>AmNiss & Co. Japan</p>
-          <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>制定日：2026年5月30日</p>
-        </div>
-
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

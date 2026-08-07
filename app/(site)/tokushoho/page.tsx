@@ -1,10 +1,18 @@
 import React from "react";
 import Link from "next/link";
-import { INDOOR_FEE, SPOT_FEE } from "@/app/(site)/_fees";
+import Hero from "../_components/Hero";
+import { INDOOR_FEE, SPOT_FEE } from "../_fees";
 import { DEPART, yen } from "@/lib/pricing";
 
 /**
  * 特定商取引法に基づく表記（法定表示）。
+ *
+ * 【21_corporate で (corporate) から (site) へ移した】
+ * 移したのはレイアウトだけ。**文言は1字も変えていない。**
+ * Tailwind のクラス（`grid-cols-4` `text-xs` `font-black` など）を、
+ * site.css の `.dl`（定義表）と `.tl`（本文中のリンク）に置き換えてある。
+ * 英語のラベル `Legal Notice` も、(site) の流儀（字間を開けた日本語）とは
+ * 違うが**法定表示ページの表示文言なので触っていない。**
  *
  * 【金額をこのファイルに書かない】
  * 18で、ここの「時間チャーター 1時間8,000円（2時間〜／4時間超は1時間7,000円）」が、
@@ -57,8 +65,8 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "所在地",
     value: (
       <>
-        富山県富山市
-        <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
+        <span>富山県富山市</span>
+        <span className="nt">
           ※ 番地を含む詳細住所は、ご請求があれば遅滞なく開示いたします。
         </span>
       </>
@@ -68,10 +76,10 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "電話番号",
     value: (
       <>
-        <a href={`tel:${TEL.replace(/-/g, "")}`} className="underline underline-offset-2">
+        <a href={`tel:${TEL.replace(/-/g, "")}`} className="tl">
           {TEL}
         </a>
-        <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
+        <span className="nt">
           受付 9:00〜21:00（年中無休）／作業中は折り返しになる場合があります
         </span>
       </>
@@ -81,18 +89,18 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "お問い合わせ",
     value: (
       <>
-        LINE公式アカウント：
-        <a
-          href="https://lin.ee/845Fdsy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2"
-        >
-          https://lin.ee/845Fdsy
-        </a>
-        <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
-          24時間受付。お見積りはLINEが最短です。
+        <span>
+          LINE公式アカウント：
+          <a
+            href="https://lin.ee/845Fdsy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tl"
+          >
+            https://lin.ee/845Fdsy
+          </a>
         </span>
+        <span className="nt">24時間受付。お見積りはLINEが最短です。</span>
       </>
     ),
   },
@@ -118,41 +126,41 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "役務の対価",
     value: (
       <>
-        <span className="block font-black">お引越し・運搬</span>
-        <span className="block mt-1">
+        <span className="h">お引越し・運搬</span>
+        <span>
           （出動料 {yen(DEPART)} ＋ 荷物の量 ＋ 距離 ＋ 建物の条件）× 日程係数
         </span>
-        <span className="block">100円未満切り捨て・すべて税込。</span>
-        <span className="block mt-2">
+        <span>100円未満切り捨て・すべて税込。</span>
+        <span>
           計算式の全項目と金額は
-          <Link href="/moving" className="underline underline-offset-2">
+          <Link href="/moving" className="tl">
             単身引越し
           </Link>
           のページに掲載しています。
-          <Link href="/simulator" className="underline underline-offset-2">
+          <Link href="/simulator" className="tl">
             お見積りシミュレーター
           </Link>
           で、ご自身の条件のまま金額をご確認いただけます。
         </span>
 
-        <span className="block font-black mt-5">
+        <span className="h">
           室内での作業のみ（車を出さない場合）　{yen(INDOOR_FEE)}
         </span>
 
-        <span className="block font-black mt-5">
+        <span className="h">
           法人のお客様のスポット便　富山市内・1時間まで {yen(SPOT_FEE)}
         </span>
-        <span className="block mt-1">富山市外は距離に応じて加算します。</span>
-        <span className="block">
+        <span>富山市外は距離に応じて加算します。</span>
+        <span>
           長時間のチャーター・事務所移転は、個別にお見積りします。
         </span>
 
-        <span className="block font-black mt-5">出張買取</span>
-        <span className="block mt-1">
+        <span className="h">出張買取</span>
+        <span>
           査定は無料です。買取価格は品物ごとに、その場で提示します。
         </span>
 
-        <span className="block text-xs mt-4" style={{ color: "var(--color-muted)" }}>
+        <span className="nt gap">
           毛布・養生材・運送保険・2階までの階段作業を含みます。
           作業前にお見積り金額を確定させ、当日の追加請求は行いません。
         </span>
@@ -163,8 +171,8 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "対価以外に必要な料金",
     value: (
       <>
-        高速道路料金・有料駐車場代　実費
-        <span className="block text-xs mt-1" style={{ color: "var(--color-muted)" }}>
+        <span>高速道路料金・有料駐車場代　実費</span>
+        <span className="nt">
           発生する場合は、お見積り時に金額をお伝えします。
         </span>
       </>
@@ -187,11 +195,11 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "キャンセルについて",
     value: (
       <>
-        <span className="block">・前々日まで：無料</span>
-        <span className="block">・前日：料金の30%</span>
-        <span className="block">・当日：料金の50%</span>
-        <span className="block">・作業開始後：料金の全額</span>
-        <span className="block text-xs mt-2" style={{ color: "var(--color-muted)" }}>
+        <span>・前々日まで：無料</span>
+        <span>・前日：料金の30%</span>
+        <span>・当日：料金の50%</span>
+        <span>・作業開始後：料金の全額</span>
+        <span className="nt gap">
           荒天・災害・当方の都合による中止の場合はキャンセル料をいただきません。
           日程変更のご相談は、わかった時点でお早めにご連絡ください。
         </span>
@@ -202,11 +210,13 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
     label: "お受けできない物品",
     value: (
       <>
-        危険物、引火性のある液体、産業廃棄物、生き物、現金・有価証券・貴重品、ピアノ・金庫などの特殊重量物、軽バンの最大積載量（350kg）を超える物量。お見積りの段階でお伝えします。
-        <span className="block mt-2">
+        <span>
+          危険物、引火性のある液体、産業廃棄物、生き物、現金・有価証券・貴重品、ピアノ・金庫などの特殊重量物、軽バンの最大積載量（350kg）を超える物量。お見積りの段階でお伝えします。
+        </span>
+        <span>
           ・リサイクル料が必要な家電4品目（エアコン・テレビ・冷蔵庫・洗濯機）の処分
         </span>
-        <span className="block">
+        <span>
           ・廃棄物の収集・運搬・処分（一般廃棄物収集運搬業の許可がないため）
         </span>
       </>
@@ -226,69 +236,27 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 
 export default function TokushohoPage() {
   return (
-    <div
-      className="min-h-screen pt-28 pb-20"
-      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
-    >
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <Hero size="md" kicker="Legal Notice" title="特定商取引法に基づく表記" />
 
-        {/* ページタイトル */}
-        <div className="amn-animate mb-16" style={{ animationDelay: "0s" }}>
-          <span
-            className="text-xs font-black tracking-widest uppercase block mb-3"
-            style={{ color: "var(--color-primary-light)" }}
-          >
-            Legal Notice
-          </span>
-          <h1
-            className="text-3xl sm:text-4xl font-black"
-            style={{ fontFamily: "'Noto Serif JP', serif" }}
-          >
-            特定商取引法に基づく表記
-          </h1>
-          <div
-            className="w-10 h-0.5 mt-5"
-            style={{ backgroundColor: "var(--color-primary)" }}
-          />
-        </div>
-
-        {/* 表記テーブル */}
-        <div style={{ borderTop: "1px solid var(--color-border)" }}>
-          {ROWS.map((row, idx) => (
-            <div
-              key={row.label}
-              className="amn-animate grid grid-cols-1 sm:grid-cols-4 gap-2 py-6 text-sm"
-              style={{
-                animationDelay: `${0.05 + idx * 0.03}s`,
-                borderBottom: "1px solid var(--color-border)",
-              }}
-            >
-              <div
-                className="font-black sm:col-span-1 text-xs tracking-wide"
-                style={{ color: "var(--color-muted)" }}
-              >
-                {row.label}
+      <section className="sec first">
+        <div className="w">
+          <dl className="dl">
+            {ROWS.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
               </div>
-              <div
-                className="sm:col-span-3 font-medium leading-relaxed"
-                style={{ color: "var(--color-text)" }}
-              >
-                {row.value}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </dl>
 
-        <div className="amn-animate mt-12 text-right" style={{ animationDelay: "0.7s" }}>
-          <p className="text-xs" style={{ color: "var(--color-muted)" }}>
+          <p className="pnote" style={{ marginTop: "38px", textAlign: "right" }}>
             re&apos;vive 富山（運営：AmNiss&amp;Co. Japan）
-          </p>
-          <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>
+            <br />
             最終更新：2026年8月7日
           </p>
         </div>
-
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
