@@ -67,7 +67,7 @@ export default async function BlogPostPage({
       <section className="hero md">
         <div className="w in">
           <nav className="bc">
-            <Link href="/">HOME</Link>
+            <Link href="/">ホーム</Link>
             <span>›</span>
             <Link href="/blog">ブログ</Link>
             <span>›</span>
