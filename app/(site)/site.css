@@ -1338,13 +1338,24 @@ body.rv {
 .rv .qf-f textarea:focus { outline: none; border-color: var(--ink); }
 .rv .qf-f input[aria-invalid="true"],
 .rv .qf-f textarea[aria-invalid="true"] { border-color: var(--accent); }
-.rv .qf-f input[type="file"] {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  font-family: inherit;
-  font-size: 12.5px;
-}
+/* 写真を選ぶボタン（指示 28 ①）。
+   ブラウザ標準の `[ファイル選択] 選択されていません` は出さない。
+   **input は DOM から消さない。**`display:none` にすると、
+   キーボードでも読み上げでも触れなくなる。opacity:0 にして
+   ボタンいっぱいに広げてあるので、タブで止まり、Enter / Space で開く。
+   ボタンの見た目は新しく作らず、このページにすでにある枠線ボタン（.btn）に乗せている。 */
+.rv .qf-file { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 12px; }
+.rv .qf-file-b { position: relative; }
+.rv .qf-file-i { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+/* 見えない input にフォーカスの枠は描けないので、包んでいるボタンに描く */
+.rv .qf-file-b:has(.qf-file-i:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* 5枚に達したとき・読み込み中・送信中。押せないことを見た目でも出す */
+.rv .qf-file-b:has(.qf-file-i:disabled) { opacity: 0.5; }
+.rv .qf-file-b:has(.qf-file-i:disabled):hover { background: none; color: var(--ink); }
+.rv .qf-file-b:has(.qf-file-i:disabled) .qf-file-i { cursor: default; }
+/* 選んだ枚数。0枚のときは中身が空になり、gap ごと消える */
+.rv .qf-file-n { font-size: 12.5px; color: var(--ink-3); letter-spacing: 0.04em; }
+.rv .qf-file-n:empty { display: none; }
 .rv .qf-h { font-size: 12px; color: var(--ink-4); margin-top: 8px; line-height: 1.85; }
 .rv .qf-e { font-size: 12.5px; color: var(--accent); margin-top: 8px; line-height: 1.8; }
 
@@ -1381,6 +1392,20 @@ body.rv {
 /* Turnstile。サイトキーが無いときは空のままなので、余白も出さない */
 .rv .qf-cf { margin-top: 30px; }
 .rv .qf-cf:empty { margin-top: 0; }
+
+/* 320px の画面（iPhone SE 第1世代あたり）だけの話。
+   **Turnstile の四角は 300px 固定**で、こちらからは細くできない。
+   本文に使える幅は「画面幅 − 左右28px」なので、356px 未満だと 300px に足りず、
+   四角が段組みの列を 300px へ押し広げる。列は左余白 28px から始まるので、
+   画面幅が 328px を切ると**ページごと横にずれる**（実測：320px で scrollWidth 328）。
+   **はみ出して見えるのは見出しやラベルのほうだが、押し広げているのはこの四角。**
+   356px 以上では 1px も変わらない。 */
+@media (max-width: 355px) {
+  /* transform ではなく zoom。**transform は見た目だけ縮めて、場所は 300px のまま取る**ので、
+     段組みは押し広げられたままになる。zoom は場所ごと縮む（実測：この箱が 300px → 264px）。
+     押す位置もいっしょに縮むので、四角の中の当たり判定はずれない */
+  .rv .qf-cf { zoom: 0.88; }
+}
 
 /* 送信 */
 .rv .qf-send { margin-top: 34px; }

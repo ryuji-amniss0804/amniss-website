@@ -654,16 +654,36 @@ export default function QuoteForm() {
         <label htmlFor="qf-photos">
           お荷物の写真<em>任意・{MAX_PHOTOS}枚まで</em>
         </label>
-        <input
-          ref={fileRef}
-          id="qf-photos"
-          name="photos"
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => pick(e.target.files)}
-          disabled={photos.length >= MAX_PHOTOS || picking || sending}
-        />
+
+        {/* **ブラウザ標準の「ファイル選択／選択されていません」は出さない**（指示 28 ①）。
+            「選択されていません」はシステムの言葉で、お客様には何かが足りない表示に読める。
+            input は DOM に残したまま <label> で包み、見た目だけこのサイトの枠線ボタン（.btn）にする。
+            **display:none にしない。**キーボードと読み上げから触れなくなる。
+            opacity:0 のままボタンいっぱいに広げてあるので、
+            ・タブキーで input に止まり、Enter / Space でファイル選択が開く
+            ・ボタンのどこを押しても、押しているのは input 本体
+            の両方が、JavaScript を1行も足さずに成り立つ */}
+        <div className="qf-file">
+          <label className="btn qf-file-b">
+            <input
+              ref={fileRef}
+              id="qf-photos"
+              name="photos"
+              type="file"
+              accept="image/*"
+              multiple
+              className="qf-file-i"
+              onChange={(e) => pick(e.target.files)}
+              disabled={photos.length >= MAX_PHOTOS || picking || sending}
+            />
+            写真を選ぶ
+          </label>
+          {/* 枚数はお客様の言葉で出す。0枚のときは何も書かない（:empty で消える） */}
+          <span className="qf-file-n" aria-live="polite">
+            {photos.length ? `${photos.length}枚選びました` : ""}
+          </span>
+        </div>
+
         <p className="qf-h">
           お部屋全体が写っている写真が1枚あると、いちばん正確に出せます。
           <br />
