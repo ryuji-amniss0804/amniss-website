@@ -1,7 +1,9 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import { useRouter } from "next/navigation";
 import ReasonList, { type Reason } from "../_components/ReasonList";
+import { HANDOFF_KEY, type QuoteHandoff } from "@/lib/quote";
 import { LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 import {
   CAP,
@@ -54,6 +56,7 @@ function toInt(v: string): number {
 }
 
 export default function Simulator() {
+  const router = useRouter();
   /**
    * 個数と「分解を頼むか」は1つの state にまとめてある。
    * 別々にすると、数を0に戻したときのチェック外しを更新関数の中で書けず、
@@ -177,6 +180,50 @@ export default function Simulator() {
     if (dnames.length) lines.push(`・分解・組み立て：${dnames.join(" / ")}`);
     lines.push(`・概算：${estimateText()}`);
     return lines.join("\n");
+  }
+
+  /* ---- /contact への引き継ぎ ----
+     **金額は画面に出しているものと同じ変数から取る。**
+     ここで計算し直すと、お客様が見た数字と竜司さんが見る数字がずれる余地ができる。
+     URLには乗せない（長くなるうえ、そのURLを共有すると条件がついて回る）。
+     sessionStorage なので、タブを閉じれば消える。 */
+  function handoffAmount(): string {
+    if (!dist) return "個別お見積り（1泊2日）";
+    if (normal) return yen(normal.total);
+    if (roundtrip) return yen(roundtrip.total);
+    return "軽バン1台に積み切れません（荷物を減らすか、買取のご相談）";
+  }
+
+  function buildHandoff(): QuoteHandoff {
+    const items = pickedItems(counts);
+    return {
+      v: 1,
+      at: new Date().toISOString(),
+      items: items.map((p) => ({ name: p.item.short ?? p.item.name, n: p.n })),
+      m3: l.m3,
+      pct: l.pct,
+      tier: tier ? tier.name : null,
+      crew,
+      km,
+      dist: dist ? { km: dist.km, area: dist.area } : null,
+      floors,
+      slot,
+      disassembles: items.filter((p) => dis[p.item.id]).map((p) => p.item.short ?? p.item.name),
+      coefLabel: COEF[coefKey].label,
+      coef: COEF[coefKey].coef,
+      amount: handoffAmount(),
+      roundtrip: !normal && roundtrip !== null,
+    };
+  }
+
+  function requestQuote() {
+    try {
+      sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(buildHandoff()));
+    } catch {
+      // 保存できない設定（プライベートモードなど）でも、フォームへは進める。
+      // その場合フォームには引き継ぎのブロックが出ないだけ
+    }
+    router.push("/contact");
   }
 
   async function copy() {
@@ -523,9 +570,19 @@ export default function Simulator() {
         </div>
       ) : null}
 
-      {/* ---- 送信。フォームへのリンクはこのページには置かない ---- */}
+      {/* ---- 送信。
+          24_form §2 でフォームへの導線が入った。ここで入力した条件と金額を
+          そのまま /contact へ引き継ぐので、同じことをもう一度書かせない。 */}
       <div className="sim-send">
-        <button type="button" className="btn btn-fill" onClick={copy} disabled={l.items === 0}>
+        <button
+          type="button"
+          className="btn btn-fill"
+          onClick={requestQuote}
+          disabled={l.items === 0}
+        >
+          この内容で見積りを依頼する
+        </button>
+        <button type="button" className="btn" onClick={copy} disabled={l.items === 0}>
           {copied === "ok"
             ? "コピーしました"
             : copied === "ng"

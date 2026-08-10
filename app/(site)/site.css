@@ -1266,3 +1266,168 @@ body.rv {
 @media (max-width: 960px) {
   .rv .mbar { display: flex; }
 }
+
+/* ---- お見積り依頼フォーム（/contact）--------------------------------
+   24_form で入れた自前のフォーム。既製サービスの見た目を持ち込まないので、
+   入力欄も罫線1本で組む（箱・影・角丸は使わない）。
+   `.sim` と同じで、Tailwind は使わない。
+
+   入力欄の文字は 600px 以下で 16px にしてある。**iOS は 16px 未満の
+   入力欄にフォーカスすると勝手に拡大する。**拡大されると、そのあと
+   横スクロールが残ってページが横にずれる。
+   -------------------------------------------------------------------- */
+.rv .qf { margin-top: 40px; max-width: 34em; }
+
+/* /simulator からの引き継ぎ。読み取り専用。編集させない */
+.rv .qf-sum { border: 1px solid var(--ink); padding: 22px 24px; }
+.rv .qf-sum-h {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--ink-4);
+}
+.rv .qf-sum-h span { letter-spacing: 0.04em; }
+.rv .qf-sum-l { margin-top: 14px; font-size: 13px; line-height: 1.85; }
+.rv .qf-sum-l > div {
+  display: grid;
+  grid-template-columns: 7em minmax(0, 1fr);
+  gap: 0 14px;
+  padding: 7px 0;
+  border-top: 1px solid var(--rule-2);
+}
+.rv .qf-sum-l > div:first-child { border-top: none; padding-top: 0; }
+.rv .qf-sum-l dt { color: var(--ink-4); }
+.rv .qf-sum-n { font-size: 12px; color: var(--ink-4); margin-top: 12px; line-height: 1.85; }
+@media (max-width: 560px) {
+  .rv .qf-sum { padding: 18px 16px; }
+  .rv .qf-sum-l > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .rv .qf-sum-l dt { font-size: 11.5px; }
+}
+
+/* 入力欄 */
+.rv .qf-f { margin-top: 34px; }
+.rv .qf-f > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.rv .qf-f > label em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--ink-4);
+  letter-spacing: 0.08em;
+  margin-left: 10px;
+}
+.rv .qf-f input[type="text"],
+.rv .qf-f textarea {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 12px 14px;
+}
+.rv .qf-f textarea { resize: vertical; }
+.rv .qf-f input[type="text"]:focus,
+.rv .qf-f textarea:focus { outline: none; border-color: var(--ink); }
+.rv .qf-f input[aria-invalid="true"],
+.rv .qf-f textarea[aria-invalid="true"] { border-color: var(--accent); }
+.rv .qf-f input[type="file"] {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+}
+.rv .qf-h { font-size: 12px; color: var(--ink-4); margin-top: 8px; line-height: 1.85; }
+.rv .qf-e { font-size: 12.5px; color: var(--accent); margin-top: 8px; line-height: 1.8; }
+
+/* 選んだ写真 */
+.rv .qf-thumbs { list-style: none; margin-top: 16px; border-top: 1px solid var(--rule-2); }
+.rv .qf-thumbs li {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 0 14px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.rv .qf-thumbs img { width: 54px; height: 54px; object-fit: cover; }
+.rv .qf-thumb-m { min-width: 0; font-size: 12.5px; line-height: 1.7; }
+/* 長いファイル名で列を押し広げない */
+.rv .qf-thumb-m span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv .qf-thumb-m small { display: block; font-size: 11px; color: var(--ink-4); }
+.rv .qf-thumbs button {
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  background: none;
+  border: 1px solid var(--rule);
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.rv .qf-thumbs button:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ハニーポット。人の目にも読み上げにも触れさせない */
+.rv .qf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Turnstile。サイトキーが無いときは空のままなので、余白も出さない */
+.rv .qf-cf { margin-top: 30px; }
+.rv .qf-cf:empty { margin-top: 0; }
+
+/* 送信 */
+.rv .qf-send { margin-top: 34px; }
+.rv .qf-send .btn:disabled { opacity: 0.5; cursor: default; }
+.rv .qf-send .btn:disabled:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
+.rv .qf-pp { font-size: 12px; color: var(--ink-4); margin-top: 16px; line-height: 1.9; }
+
+/* 失敗したとき。**成功と見分けがつく形にする** */
+.rv .qf-ng {
+  border: 1px solid var(--accent);
+  padding: 20px 22px;
+  margin-top: 30px;
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: var(--ink-3);
+}
+.rv .qf-ng > * + * { margin-top: 10px; }
+.rv .qf-ng-t { font-size: 15px; font-weight: 600; color: var(--accent); }
+/* 失敗の理由を出す行（.qf-ng-r）は指示 27 ① で消した。**画面には理由を出さない** */
+.rv .qf-ng-k { font-size: 12px; color: var(--ink-4); }
+
+/* 送信できたとき */
+.rv .qf-done {
+  border: 1px solid var(--ink);
+  padding: 30px 32px;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ink-3);
+}
+.rv .qf-done > * + * { margin-top: 14px; }
+.rv .qf-done-t {
+  font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
+  font-size: 19px;
+  color: var(--ink);
+}
+.rv .qf-done-ng {
+  font-size: 13px;
+  border-top: 1px solid var(--rule-2);
+  padding-top: 14px;
+}
+.rv .qf-done-acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+
+@media (max-width: 600px) {
+  .rv .qf-f input[type="text"],
+  .rv .qf-f textarea { font-size: 16px; }
+  .rv .qf-done { padding: 24px 18px; }
+  .rv .qf-ng { padding: 18px 16px; }
+  .rv .qf-send .btn { width: 100%; }
+  .rv .qf-done-acts .btn { flex: 1; }
+}

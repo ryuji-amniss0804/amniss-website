@@ -9,8 +9,10 @@ import Simulator from "./Simulator";
  * 中身は D:\re'vive_toyama_marketing\price_simulator.html の移植（Simulator.tsx）。
  * 料金は lib/pricing.ts が唯一の出どころで、/moving の表と同じものを見ている。
  *
- * **このページにフォームへのリンクを置かないこと。**入力はページ内で完結させる。
- * 送信は「この内容をコピー」＋ LINE ＋ 電話の3つだけ。
+ * 計算そのものはページ内で完結させる。フォームへ移るのは、
+ * **結果が出たあとに、その条件と金額を持っていくときだけ**（24_form §2）。
+ * 「この内容で見積りを依頼する」で sessionStorage に置き、/contact が読む。
+ * 途中で /contact へ逃がすリンクは置かないこと。
  */
 
 export const metadata: Metadata = {
