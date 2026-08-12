@@ -24,7 +24,7 @@ import {
  * text と同じ文字・同じ順のまま出す（指示 34「本文の構造は変えないでください」）。
  *
  * 【サムネイルが出なくても、写真に辿り着けること】
- * 外部画像を出さない設定の人がいる。サムネイルの下にURLを**文字としても**並べ、
+ * 外部画像を出さない設定の人がいる。サムネイルの下に**押せる番号を1行**置き、
  * img には alt を付ける。**画像が出ない＝写真に辿り着けない、にしない。**
  */
 
@@ -172,16 +172,37 @@ function renderThumbs(urls: string[]): string {
 /**
  * **サムネイルが出なかったときに写真へ辿り着く道。**
  * 外部画像を出さない設定でも、この行は文字として読めるし、押せる。
+ *
+ * 【full の URL を並べず、番号だけの1行にする】（指示 37）
+ * 以前は full の URL を1本ずつ縦に並べていた。写真5枚で**10行**になり
+ * （1本が2行に折り返す）、その下の「自動で削除されます」と末尾の1行が
+ * 画面のずっと下へ押し出されていた。**削除予定日は竜司さんが見るべき情報**
+ * なので、URLのほうに場所を譲らせる。
+ *
+ * full の URL を消してよいのは、**プレーンテキストの版に同じ URL が
+ * そのまま残っている**ため。HTMLを出さないメールソフトの人はそちらを読む。
+ * HTMLを出すソフトで画像だけ止まっている人には、この1行と、サムネイルの
+ * `alt`（写真1〜5）が押せる形の2つが残る。**二重に届く。**
+ *
+ * 色は落とすが**下線は残す。**色だけで押せることを伝えると、
+ * 目立たない色にした分そのまま気づけなくなる。
+ *
+ * **落とす色にも下限を置いてある。**12px の小さな文字なので、白地に対して
+ * 4.5:1 を切らないところで止めた（実測：番号 6.2:1／「写真」と区切り 5.4:1）。
+ * 本文（`#1a1a1a`＝約17:1）と比べれば十分に引いて見える。
  */
-function renderUrlList(urls: string[]): string {
-  return urls
+const LINK_C = "#4a6285";
+const MUTED_C = "#6f6a64";
+
+function renderPhotoLinks(urls: string[]): string {
+  const links = urls
     .map(
       (u, i) =>
-        `<div style="margin:0 0 2px 0;word-break:break-all;">　${i + 1}　` +
         `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer"` +
-        ` style="color:#1a56a0;">${esc(u)}</a></div>`,
+        ` style="color:${LINK_C};text-decoration:underline;">${i + 1}</a>`,
     )
-    .join("");
+    .join(`<span style="color:${MUTED_C};"> ／ </span>`);
+  return `<span style="color:${MUTED_C};">　写真 </span>${links}`;
 }
 
 /**
@@ -213,7 +234,7 @@ function renderHtml(blocks: Block[]): string {
       if (b.k === "photos")
         return (
           row(`${CELL}padding:6px 0 4px 0;`, renderThumbs(b.urls)) +
-          row(`${CELL}font-size:12px;line-height:1.7;color:#666;`, renderUrlList(b.urls))
+          row(`${CELL}font-size:12px;line-height:1.7;color:${MUTED_C};`, renderPhotoLinks(b.urls))
         );
       if (b.k === "head") return row(`${CELL}font-weight:700;`, esc(b.text));
       return row(CELL, esc(b.text));
