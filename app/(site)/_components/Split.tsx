@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
 
 type Props = {
-  /** 字間を開けた日本語のラベル。`事 業` `料 金` など。英語は使わない */
+  /**
+   * 字間を開けた日本語のラベル。`事 業` `料 金` など。英語は使わない。
+   * 例外：/company の `Representative` だけは英語のまま。
+   *       「小川 竜司 / Ryuji Ogawa」と名刺の3点で1組にしているため（22で決定）。
+   */
   kicker?: string;
   title: ReactNode;
   /** 見出し列の下に置く短い補足 */
