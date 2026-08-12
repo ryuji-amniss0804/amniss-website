@@ -55,17 +55,23 @@ export default function ContactPage() {
         <p className="lead" style={{ marginTop: 0 }}>
           {"フォームより速くお返事できます。写真はLINEでもお送りいただけます。"}
         </p>
+        {/* ラベルと値のあいだの全角空白は、**必ず文字列リテラルで書く**（指示 34 §2）。
+            JSX は、テキストと要素のあいだにある「改行を含む半角の空白」を消す。
+            `電話` と `<a>` を改行で分けて書くと、消された結果くっついて
+            「電話070-8450-0897」になる。全角空白（U+3000）は消されないので、
+            `{"電話　"}` と書けば残る。「対応エリア　{AREA}」が崩れていなかったのは、
+            全角空白が同じ行の文字列の中にあったため。 */}
         <p className="lead">
-          電話
+          {"電話　"}
           <a className="tl" href={TEL_HREF}>
             {TEL}
           </a>
           　（受付 {HOURS}）
         </p>
         <p className="lead">
-          LINE
+          {"LINE　"}
           <a className="tl" href={LINE_URL} target="_blank" rel="noopener noreferrer">
-            LINEで相談する
+            相談する
           </a>
         </p>
         <p className="lead">対応エリア　{AREA}</p>

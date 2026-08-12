@@ -96,7 +96,10 @@ export async function POST(req: NextRequest) {
         from: process.env.RESEND_FROM || DEFAULT_FROM,
         to: [to],
         subject: mail.subject,
+        // **text と html の両方を送る。**HTMLを出さないメールソフトでも
+        // 同じ本文が読めるように（指示 34 §1）
         text: mail.text,
+        html: mail.html,
         ...(mail.replyTo ? { reply_to: mail.replyTo } : {}),
       }),
     });
