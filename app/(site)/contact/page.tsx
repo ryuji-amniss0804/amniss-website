@@ -68,9 +68,19 @@ export default function ContactPage() {
           </a>
           　（受付 {HOURS}）
         </p>
+        {/* `LINE` はリンクの外のラベルなので、読み上げでリンクだけを拾うと
+            「相談する」としか読まれない。画面の文字は変えずに、読み上げにだけ
+            「LINEで相談する」と伝える（指示 36 §1）。電話の行はリンクの文字が
+            番号そのものなので不要。 */}
         <p className="lead">
           {"LINE　"}
-          <a className="tl" href={LINE_URL} target="_blank" rel="noopener noreferrer">
+          <a
+            className="tl"
+            href={LINE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LINEで相談する"
+          >
             相談する
           </a>
         </p>

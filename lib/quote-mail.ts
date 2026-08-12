@@ -135,29 +135,46 @@ function esc(s: string): string {
 }
 
 /**
- * サムネイルの見た目。
+ * サムネイルの幅。**1か所で決める。**
  *
- * **幅を決め打ちしない**（指示 34 §1）。`max-width` だけを置き、`width` 属性も
- * 固定 px も付けない。こうしておくと、画面が狭いときは画面に合わせて縮み、
- * 横にはみ出さない。上限を 200px にしているのは、320px の画面でも
- * 左右の余白を引いた残り（約 288px）に必ず収まるため。
+ * 上限を 200px にしているのは、320px の画面でも左右の余白を引いた残り
+ * （約 288px）に必ず収まるため（指示 34 §1）。
+ *
+ * **`width` 属性にも同じ数字を入れる**（指示 35 §2）。CSS の幅を見ない
+ * メールソフトがあるため。指示の例は 240 だったが、200 にしてある。
+ * 240 を属性で入れると、CSS を見ないソフトでは `max-width:200px` が効かず、
+ * 240px で出る。**320px の画面ではみ出さない、を壊さないため**に数字をそろえた。
  */
-const THUMB_IMG =
-  "display:block;max-width:200px;height:auto;border:1px solid #e0ddd8;border-radius:2px;";
+const THUMB_W = 200;
 
-function renderPhotos(urls: string[]): string {
-  const thumbs = urls
+const THUMB_IMG =
+  `display:block;max-width:${THUMB_W}px;height:auto;border:1px solid #e0ddd8;border-radius:2px;`;
+
+/**
+ * サムネイルの並び。
+ *
+ * **ここだけは行（`<tr>`）に分けない。**写真5枚を5つの `<td>` に並べると
+ * 200px × 5 = 1000px の行ができ、320px の画面で横にはみ出す。
+ * `inline-block` のまま置けば、幅が足りないところで折り返す。
+ * 表で組む狙いは「崩れないこと」なので、はみ出す組み方に替えては本末転倒になる。
+ */
+function renderThumbs(urls: string[]): string {
+  return urls
     .map(
       (u, i) =>
         `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer"` +
         ` style="display:inline-block;margin:0 10px 10px 0;text-decoration:none;">` +
-        `<img src="${esc(u)}" alt="写真${i + 1}" style="${THUMB_IMG}"></a>`,
+        `<img src="${esc(u)}" alt="写真${i + 1}" width="${THUMB_W}" style="${THUMB_IMG}"></a>`,
     )
     .join("");
+}
 
-  // **サムネイルが出なかったときに写真へ辿り着く道。**
-  // 外部画像を出さない設定でも、この行は文字として読めるし、押せる
-  const list = urls
+/**
+ * **サムネイルが出なかったときに写真へ辿り着く道。**
+ * 外部画像を出さない設定でも、この行は文字として読めるし、押せる。
+ */
+function renderUrlList(urls: string[]): string {
+  return urls
     .map(
       (u, i) =>
         `<div style="margin:0 0 2px 0;word-break:break-all;">　${i + 1}　` +
@@ -165,25 +182,41 @@ function renderPhotos(urls: string[]): string {
         ` style="color:#1a56a0;">${esc(u)}</a></div>`,
     )
     .join("");
-
-  return (
-    `<div style="margin:6px 0 4px 0;">${thumbs}</div>` +
-    `<div style="font-size:12px;line-height:1.7;color:#666;">${list}</div>`
-  );
 }
 
 /**
  * text と同じ文字・同じ順で出す。**変えるのは写真だけ。**
- * 段落は div 1つ＝1行。空行は高さのある div にする
- * （中身が空の div は、メールソフトによっては潰される）。
+ *
+ * 【表（`<table>`）＋インラインの `style` で組む】（指示 35 §2）
+ * 竜司さんが使っているのは「新しい Outlook」で、これは outlook.com と同じ
+ * 描画の仕組みなので、いまは div でも崩れない。**それでも表で組む。**
+ * 竜司さんが依頼を誰かに転送したとき、相手のメールソフトが分からないため。
+ * 従来の Outlook（デスクトップ版）は Word の仕組みで描き、`<style>` の中の
+ * 指定を落とす。**だから指定は1つ残らずインラインの `style` に置く。**
+ *
+ * 1行＝`<tr>` 1つ。空行は高さのある `<td>` にする
+ * （中身が空のセルは、メールソフトによっては潰される）。
+ * 文字の指定は**セルごとに**書く。表の入れ子で継承が切れるソフトがあるため。
  */
+const CELL =
+  "font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic',Meiryo,sans-serif;" +
+  "font-size:15px;line-height:1.9;color:#1a1a1a;";
+
+function row(style: string, inner: string): string {
+  return `<tr><td style="${style}">${inner}</td></tr>`;
+}
+
 function renderHtml(blocks: Block[]): string {
   const body = blocks
     .map((b) => {
-      if (b.k === "blank") return `<div style="height:14px;line-height:14px;">&nbsp;</div>`;
-      if (b.k === "photos") return renderPhotos(b.urls);
-      if (b.k === "head") return `<div style="font-weight:700;">${esc(b.text)}</div>`;
-      return `<div>${esc(b.text)}</div>`;
+      if (b.k === "blank") return row("height:14px;line-height:14px;font-size:14px;", "&nbsp;");
+      if (b.k === "photos")
+        return (
+          row(`${CELL}padding:6px 0 4px 0;`, renderThumbs(b.urls)) +
+          row(`${CELL}font-size:12px;line-height:1.7;color:#666;`, renderUrlList(b.urls))
+        );
+      if (b.k === "head") return row(`${CELL}font-weight:700;`, esc(b.text));
+      return row(CELL, esc(b.text));
     })
     .join("");
 
@@ -191,9 +224,12 @@ function renderHtml(blocks: Block[]): string {
     `<!doctype html><html lang="ja"><head><meta charset="utf-8">` +
     `<meta name="viewport" content="width=device-width,initial-scale=1"></head>` +
     `<body style="margin:0;padding:0;background:#ffffff;">` +
-    `<div style="max-width:680px;padding:16px;` +
-    `font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic',Meiryo,sans-serif;` +
-    `font-size:15px;line-height:1.9;color:#1a1a1a;">${body}</div></body></html>`
+    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"` +
+    ` style="border-collapse:collapse;background:#ffffff;">` +
+    `<tr><td style="padding:16px;">` +
+    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"` +
+    ` style="border-collapse:collapse;max-width:680px;">${body}</table>` +
+    `</td></tr></table></body></html>`
   );
 }
 
