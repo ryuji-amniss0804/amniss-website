@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 /* ─── re'vive カラーパレット ─── */
 :root {
@@ -46,42 +45,8 @@ section {
   animation: amnFadeInUp 0.7s ease forwards;
 }
 
-/* ─── ブログ記事 prose カスタム ─── */
-.prose {
-  color: var(--color-text);
-}
-.prose h2 {
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 0.5rem;
-  color: var(--color-text);
-}
-.prose h3, .prose h4 {
-  color: var(--color-text);
-}
-.prose p, .prose li {
-  color: var(--color-muted);
-}
-.prose a {
-  color: var(--color-primary-light);
-}
-.prose strong {
-  color: var(--color-text);
-}
-.prose blockquote {
-  background-color: var(--color-surface);
-  border-left-color: var(--color-primary);
-  border-radius: 0 0.75rem 0.75rem 0;
-  font-style: normal;
-  color: var(--color-text);
-}
-.prose blockquote p::before,
-.prose blockquote p::after {
-  content: none;
-}
-.prose code {
-  background-color: var(--color-surface);
-  color: var(--color-primary-light);
-}
-.prose pre {
-  background-color: var(--color-surface);
-}
+/* ─── `.prose` の上書きと `@tailwindcss/typography` は外した ───
+   あれは**管理画面のプレビュー枠のためだけ**にあった。プレビューを本番と同じ
+   `.rv .post`（`app/(site)/site.css`）で描くようにしたので、`prose` を使う場所が
+   `app` の中に1つも無くなった（`grep prose` で確認）。
+   ⚠ 残しておくと「プレビューはここで調整する」と読めてしまい、**直す場所を間違える。** */

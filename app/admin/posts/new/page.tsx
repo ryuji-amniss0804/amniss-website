@@ -2,10 +2,12 @@
 
 import React, { useState, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { marked } from "marked";
+import { renderMarkdown } from "@/lib/markdown";
 import LogoutButton from "../../_components/LogoutButton";
-
-marked.use({ gfm: true, breaks: true });
+/* 記事本文のCSS。**プレビュー枠を本番と同じ `.rv .post` で描くために読む。**
+   site.css は全体が `.rv` 配下にスコープしてあるので（先頭のコメント参照）、
+   `.rv` を付けたプレビュー枠の中にしか当たらない。管理画面の Tailwind とは衝突しない。 */
+import "../../../(site)/site.css";
 
 const CATEGORY_OPTIONS = [
   {
@@ -118,7 +120,10 @@ export default function NewPostPage() {
   const [categoryIdx, setCategoryIdx] = useState(0);
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const preview = marked.parse(content) as string;
+  /* **本番の記事ページとまったく同じ関数**（`lib/markdown.ts`）。
+     以前は `marked`（`gfm: true, breaks: true`）で、本番の `remark` と
+     6例中5例で出力が違っていた（47_admin §1-2）。 */
+  const preview = renderMarkdown(content);
   const [showPreview, setShowPreview] = useState(true);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -408,9 +413,24 @@ export default function NewPostPage() {
                     rows={22}
                     className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white outline-none transition-all resize-y font-mono leading-relaxed"
                   />
-                  <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                    Markdown記法が使えます：## 見出し、**太字**、*斜体*、- リスト、&gt; 引用、`コード`
-                  </p>
+                  {/* 【A-3】ヒント文。**実態に合わせてある。**
+                      右のプレビューは本番と同じ remark で描いているので、
+                      **ここに「使えない」と書いたものは、プレビューでもそのまま出ません。**
+                      使えないものを増やしたくなったら `remark-gfm` を入れる話になるが、
+                      **CSS（`.rv .post` に表の指定は無い）とセットでないと入れないこと**（50で決定）。 */}
+                  <div className="mt-2 space-y-1">
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      Markdown記法が使えます：## 見出し、**太字**、*斜体*、- リスト、&gt; 引用、`コード`
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      段落を分けるときは<strong className="text-slate-500 font-black">空行を1つ</strong>入れてください。Enter 1回では改行されません。
+                      表・取り消し線・チェックリスト・URLの自動リンクは使えません。
+                    </p>
+                    <p className="text-[10px] text-amber-600 font-bold">
+                      ⚠ 太字を閉じる <code className="font-mono">**</code> の直前に「。」を置かないでください。
+                      ✕ <code className="font-mono">**お答えします。**買取を</code> → ○ <code className="font-mono">**お答えします**。買取を</code>
+                    </p>
+                  </div>
                 </div>
 
                 {/* エラー表示 */}
@@ -467,20 +487,20 @@ export default function NewPostPage() {
                           </div>
                         )}
 
-                        {/* マークダウン本文プレビュー */}
+                        {/* マークダウン本文プレビュー。
+                            **クラスは本番の記事ページ（`app/(site)/blog/[slug]/page.tsx:93`）と同じ
+                            `.rv` ＋ `.post`。**Tailwind の `prose` は使わない。
+                            `.rv` を付けているのは、`site.css` が全部 `.rv` 配下にスコープされていて、
+                            付けないと1行も当たらないため（本番は <body> に付いている）。
+                            `pv` は、<body> でないこの枠にも本文の土台（フォント・色・行間）を
+                            当てるための目印（`site.css` の `body.rv, .rv.pv`）。 */}
                         {preview ? (
-                          <div
-                            className={[
-                              "prose prose-slate max-w-none text-sm",
-                              "prose-headings:font-black prose-headings:tracking-tight",
-                              "prose-a:text-emerald-600 prose-a:font-bold prose-a:no-underline",
-                              "prose-strong:font-black prose-strong:text-slate-900",
-                              "prose-blockquote:border-emerald-500",
-                              "prose-code:before:content-none prose-code:after:content-none",
-                              "prose-code:bg-slate-100 prose-code:text-slate-900 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-normal",
-                            ].join(" ")}
-                            dangerouslySetInnerHTML={{ __html: preview }}
-                          />
+                          <div className="rv pv">
+                            <div
+                              className="post"
+                              dangerouslySetInnerHTML={{ __html: preview }}
+                            />
+                          </div>
                         ) : (
                           <p className="text-slate-300 text-sm font-medium text-center py-10">
                             本文を入力するとプレビューが表示されます
