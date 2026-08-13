@@ -694,6 +694,17 @@ body.rv {
 /* 表・図版・仕様のあとに置くリンクやボタン。.svc .go とは別（あちらが優先） */
 .rv .go { margin-top: 26px; }
 
+/* 本文の面に置くボタンの並び（43／`/blog` の記事0件）。
+   ヒーローの `.rv .hero .acts` と同じ値をそのまま使っている。
+   `.acts` の指定は .hero / .ht-txt / .cta の中だけに書かれていて、
+   本文（.sec）では効かないため。.cta と .hero は .sec の中に無いので、
+   このセレクタが既存の .acts に当たることはない */
+.rv .sec .acts { display: flex; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+@media (max-width: 960px) {
+  .rv .sec .acts { flex-direction: column; align-items: stretch; gap: 12px; }
+  .rv .sec .acts .btn { width: 100%; }
+}
+
 /* ---- できる／できない：箱なし・縦罫で二分 ---- */
 .rv .cando { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 .rv .cando > div { padding: 0 40px; }
