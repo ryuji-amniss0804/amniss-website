@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { remark } from "remark";
-import remarkHtml from "remark-html";
+import { renderMarkdown } from "./markdown";
 import { BLOG_POSTS_META, type BlogPostMeta } from "./posts-meta";
 
 const CONTENT_DIR = path.join(process.cwd(), "content/blog");
@@ -62,7 +61,8 @@ export async function getPostBySlug(
 
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
-  const processed = await remark().use(remarkHtml).process(content);
+  // 管理画面のプレビューと同じ関数（lib/markdown.ts）。**片方だけ直せないようにしてある。**
+  const contentHtml = renderMarkdown(content);
 
   // posts-meta.ts を正とし、フロントマターはフォールバック
   const metaEntry = BLOG_POSTS_META.find((p) => p.slug === slug);
@@ -77,6 +77,6 @@ export async function getPostBySlug(
       categoryBg: data.categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50",
       accent: data.accent ?? "bg-emerald-50 text-emerald-700",
     },
-    contentHtml: processed.toString(),
+    contentHtml,
   };
 }

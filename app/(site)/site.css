@@ -40,7 +40,13 @@
   box-sizing: border-box;
 }
 
-body.rv {
+/* `.rv.pv` は管理画面のプレビュー枠（`app/admin/posts/new/page.tsx`）。
+   あちらは <body> に .rv を付けられない（管理画面は Tailwind の別ルートレイアウト）ので、
+   **本文の土台になるこの1ブロックだけを、枠の <div> にも当てている。**
+   ⚠ 値を写して増やさないこと。**同じ宣言を2か所に置くと、片方だけ直って静かにズレる。**
+   セレクタを並べているだけなので、`body.rv` 側の詳細度は変わらない。 */
+body.rv,
+.rv.pv {
   font-family: var(--rv-font-sans), "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
   color: var(--ink);
   background: var(--paper);
