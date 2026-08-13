@@ -1,48 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
-
-const GH = "https://api.github.com";
-
-function ghHeaders() {
-  return {
-    Authorization: `Bearer ${process.env.GITHUB_TOKEN ?? ""}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "Content-Type": "application/json",
-  };
-}
-
-async function ghFetch(path: string, options?: RequestInit) {
-  return fetch(`${GH}${path}`, { ...options, headers: ghHeaders() });
-}
+import { verifyAuth } from "@/lib/admin-auth";
+import {
+  SLUG_PATTERN,
+  buildPostFile,
+  ghFetch,
+  postPath,
+  repoInfo,
+} from "@/lib/admin-github";
 
 /**
- * フロントマターの値を YAML の二重引用符付き文字列にする。
+ * 記事の新規投稿。
  *
- * `JSON.stringify` の出す形（`"..."` と `\"` `\\` `\n` `\uXXXX` の逃がし方）は
- * YAML の二重引用符付き文字列と同じ規則なので、そのまま使える。
- *
- * ⚠ **引用符は必ず付けること。**とくに日付。`date: 2026.08.13` と裸で書くと
- * YAML が数値や日付として読み、表示と並び順が狂う（`lib/posts.ts` の
- * `toDateString` のコメントを参照）。タイトルや概要に `:` や `#` が入る場合も同じ。
+ * 【55／段階4】フロントマターの組み立て・GitHub の叩き方・認証は
+ * `lib/admin-github.ts` と `lib/admin-auth.ts` へ移した。**編集APIと同じ関数を使う。**
+ * 別々に持つと、いつか形が食い違い「1文字も変えずに保存したのに記事が変わる」が起きる。
+ * **コミットの作り方（Git Data API で1コミット）はここだけ変えていない。**
  */
-function yaml(value: string): string {
-  return JSON.stringify(value);
-}
-
-async function verifyAuth(req: NextRequest): Promise<boolean> {
-  const token = req.cookies.get("admin_token")?.value;
-  if (!token) return false;
-  try {
-    await jwtVerify(
-      token,
-      new TextEncoder().encode(process.env.ADMIN_JWT_SECRET ?? "")
-    );
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(req: NextRequest) {
   if (!(await verifyAuth(req))) {
@@ -57,22 +30,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "必須項目を入力してください" }, { status: 400 });
   }
 
-  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+  if (!SLUG_PATTERN.test(slug)) {
     return NextResponse.json(
       { error: "slugは英小文字・数字・ハイフンのみ使用できます" },
       { status: 400 }
     );
   }
 
-  const owner = process.env.GITHUB_OWNER ?? "";
-  const repo = process.env.GITHUB_REPO ?? "";
-  const branch = process.env.GITHUB_BRANCH ?? "main";
-  const base = `/repos/${owner}/${repo}`;
+  const { base, branch } = repoInfo();
 
   // slug の重複チェック
-  const checkRes = await ghFetch(
-    `${base}/contents/content/blog/${slug}.md?ref=${branch}`
-  );
+  const checkRes = await ghFetch(`${base}/contents/${postPath(slug)}?ref=${branch}`);
   if (checkRes.ok) {
     return NextResponse.json({ error: "このslugは既に使用されています" }, { status: 409 });
   }
@@ -81,17 +49,10 @@ export async function POST(req: NextRequest) {
   // 以前はここで `lib/posts-meta.ts` を取ってきて、配列の宣言行を目印に
   // 文字列で1件ぶん差し込んでいた。**コミットも2ファイルになっていた。**
   // 目印の行が動いただけで投稿が 500 になる作りだったので、丸ごとやめている。
-  const frontMatter =
-    `---\n` +
-    `title: ${yaml(title.trim())}\n` +
-    `excerpt: ${yaml((excerpt ?? "").trim())}\n` +
-    `date: ${yaml(date)}\n` +
-    `category: ${yaml(category ?? "ブログ")}\n` +
-    `categoryBg: ${yaml(categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50")}\n` +
-    `accent: ${yaml(accent ?? "bg-emerald-50 text-emerald-700")}\n` +
-    `---\n\n`;
-
-  const fileBody = frontMatter + content.trim() + "\n";
+  const fileBody = buildPostFile(
+    { title, excerpt, date, category, categoryBg, accent },
+    content
+  );
 
   // ── Git Data API で1コミットにまとめる ──────────────────────
 
@@ -122,9 +83,7 @@ export async function POST(req: NextRequest) {
     method: "POST",
     body: JSON.stringify({
       base_tree: baseTree,
-      tree: [
-        { path: `content/blog/${slug}.md`, mode: "100644", type: "blob", sha: mdBlob.sha },
-      ],
+      tree: [{ path: postPath(slug), mode: "100644", type: "blob", sha: mdBlob.sha }],
     }),
   });
   const treeJson = await treeRes.json();

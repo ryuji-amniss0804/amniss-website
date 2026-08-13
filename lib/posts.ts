@@ -14,7 +14,7 @@ const CONTENT_DIR = path.join(process.cwd(), "content/blog");
  * Date のときは YYYY-MM-DD に揃える（String() をそのまま通すと
  * "Wed Aug 05 2026 ..." になり、日付の降順ソートも狂うため）。
  */
-function toDateString(value: unknown): string {
+export function toDateString(value: unknown): string {
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   return String(value ?? "");
 }
