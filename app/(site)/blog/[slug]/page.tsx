@@ -106,9 +106,16 @@ export default async function BlogPostPage({
           <p className="lead">
             引越し・運送・不用品の買取など、ご不明な点はLINEで気軽にご相談ください。
           </p>
-          <div className="go">
+          {/* 【46-B】ここは LINE の1本だけだった。`/contact` を主にして2本にする。
+              組み方は `cd3f701` で /blog に入れた導線と同じ（`.sec .acts` ＋
+              `btn-fill` ＋ 枠線の `btn`）。960px 以下で縦積み・幅いっぱいになる。
+              **LINE のボタンは文言も href もそのまま。**塗り→枠線に変えただけ。 */}
+          <div className="acts">
+            <Link className="btn btn-fill" href="/contact">
+              写真を送って見積りを依頼
+            </Link>
             <a
-              className="btn btn-fill"
+              className="btn"
               href={LINE_URL}
               target="_blank"
               rel="noopener noreferrer"
