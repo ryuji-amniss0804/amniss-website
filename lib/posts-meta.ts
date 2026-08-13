@@ -23,4 +23,13 @@ export type BlogPostMeta = {
  * ──────────────────────────────────────────────────────
  */
 export const BLOG_POSTS_META: BlogPostMeta[] = [
+  {
+    slug: "20260813-gwu2",
+    title: "富山市で家具・家電を手放すときの順番",
+    excerpt: "まだ使えるけれど、自分ではもう使わない。捨てるには大きすぎる。富山市の場合、その答えは物によって3つに分かれます。家電4品目なのか、売れるのか、市に出すのか。見る順番を間違えると、払わなくてよかったお金を払うことになります。制度の数字は富山市の公式ページで確認しました。",
+    date: "2026.08.13",
+    category: "不用品の買取・お片付け",
+    categoryBg: "bg-amber-50 text-amber-800 border-amber-200/50",
+    accent: "bg-amber-50 text-amber-700",
+  },
 ];
