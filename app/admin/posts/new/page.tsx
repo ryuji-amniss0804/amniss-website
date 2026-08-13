@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { marked } from "marked";
 import LogoutButton from "../../_components/LogoutButton";
@@ -40,8 +40,25 @@ const CATEGORY_OPTIONS = [
   },
 ];
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+/**
+ * 日本時間（Asia/Tokyo）の「今日」を `YYYY-MM-DD` で返す。
+ *
+ * ⚠ **`toISOString()` を使わないこと。**あれは UTC なので日本より9時間前を返す。
+ * 朝9時より前に投稿すると日付が前日になり、slug の頭（`YYYYMMDD`）まで1日ずれていた。
+ * 見る人に見えるところなので、タイムゾーンを明示して組み立てる。
+ *
+ * **この関数はブラウザでしか呼ばない。**ビルド時に呼ぶと、その日の日付が
+ * HTML に焼き付いてしまう（下の `getBoot` のコメントを参照）。
+ */
+function todayJST() {
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 function generateSlug(dateVal: string) {
@@ -54,13 +71,51 @@ function dateToMeta(dateInput: string) {
   return dateInput.replace(/-/g, ".");
 }
 
+/* ────────────────────────────────────────────────────────────────────────
+   「ブラウザで動き出したか」を、ハイドレートとズレずに知るための仕掛け。
+
+   【なぜ要るか —— 47_admin で特定したバグ】
+   このページはビルド時に作り置きされる静的ページ（ビルドログの `○ /admin/posts/new`）。
+   以前は `useState(() => generateSlug(todayStr()))` と書いていたため、
+   `Math.random()` と `new Date()` が **ビルド時に1回・ブラウザで1回、合計2回**走り、
+   違う値になっていた。React はハイドレートの瞬間に入力欄の中身を自分の状態で
+   **警告なしに上書き**するので、**JS が追いつく前に打ち込んだ内容が黙って消えていた。**
+   タイトルや本文は空になるので気づけるが、slug だけはそれらしい値が入り直すので気づけない。
+
+   直し方は2段構え。
+   1. 日付と slug を **ブラウザ側でだけ**決める。作り置きの HTML に値を焼き付けない
+   2. それでも打ち込めてしまう隙をなくすため、**動き出すまで入力欄を `disabled`** にする
+
+   `useSyncExternalStore` を使うのは、サーバー用とブラウザ用の値を明示的に分けられて、
+   ハイドレートのズレが原理的に起きないため（`useEffect` + `setState` だと
+   「効果の中で setState するな」の規則にも触れる）。
+   ──────────────────────────────────────────────────────────────────────── */
+
+/** 変化を購読する必要はないので、解除関数だけ返す */
+const subscribeNothing = () => () => {};
+const getReadyOnClient = () => true;
+const getReadyOnServer = () => false;
+
+/**
+ * 日付と slug は「ブラウザで1回だけ」決めて、以後は同じ値を返す。
+ *
+ * `useSyncExternalStore` の getSnapshot は**毎回同じものを返さないと
+ * 描画が止まらなくなる**ので、`Math.random()` の結果はここでキャッシュする。
+ */
+let boot: { date: string; slug: string } | null = null;
+function getBoot() {
+  if (!boot) {
+    const today = todayJST();
+    boot = { date: today, slug: generateSlug(today) };
+  }
+  return boot;
+}
+
 type Status = "idle" | "loading" | "success" | "error";
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState(() => generateSlug(todayStr()));
   const [categoryIdx, setCategoryIdx] = useState(0);
-  const [date, setDate] = useState(todayStr());
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const preview = marked.parse(content) as string;
@@ -70,9 +125,24 @@ export default function NewPostPage() {
   const [createdSlug, setCreatedSlug] = useState("");
   const [gitCommitted, setGitCommitted] = useState(false);
 
+  /** JS が追いついて、入力を受け付けられる状態になったか。
+   *  作り置きの HTML（＝まだ触れない状態）では false、ブラウザで動き出すと true。 */
+  const ready = useSyncExternalStore(
+    subscribeNothing,
+    getReadyOnClient,
+    getReadyOnServer
+  );
+
+  /* 日付と slug は「初期値（ブラウザ側で決まる）」と「人が直した値」の2段。
+     人が触るまでは null で、そのあいだは getBoot() の値を映す。 */
+  const [dateEdited, setDateEdited] = useState<string | null>(null);
+  const [slugEdited, setSlugEdited] = useState<string | null>(null);
+  const date = dateEdited ?? (ready ? getBoot().date : "");
+  const slug = slugEdited ?? (ready ? getBoot().slug : "");
+
   // slug を自動生成
   const autoGenerateSlug = useCallback(() => {
-    setSlug(generateSlug(date));
+    setSlugEdited(generateSlug(date));
   }, [date]);
 
   const cat = CATEGORY_OPTIONS[categoryIdx];
@@ -118,8 +188,10 @@ export default function NewPostPage() {
     setTitle("");
     setExcerpt("");
     setContent("");
-    setDate(todayStr());
-    setSlug(generateSlug(todayStr()));
+    // 続けて投稿するときは、日付を引き直して slug も採り直す
+    const today = todayJST();
+    setDateEdited(today);
+    setSlugEdited(generateSlug(today));
     setCategoryIdx(0);
     setStatus("idle");
     setErrorMsg("");
@@ -197,8 +269,18 @@ export default function NewPostPage() {
 
           <div className="mb-6">
             <h1 className="text-xl font-black text-slate-900 tracking-tight">✏️ 新規記事を作成</h1>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              必須項目を入力して「投稿する」を押すと、自動的にファイルが生成されます。
+            {/* JS が追いつくまでは、入力欄を触れないようにしてある（下の disabled={!ready}）。
+                触れてしまうと、ハイドレートの瞬間に打った内容が消える。47_admin で再現済み。
+                **知らせる場所を増やさず、この1行を差し替えている。**帯を出し入れすると、
+                入力できるようになった瞬間に下が全部ずれて、押す場所が動いてしまうため。 */}
+            <p
+              className={`text-xs font-medium mt-1 ${
+                ready ? "text-slate-500" : "text-amber-600"
+              }`}
+            >
+              {ready
+                ? "必須項目を入力して「投稿する」を押すと、自動的にファイルが生成されます。"
+                : "読み込み中です。入力できるようになるまで、少しだけお待ちください。"}
             </p>
           </div>
 
@@ -218,6 +300,7 @@ export default function NewPostPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
+                    disabled={!ready}
                     placeholder="記事のタイトルを入力してください"
                     className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white outline-none transition-all font-medium"
                   />
@@ -234,6 +317,7 @@ export default function NewPostPage() {
                     <select
                       value={categoryIdx}
                       onChange={(e) => setCategoryIdx(Number(e.target.value))}
+                      disabled={!ready}
                       className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     >
                       {CATEGORY_OPTIONS.map((opt, i) => (
@@ -257,8 +341,9 @@ export default function NewPostPage() {
                     <input
                       type="date"
                       value={date}
-                      onChange={(e) => setDate(e.target.value)}
+                      onChange={(e) => setDateEdited(e.target.value)}
                       required
+                      disabled={!ready}
                       className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                     />
                   </div>
@@ -272,8 +357,9 @@ export default function NewPostPage() {
                       <input
                         type="text"
                         value={slug}
-                        onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                        onChange={(e) => setSlugEdited(e.target.value.toLowerCase())}
                         required
+                        disabled={!ready}
                         pattern="[a-z0-9]+(-[a-z0-9]+)*"
                         placeholder="my-article-slug"
                         className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs text-slate-900 font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
@@ -281,6 +367,7 @@ export default function NewPostPage() {
                       <button
                         type="button"
                         onClick={autoGenerateSlug}
+                        disabled={!ready}
                         title="自動生成"
                         className="shrink-0 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3 py-2 rounded-xl text-xs font-black text-slate-500 transition-all"
                       >
@@ -300,6 +387,7 @@ export default function NewPostPage() {
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
                     required
+                    disabled={!ready}
                     placeholder="一覧・トップページのカードに表示される要約文（100〜200字程度）"
                     rows={3}
                     className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white outline-none transition-all resize-none font-medium"
@@ -315,6 +403,7 @@ export default function NewPostPage() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     required
+                    disabled={!ready}
                     placeholder={`## はじめに\n\nここに本文を書きます。**太字**、*斜体*、リスト、見出しなど、Markdown記法が使えます。\n\n## セクション2\n\n- 箇条書き1\n- 箇条書き2\n\n> 引用ブロックも使えます。`}
                     rows={22}
                     className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white outline-none transition-all resize-y font-mono leading-relaxed"
@@ -334,7 +423,7 @@ export default function NewPostPage() {
                 {/* 送信ボタン */}
                 <button
                   type="submit"
-                  disabled={status === "loading"}
+                  disabled={!ready || status === "loading"}
                   className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   {status === "loading" ? "投稿中..." : "🚀 投稿する"}
