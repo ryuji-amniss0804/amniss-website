@@ -48,10 +48,15 @@ export const FOOTER_SERVICES = [
   { label: "単身引越し", href: "/moving" },
   { label: "家具・家電の運搬", href: "/unpan" },
   { label: "法人のお客様", href: "/houjin" },
+  // 見積りの入口の2本。サービス4本のあとに並べる（指示 43 回答2）。
+  // 「見積りフォーム」は Cta.tsx と /houjin で使っている文字列そのまま。
+  // ヘッダーの「見積りを依頼」は行き先が /#cta なので、同じ文字にしない。
+  { label: "見積りフォーム", href: "/contact" },
   { label: "お見積りシミュレーター", href: "/simulator" },
 ] as const;
 
-// サービス列と行数を揃えてある（5行）。減らすときは両方見ること
+// サービス列は6行、こちらは5行（43 で見積りフォームを足して1行ずれた）。
+// 減らすときは両方見ること
 export const FOOTER_COMPANY = [
   { label: "会社概要", href: "/company" },
   { label: "よくある質問", href: "/#faq" },

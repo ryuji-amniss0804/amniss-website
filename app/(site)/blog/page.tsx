@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Hero from "../_components/Hero";
 import { BLOG_POSTS_META } from "@/lib/posts-meta";
-import { LINE_URL } from "@/lib/site";
+import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
 /**
  * お役立ち情報（記事一覧）。
@@ -55,21 +55,35 @@ export default function BlogIndex() {
         <div className="w">
           {BLOG_POSTS.length === 0 ? (
             <>
+              {/* 【43】記事0件のときの導線。フォーム・LINE・電話の3本を出す。
+                  元の3文目「写真を送っていただくだけで見積もりが可能です。」は消してある。
+                  「写真を送って」が1つ目のボタンの文字に入っていて意味が落ちないのと、
+                  この1文だけ「見積もり」でサイトの標準（見積り）とずれていたため。 */}
               <p className="lead" style={{ marginTop: 0 }}>
                 現在、公開中の記事はありません。<br />
-                引越しや不用品の買取でお困りのことがあれば、記事をお待ちいただかなくても
-                LINEで直接ご相談いただけます。写真を送っていただくだけで見積もりが可能です。
+                引越しや買取でお困りのことがあれば、記事をお待ちいただかなくてもご相談いただけます。
               </p>
-              <div className="go">
-                <a
-                  className="btn btn-fill"
-                  href={LINE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+              {/* ヒーローの `.acts` と同じ組み方（960px 以下で縦積み・幅いっぱい）。
+                  `.acts` の指定は .hero / .ht-txt / .cta の中でしか効かないので、
+                  site.css に `.sec .acts` を足してある */}
+              <div className="acts">
+                <Link className="btn btn-fill" href="/contact">
+                  写真を送って見積りを依頼
+                </Link>
+                <a className="btn" href={LINE_URL} target="_blank" rel="noopener noreferrer">
                   LINEで無料相談
                 </a>
               </div>
+              {/* 電話。全角空白は文字列リテラルで書く（JSX が改行の空白を消すため。指示 34 §2）。
+                  白地の面で電話を出しているのは /contact の `.tl` なので、その形に合わせた
+                  （`.cta` の大きい電話は濃紺の帯専用の CSS で、白地では効かない） */}
+              <p className="lead">
+                {"お電話　"}
+                <a className="tl" href={TEL_HREF}>
+                  {TEL}
+                </a>
+                　（受付 {HOURS}）
+              </p>
             </>
           ) : (
             <div className="plist">
