@@ -715,12 +715,15 @@ export default function QuoteForm() {
         ) : null}
       </div>
 
-      {/* ハニーポット。人には見えない。自動送信だけがここを埋める */}
+      {/* ハニーポット。人には見えない。自動送信だけがここを埋める。
+          name と id は、Chrome の自動入力が意味を割り当てられない綴りにしてある（指示 40）。
+          `company` だと Chrome が「会社名」と解釈し、保存済み住所を選んだ本物のお客様の
+          送信をここで黙って捨ててしまう。サーバーへ送る JSON の鍵は `company` のまま */}
       <div className="qf-hp" aria-hidden="true">
-        <label htmlFor="qf-company">会社名（入力しないでください）</label>
+        <label htmlFor="qf-7x">会社名（入力しないでください）</label>
         <input
-          id="qf-company"
-          name="company"
+          id="qf-7x"
+          name="qf7x"
           type="text"
           tabIndex={-1}
           autoComplete="off"
