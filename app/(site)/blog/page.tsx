@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Hero from "../_components/Hero";
-import { BLOG_POSTS_META } from "@/lib/posts-meta";
+import { getAllPosts } from "@/lib/posts";
 import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
 /**
@@ -17,10 +17,12 @@ import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
  * （あのレイアウトは「一覧が client component だから metadata を出せない」
  *  という理由だけで存在していた。21で削除済み）。
  *
- * 記事の一覧は `lib/posts-meta.ts`。管理画面（`app/api/admin/posts/route.ts`）が
- * GitHub API でこの配列と `content/blog/<slug>.md` を1コミットで足す。
- * **配列の形と `BLOG_POSTS_META: BlogPostMeta[] = [` の行を変えないこと。**
- * route.ts がこの文字列を目印に挿入位置を探している。
+ * 【50】記事の一覧は `getAllPosts()`（`lib/posts.ts`）から採る。
+ * **以前はここが `lib/posts-meta.ts` の配列を直接読んでいた。**メタデータを
+ * `content/blog/<slug>.md` のフロントマターへ移したので、直読みのままだと
+ * 記事がこの一覧から消える。**見た目と文言は1字も変えていない**
+ * （`getAllPosts()` は同じ `BlogPostMeta[]` を日付の降順で返すので、
+ *  ここでの並べ替えが要らなくなっただけ）。
  */
 
 export const metadata: Metadata = {
@@ -39,9 +41,12 @@ export const metadata: Metadata = {
   },
 };
 
-const BLOG_POSTS = [...BLOG_POSTS_META].sort((a, b) => b.date.localeCompare(a.date));
-
 export default function BlogIndex() {
+  // 日付の降順は `getAllPosts()` の中で済んでいる。
+  // モジュールの外ではなく中で呼ぶのは、記事ファイルを読むのがここだから
+  // （モジュール読み込み時に1回だけ読むと、開発中に .md を足しても反映されない）。
+  const BLOG_POSTS = getAllPosts();
+
   return (
     <>
       <Hero

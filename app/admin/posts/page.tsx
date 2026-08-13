@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { BLOG_POSTS_META } from "@/lib/posts-meta";
+import { getAllPosts } from "@/lib/posts";
 import LogoutButton from "../_components/LogoutButton";
 
 export default function AdminPostsList() {
-  const posts = [...BLOG_POSTS_META].sort((a, b) =>
-    b.date.localeCompare(a.date)
-  );
+  // 【50】以前は `BLOG_POSTS_META` の直読み。メタデータを .md のフロントマターへ
+  // 移したので、ここも `getAllPosts()` を通す（日付の降順は中で済んでいる）。
+  const posts = getAllPosts();
 
   return (
     <div className="min-h-screen bg-slate-50">
