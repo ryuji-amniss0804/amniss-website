@@ -13,23 +13,23 @@ export type BlogPostMeta = {
 };
 
 /**
- * 全ブログ記事のメタデータ。
+ * 静的ページとして手書きしてある記事のメタデータ。
+ *
+ * ⚠ **【50】ここは空にした。記事のメタデータは `.md` のフロントマターへ移した。**
+ * 記事が増えるたびにこのファイルが伸び、投稿APIが文字列で書き換える対象にもなっていた。
+ * いまは `content/blog/<slug>.md` の先頭に書く。読むのは `lib/posts.ts` の
+ * `readMarkdownMetas()`。**一覧・記事ページ・サイトマップは全部 `getAllPosts()` を通る。**
  *
  * ── 新しい記事の追加手順 ──────────────────────────────
- * 1. この配列の先頭に新しいオブジェクトを追加する
- * 2. content/blog/<slug>.md を作成してマークダウン本文を書く
- *    （フロントマター不要。メタデータはここで一元管理）
- * 3. isStaticPage は不要（省略 = マークダウン記事として扱う）
+ * 1. content/blog/<slug>.md を作る
+ * 2. 先頭にフロントマターを書く（title / excerpt / date / category /
+ *    categoryBg / accent。**日付は `date: "2026.08.13"` と引用符付きの点区切り**。
+ *    引用符を外すと YAML が日付オブジェクトとして読み、並び順が狂う）
+ * 3. その下に本文を書く
  * ──────────────────────────────────────────────────────
+ *
+ * この配列と `BlogPostMeta` 型は残してある。`isStaticPage: true` の記事
+ * （`blog/[slug]/page.tsx` を手書きした記事）を将来また置くための枠で、
+ * **ここに載せた slug は `.md` 側より優先される**（`lib/posts.ts`）。
  */
-export const BLOG_POSTS_META: BlogPostMeta[] = [
-  {
-    slug: "20260813-gwu2",
-    title: "富山市で家具・家電を手放すときの順番",
-    excerpt: "まだ使えるけれど、自分ではもう使わない。捨てるには大きすぎる。富山市の場合、その答えは物によって3つに分かれます。家電4品目なのか、売れるのか、市に出すのか。見る順番を間違えると、払わなくてよかったお金を払うことになります。制度の数字は富山市の公式ページで確認しました。",
-    date: "2026.08.13",
-    category: "不用品の買取・お片付け",
-    categoryBg: "bg-amber-50 text-amber-800 border-amber-200/50",
-    accent: "bg-amber-50 text-amber-700",
-  },
-];
+export const BLOG_POSTS_META: BlogPostMeta[] = [];

@@ -16,6 +16,20 @@ async function ghFetch(path: string, options?: RequestInit) {
   return fetch(`${GH}${path}`, { ...options, headers: ghHeaders() });
 }
 
+/**
+ * フロントマターの値を YAML の二重引用符付き文字列にする。
+ *
+ * `JSON.stringify` の出す形（`"..."` と `\"` `\\` `\n` `\uXXXX` の逃がし方）は
+ * YAML の二重引用符付き文字列と同じ規則なので、そのまま使える。
+ *
+ * ⚠ **引用符は必ず付けること。**とくに日付。`date: 2026.08.13` と裸で書くと
+ * YAML が数値や日付として読み、表示と並び順が狂う（`lib/posts.ts` の
+ * `toDateString` のコメントを参照）。タイトルや概要に `:` や `#` が入る場合も同じ。
+ */
+function yaml(value: string): string {
+  return JSON.stringify(value);
+}
+
 async function verifyAuth(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get("admin_token")?.value;
   if (!token) return false;
@@ -63,34 +77,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "このslugは既に使用されています" }, { status: 409 });
   }
 
-  // posts-meta.ts の現在の内容と SHA を取得
-  const metaRes = await ghFetch(`${base}/contents/lib/posts-meta.ts?ref=${branch}`);
-  if (!metaRes.ok) {
-    return NextResponse.json({ error: "posts-meta.ts の取得に失敗しました" }, { status: 500 });
-  }
-  const metaJson = await metaRes.json();
-  const metaContent = Buffer.from(metaJson.content.replace(/\n/g, ""), "base64").toString("utf-8");
+  // 【50】メタデータは記事ファイルの先頭（フロントマター）に書く。
+  // 以前はここで `lib/posts-meta.ts` を取ってきて、配列の宣言行を目印に
+  // 文字列で1件ぶん差し込んでいた。**コミットも2ファイルになっていた。**
+  // 目印の行が動いただけで投稿が 500 になる作りだったので、丸ごとやめている。
+  const frontMatter =
+    `---\n` +
+    `title: ${yaml(title.trim())}\n` +
+    `excerpt: ${yaml((excerpt ?? "").trim())}\n` +
+    `date: ${yaml(date)}\n` +
+    `category: ${yaml(category ?? "ブログ")}\n` +
+    `categoryBg: ${yaml(categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50")}\n` +
+    `accent: ${yaml(accent ?? "bg-emerald-50 text-emerald-700")}\n` +
+    `---\n\n`;
 
-  // 新しいエントリを先頭に挿入
-  const newEntry =
-    `  {\n` +
-    `    slug: "${slug}",\n` +
-    `    title: ${JSON.stringify(title.trim())},\n` +
-    `    excerpt: ${JSON.stringify((excerpt ?? "").trim())},\n` +
-    `    date: "${date}",\n` +
-    `    category: ${JSON.stringify(category ?? "ブログ")},\n` +
-    `    categoryBg: "${categoryBg ?? "bg-slate-50 text-slate-700 border-slate-200/50"}",\n` +
-    `    accent: "${accent ?? "bg-emerald-50 text-emerald-700"}",\n` +
-    `  },\n`;
-
-  const marker = "export const BLOG_POSTS_META: BlogPostMeta[] = [\n";
-  const markerIdx = metaContent.indexOf(marker);
-  if (markerIdx === -1) {
-    return NextResponse.json({ error: "posts-meta.ts の更新に失敗しました" }, { status: 500 });
-  }
-  const insertAt = markerIdx + marker.length;
-  const updatedMeta =
-    metaContent.slice(0, insertAt) + newEntry + metaContent.slice(insertAt);
+  const fileBody = frontMatter + content.trim() + "\n";
 
   // ── Git Data API で1コミットにまとめる ──────────────────────
 
@@ -107,23 +108,14 @@ export async function POST(req: NextRequest) {
   const commitJson = await commitRes.json();
   const baseTree: string = commitJson.tree.sha;
 
-  // 2つのブロブを作成
-  const [mdBlob, metaBlob] = await Promise.all([
-    ghFetch(`${base}/git/blobs`, {
-      method: "POST",
-      body: JSON.stringify({
-        content: Buffer.from(content.trim()).toString("base64"),
-        encoding: "base64",
-      }),
-    }).then((r) => r.json()),
-    ghFetch(`${base}/git/blobs`, {
-      method: "POST",
-      body: JSON.stringify({
-        content: Buffer.from(updatedMeta).toString("base64"),
-        encoding: "base64",
-      }),
-    }).then((r) => r.json()),
-  ]);
+  // ブロブを作成（【50】記事ファイル1つだけ）
+  const mdBlob = await ghFetch(`${base}/git/blobs`, {
+    method: "POST",
+    body: JSON.stringify({
+      content: Buffer.from(fileBody).toString("base64"),
+      encoding: "base64",
+    }),
+  }).then((r) => r.json());
 
   // 新しいツリーを作成
   const treeRes = await ghFetch(`${base}/git/trees`, {
@@ -132,7 +124,6 @@ export async function POST(req: NextRequest) {
       base_tree: baseTree,
       tree: [
         { path: `content/blog/${slug}.md`, mode: "100644", type: "blob", sha: mdBlob.sha },
-        { path: "lib/posts-meta.ts", mode: "100644", type: "blob", sha: metaBlob.sha },
       ],
     }),
   });
