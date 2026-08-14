@@ -5,6 +5,7 @@ import Header from "./_components/Header";
 import Footer from "./_components/Footer";
 import MobileBar from "./_components/MobileBar";
 import JsonLd from "../components/JsonLd";
+import Ga4 from "../components/Ga4";
 
 /**
  * 新デザインのルートグループ。
@@ -59,6 +60,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     <html lang="ja" className={`rv-html ${notoSans.variable} ${notoSerif.variable}`}>
       <head>
         <JsonLd />
+        <Ga4 />
       </head>
       <body className="rv">
         <Header />

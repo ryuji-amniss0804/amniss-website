@@ -69,6 +69,8 @@ declare global {
   interface Window {
     turnstile?: TurnstileApi;
     onRvTurnstileLoad?: () => void;
+    /** GA4（app/components/Ga4.tsx）。タグが読めていないときは undefined */
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -507,6 +509,12 @@ export default function QuoteForm() {
       fail("本文の送信で通信できませんでした");
       return;
     }
+
+    // GA4 に1件だけ数える。**ここは本文の送信が成功したことを確認した後**なので、
+    // 「押した数」ではなく「本当に届いた数」になる。失敗して return した経路は通らない。
+    // 写真だけ失敗していても本文は届いているので、そのときも数える。
+    // タグが読めていない（広告ブロック等）ときは何もしない。数え損なうだけで、送信は妨げない。
+    window.gtag?.("event", "generate_lead");
 
     setPhotoFailed(failed);
     setStatus("done");

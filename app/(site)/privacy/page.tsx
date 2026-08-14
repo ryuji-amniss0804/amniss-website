@@ -92,6 +92,20 @@ const POLICY_SECTIONS: { title: string; content: Block[] }[] = [
       ],
       "これらの事業者のサーバーは日本国外にあります。上記の目的のために、お客様の情報が国外に保管・送信されることをご了承ください。",
       "お荷物の写真は、当社がお送りするURLをご存じない方には参照できない形で保管しています。",
+      // 60_ga4 で追記。**新しい条は作らない**（条番号が動くと他の書類との整合が崩れる）。
+      // このページには小見出しの形が無く、条文はすべて .lead の段落なので、
+      // 「アクセス解析ツールについて」も段落として置いている。
+      // リンクにもしない。このページには <a> が1つも無く、URLは地の文で出すのが既存の形。
+      "アクセス解析ツールについて",
+      "当サイトでは、サイトの利用状況を把握し改善するために、Google LLC が提供するアクセス解析ツール「Google アナリティクス」を使用しています。",
+      "Google アナリティクスは Cookie を使用し、閲覧されたページのURL、参照元、ブラウザやOSの種類、IPアドレスなどの情報を Google LLC に送信します。氏名・住所・電話番号など、お客様個人を特定できる情報は含まれません。",
+      "送信された情報は、Google 社のプライバシーポリシーに基づいて管理されます。",
+      "Cookie の使用を望まれない場合は、ご利用のブラウザの設定で Cookie を無効にしていただくか、Google が提供する「Google アナリティクス オプトアウト アドオン」をご利用ください。",
+      [
+        "・Google アナリティクス利用規約　https://marketingplatform.google.com/about/analytics/terms/jp/",
+        "・Google プライバシーポリシー　https://policies.google.com/privacy?hl=ja",
+        "・Google アナリティクス オプトアウト アドオン　https://tools.google.com/dlpage/gaoptout?hl=ja",
+      ],
     ],
   },
   {
@@ -134,18 +148,32 @@ export default function PrivacyPolicy() {
 
       {POLICY_SECTIONS.map((item, i) => (
         <Split key={item.title} title={item.title} first={i === 0} tint={i % 2 === 1}>
-          {item.content.map((block, b) => (
-            <p className="lead" key={b} style={b === 0 ? { marginTop: 0 } : undefined}>
-              {Array.isArray(block)
-                ? block.map((line, n) => (
-                    <Fragment key={n}>
-                      {n > 0 ? <br /> : null}
-                      {line}
-                    </Fragment>
-                  ))
-                : block}
-            </p>
-          ))}
+          {item.content.map((block, b) => {
+            // URLは途中に折り返せる場所が無い1語なので、`.lead` の word-break: auto-phrase
+            // のままだと桁があふれる。**360px で横スクロールが出た**（実測：本文の
+            // scrollWidth が 345px → 489px）。URLを含む段落にだけ、必要なときは
+            // どこでも折り返してよいと足す。site.css は触らない（CSSチャンクを動かさないため）。
+            // break-word ではなく anywhere。min-content に効くのは anywhere のほうだけで、
+            // 桁があふれる原因は段の最小幅が URL の長さまで広がることだった。
+            const hasUrl = Array.isArray(block) && block.some((l) => l.includes("https://"));
+            const style = {
+              ...(b === 0 ? { marginTop: 0 } : null),
+              ...(hasUrl ? { overflowWrap: "anywhere" as const } : null),
+            };
+
+            return (
+              <p className="lead" key={b} style={Object.keys(style).length > 0 ? style : undefined}>
+                {Array.isArray(block)
+                  ? block.map((line, n) => (
+                      <Fragment key={n}>
+                        {n > 0 ? <br /> : null}
+                        {line}
+                      </Fragment>
+                    ))
+                  : block}
+              </p>
+            );
+          })}
         </Split>
       ))}
 
