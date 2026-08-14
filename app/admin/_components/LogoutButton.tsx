@@ -7,10 +7,7 @@ export default function LogoutButton() {
   };
 
   return (
-    <button
-      onClick={handleLogout}
-      className="text-slate-400 hover:text-white text-xs font-black transition-colors"
-    >
+    <button type="button" onClick={handleLogout} className="ad-hd-b">
       ログアウト
     </button>
   );

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminNav from "../../../_components/AdminNav";
 import PostForm from "../../../_components/PostForm";
 import { readPostFromRepo } from "@/lib/admin-github";
 
@@ -16,21 +17,20 @@ export const dynamic = "force-dynamic";
 
 function ErrorPanel({ title, detail }: { title: string; detail: string }) {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <main className="max-w-xl mx-auto px-4 py-20 text-center">
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-10">
-          <div className="text-5xl mb-5">🔍</div>
-          <h2 className="text-xl font-black text-slate-900 mb-3">{title}</h2>
-          <p className="text-sm text-slate-500 font-medium leading-relaxed">{detail}</p>
-          <Link
-            href="/admin/posts"
-            className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-black text-sm transition-all mt-8"
-          >
-            記事一覧へ戻る
-          </Link>
+    <>
+      <AdminNav current="list" />
+      <main className="ad-w ad-res">
+        <div className="ad-res-in">
+          <h2 className="ad-res-t">{title}</h2>
+          <p className="ad-res-s">{detail}</p>
+          <div className="ad-res-acts">
+            <Link href="/admin/posts" className="btn btn-fill">
+              記事一覧へ戻る
+            </Link>
+          </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }
 

@@ -9,10 +9,10 @@
  */
 export default function DeployNotice({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-left">
-      <p className="text-xs font-black text-amber-800 leading-relaxed">{children}</p>
-      <p className="text-[11px] text-amber-700 font-medium leading-relaxed mt-1">
-        公開ページを作り直しています。<strong className="font-black">もう一度押す必要はありません。</strong>
+    <div className="ad-note">
+      <p>{children}</p>
+      <p className="ad-note-s">
+        公開ページを作り直しています。<strong>もう一度押す必要はありません。</strong>
       </p>
     </div>
   );
