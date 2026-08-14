@@ -128,7 +128,12 @@ body.rv.ad {
 /* ============================================================
    ページの頭
    ============================================================ */
-.ad-main { padding: 34px 0 72px; }
+/* ⚠ **`padding` のショートハンドで書かないこと。**
+   この要素は `class="ad-w ad-main"` で、左右の余白は `.ad-w`（20px）が持っている。
+   ショートハンドで書くと、あとから来る `.ad-main` が**左右まで 0 に上書きする。**
+   1280px で本文の箱が画面の端にべったり付いていたのはこれ（65 で実測）。
+   site.css にも同じ落とし穴が書いてある（`.rv .hero .in`／site.css:238）。上下だけを指定する。 */
+.ad-main { padding-top: 34px; padding-bottom: 72px; }
 .ad-head {
   display: flex;
   align-items: flex-end;
@@ -455,7 +460,8 @@ body.rv.ad {
 /* ============================================================
    結果の画面（投稿できた・保存できた・見つからない）
    ============================================================ */
-.ad-res { max-width: 560px; margin: 0 auto; padding: 60px 0; text-align: center; }
+/* ⚠ 上の `.ad-main` と同じ。`class="ad-w ad-res"` なので、左右は `.ad-w` に任せる */
+.ad-res { max-width: 560px; margin: 0 auto; padding-top: 60px; padding-bottom: 60px; text-align: center; }
 .ad-res-in { background: var(--paper); border: 1px solid var(--rule-2); padding: 40px 32px; }
 .ad-res-t {
   font-family: var(--rv-font-serif), "Noto Serif CJK JP", serif;
@@ -495,7 +501,7 @@ body.rv.ad {
 .ad-login-n { text-align: center; font-size: 11.5px; color: rgba(255, 255, 255, 0.45); margin-top: 20px; }
 
 @media (max-width: 560px) {
-  .ad-main { padding: 24px 0 56px; }
+  .ad-main { padding-top: 24px; padding-bottom: 56px; }
   .ad-w, .ad-w-wide { padding: 0 16px; }
   /* 見出しの横に置くボタン（記事一覧の「新規投稿」）。
      site の `.btn` は上下15px・左右30px あり、360px では見出しより背が高くなる */
