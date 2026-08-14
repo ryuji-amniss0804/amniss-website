@@ -21,6 +21,9 @@ import { useHydrated } from "./useHydrated";
  *
  * ⚠ **消したあとに「2分ほどかかります」を必ず出す。**
  * 出さないと「消えていない」と思って、もう一度押すことになる。
+ *
+ * 【63／段階5】見た目を Tailwind から `.rv` のトークン（admin.css）へ移した。
+ * **列の畳み方と `table-layout` の扱いは、55で実測して決めたまま変えていない。**
  */
 
 const SITE_URL = "https://amniss-japan.jp";
@@ -73,46 +76,44 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
 
   if (posts.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="py-16 text-center text-slate-400 font-medium text-sm">
-          まだ記事がありません
-        </div>
+      <div className="ad-panel">
+        <p className="ad-empty">まだ記事がありません</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <table className="w-full text-sm">
+    <div className="ad-panel">
+      <table className="ad-tbl">
         {/* ⚠ 360px で列を潰さないために、狭い画面では「カテゴリ」「種別」を畳む。
             畳まないと、47 の案C と同じで**1文字ずつ縦に折れて読めなくなる**（実測済み）。
             横スクロールにしなかったのは、**確認の行まで横に流れて
             「削除する」ボタンが画面の外へ出てしまう**ため。
 
-            ⚠ `table-fixed` は使わないこと。**確認の行（`colSpan={5}`）が出た瞬間に
+            ⚠ `table-layout: fixed` は使わないこと。**確認の行（`colSpan={5}`）が出た瞬間に
             列幅の配分が変わり、タイトル列が 143px → 48px に潰れる**（360px で実測）。
-            幅の指定は下の `w-*` を「目安」として渡すだけにして、配分はブラウザに任せる。 */}
+            幅の指定は admin.css の `width` を「目安」として渡すだけにして、
+            配分はブラウザに任せる。 */}
         <thead>
-          <tr className="border-b border-slate-100 bg-slate-50/50">
-            <th className="w-21 sm:w-28 text-left px-3 sm:px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">日付</th>
-            <th className="hidden md:table-cell md:w-52 text-left px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">カテゴリ</th>
-            <th className="text-left px-3 sm:px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">タイトル</th>
-            <th className="hidden lg:table-cell lg:w-32 text-left px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">種別</th>
-            <th className="w-24 sm:w-40 text-right px-3 sm:px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-wider">操作</th>
+          <tr>
+            <th className="c-date">日付</th>
+            <th className="c-cat">カテゴリ</th>
+            <th className="c-ttl">タイトル</th>
+            <th className="c-kind">種別</th>
+            <th className="c-act">操作</th>
           </tr>
         </thead>
         <tbody>
-          {posts.map((post, i) => {
+          {posts.map((post) => {
             const state = stateOf(post.slug);
-            const zebra = i % 2 === 0 ? "" : "bg-slate-50/30";
 
             if (state.kind === "deleted") {
               return (
-                <tr key={post.slug} className="border-b border-slate-100 last:border-0">
-                  <td colSpan={5} className="px-3 sm:px-5 py-4">
+                <tr key={post.slug}>
+                  <td colSpan={5}>
                     <DeployNotice>
                       「{post.title}」を削除しました。
-                      <strong className="font-black">画面から消えるまで2分ほどかかります。</strong>
+                      <strong>画面から消えるまで2分ほどかかります。</strong>
                     </DeployNotice>
                   </td>
                 </tr>
@@ -122,36 +123,30 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
             if (state.kind === "confirming") {
               const matches = state.typed === post.slug;
               return (
-                <tr key={post.slug} className="border-b border-red-200 last:border-0 bg-red-50/50">
-                  <td colSpan={5} className="px-3 sm:px-5 py-5">
-                    <div className="max-w-2xl space-y-2">
-                      <p className="text-sm font-black text-red-800 leading-relaxed">
-                        ⚠ 「{post.title}」を削除します。
-                      </p>
+                <tr key={post.slug} className="ad-rm">
+                  <td colSpan={5}>
+                    <div className="ad-rm-in">
+                      <p className="ad-rm-t">「{post.title}」を削除します。</p>
                       {/* ⚠ タイトルだけでは取り違えるので、URL も必ず出す */}
-                      <p className="text-xs text-red-700 font-medium leading-relaxed break-all">
+                      <p className="ad-rm-u">
                         公開中のページ{" "}
-                        <code className="font-mono font-bold bg-white border border-red-200 rounded px-1.5 py-0.5">
+                        <code>
                           {SITE_URL}/blog/{post.slug}
                         </code>{" "}
                         が見られなくなります。
                       </p>
-                      <p className="text-xs font-black text-red-800">取り消せません。</p>
+                      <p className="ad-rm-w">取り消せません。</p>
 
-                      <div className="pt-2">
-                        <label
-                          htmlFor={`confirm-${post.slug}`}
-                          className="block text-[11px] font-black text-slate-600 mb-1.5"
-                        >
+                      <div>
+                        <label htmlFor={`confirm-${post.slug}`} className="ad-rm-l">
                           確認のため、下の slug をそのまま入力してください：{" "}
-                          <code className="font-mono bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-900">
-                            {post.slug}
-                          </code>
+                          <code>{post.slug}</code>
                         </label>
-                        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                        <div className="ad-rm-row">
                           <input
                             id={`confirm-${post.slug}`}
                             type="text"
+                            className="mono"
                             value={state.typed}
                             onChange={(e) =>
                               setRow(post.slug, {
@@ -164,14 +159,13 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
                             disabled={state.busy}
                             autoComplete="off"
                             placeholder="slug を入力"
-                            className="w-full sm:w-64 bg-white border border-slate-300 px-3 py-2 rounded-lg text-xs text-slate-900 font-mono font-bold focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all"
                           />
-                          <div className="flex gap-2">
+                          <div className="ad-rm-b">
                             <button
                               type="button"
                               onClick={() => handleDelete(post, state.typed)}
                               disabled={!matches || state.busy}
-                              className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-black text-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="btn btn-s btn-rm"
                             >
                               {state.busy ? "削除中..." : "削除する"}
                             </button>
@@ -179,24 +173,20 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
                               type="button"
                               onClick={() => setRow(post.slug, { kind: "idle" })}
                               disabled={state.busy}
-                              className="bg-white border border-slate-300 hover:border-slate-400 text-slate-700 px-4 py-2 rounded-lg font-black text-xs transition-all"
+                              className="btn btn-s"
                             >
                               やめる
                             </button>
                           </div>
                         </div>
                         {!matches && (
-                          <p className="text-[11px] text-slate-500 font-medium mt-1.5">
+                          <p className="ad-rm-n">
                             slug が一致するまで「削除する」は押せません。
                           </p>
                         )}
                       </div>
 
-                      {state.error && (
-                        <p className="text-xs font-black text-red-700 bg-white border border-red-200 rounded-lg px-3 py-2">
-                          {state.error}
-                        </p>
-                      )}
+                      {state.error && <p className="ad-err">{state.error}</p>}
                     </div>
                   </td>
                 </tr>
@@ -204,49 +194,32 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
             }
 
             return (
-              <tr
-                key={post.slug}
-                className={`border-b border-slate-100 last:border-0 ${zebra} hover:bg-emerald-50/30 transition-colors`}
-              >
-                <td className="px-3 sm:px-5 py-4 text-slate-500 font-bold text-xs whitespace-nowrap align-top">
-                  {post.date}
+              <tr key={post.slug}>
+                <td className="c-date">{post.date}</td>
+                <td className="c-cat">
+                  <span className="ad-tag">{post.category}</span>
                 </td>
-                <td className="hidden md:table-cell px-5 py-4 align-top">
-                  <span className={`${post.accent} text-[10px] font-black px-2 py-0.5 rounded-full whitespace-nowrap`}>
-                    {post.category}
-                  </span>
-                </td>
-                <td className="px-3 sm:px-5 py-4 font-bold text-slate-900 text-xs align-top">
-                  <span className="line-clamp-2">{post.title}</span>
+                <td className="c-ttl">
+                  <span className="ad-ttl">{post.title}</span>
                   {/* 狭い画面ではカテゴリ列を畳むので、ここに小さく出す */}
-                  <span
-                    className={`${post.accent} md:hidden inline-block mt-1.5 text-[10px] font-black px-2 py-0.5 rounded-full`}
-                  >
-                    {post.category}
+                  <span className="ad-tag ad-tag-in">{post.category}</span>
+                </td>
+                <td className="c-kind">
+                  <span className={post.isStaticPage ? "ad-tag q" : "ad-tag"}>
+                    {post.isStaticPage ? "静的ページ" : "マークダウン"}
                   </span>
                 </td>
-                <td className="hidden lg:table-cell px-5 py-4 align-top">
-                  {post.isStaticPage ? (
-                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">静的ページ</span>
-                  ) : (
-                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full whitespace-nowrap">マークダウン</span>
-                  )}
-                </td>
-                <td className="px-3 sm:px-5 py-4 align-top">
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 justify-end">
+                <td className="c-act">
+                  <div className="ad-acts">
                     {post.isStaticPage ? (
                       /* 手書きの静的ページには `.md` が無いので、編集も削除もできない */
-                      <span className="text-[10px] font-bold text-slate-300">編集不可</span>
+                      <span className="no">編集不可</span>
                     ) : (
                       <>
-                        <Link
-                          href={`/admin/posts/${post.slug}/edit`}
-                          className="text-[11px] font-black text-emerald-700 hover:text-emerald-500 transition-colors"
-                        >
-                          編集
-                        </Link>
+                        <Link href={`/admin/posts/${post.slug}/edit`}>編集</Link>
                         <button
                           type="button"
+                          className="rm"
                           onClick={() =>
                             setRow(post.slug, {
                               kind: "confirming",
@@ -256,19 +229,13 @@ export default function PostsTable({ posts }: { posts: BlogPostMeta[] }) {
                             })
                           }
                           disabled={!ready}
-                          className="text-[11px] font-black text-red-600 hover:text-red-500 transition-colors disabled:text-slate-300 disabled:cursor-not-allowed"
                         >
                           削除
                         </button>
                       </>
                     )}
-                    <a
-                      href={`/blog/${post.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[11px] font-black text-slate-400 hover:text-emerald-600 transition-colors"
-                    >
-                      表示 →
+                    <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
+                      表示
                     </a>
                   </div>
                 </td>

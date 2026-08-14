@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
-import LogoutButton from "../_components/LogoutButton";
+import AdminNav from "../_components/AdminNav";
 import PostsTable from "../_components/PostsTable";
 
 /**
@@ -21,49 +21,22 @@ export default function AdminPostsList() {
   const posts = getAllPosts();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <>
+      <AdminNav current="list" />
 
-      {/* 管理ナビゲーション */}
-      <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-6">
-          <div className="flex items-center gap-2 mr-4">
-            <div className="w-6 h-6 bg-emerald-500 rounded-md flex items-center justify-center">
-              <span className="text-white font-black text-xs">A</span>
-            </div>
-            <span className="text-white font-black text-sm tracking-tight">AmNiss Admin</span>
-          </div>
-          <Link href="/admin/posts" className="text-white text-xs font-black border-b-2 border-emerald-500 pb-0.5">
-            記事一覧
-          </Link>
-          <Link href="/admin/posts/new" className="text-slate-400 hover:text-white text-xs font-black transition-colors">
-            新規投稿
-          </Link>
-          <div className="ml-auto">
-            <LogoutButton />
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between gap-4 mb-8">
+      <main className="ad-w ad-main">
+        <div className="ad-head">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">記事一覧</h1>
-            <p className="text-sm text-slate-500 font-medium mt-1">
-              {posts.length} 件の記事
-            </p>
+            <h1 className="ad-h1">記事一覧</h1>
+            <p className="ad-sub">{posts.length} 件の記事</p>
           </div>
-          <Link
-            href="/admin/posts/new"
-            className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-black text-xs transition-all duration-200 shadow-sm hover:-translate-y-0.5"
-          >
-            ＋ 新規投稿
+          <Link href="/admin/posts/new" className="btn btn-fill">
+            新規投稿
           </Link>
         </div>
 
         <PostsTable posts={posts} />
       </main>
-    </div>
+    </>
   );
 }
