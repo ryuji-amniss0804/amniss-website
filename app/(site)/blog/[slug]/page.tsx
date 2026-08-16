@@ -42,7 +42,7 @@ export async function generateMetadata({
       // og:title は <title> と同じにする（サイト名まで含めた文字列）
       title: `${post.meta.title} | re'vive 富山 ブログ`,
       description: post.meta.excerpt,
-      url: `https://amniss-japan.jp/blog/${slug}`,
+      url: `https://revive-toyama.jp/blog/${slug}`,
       siteName: "re'vive 富山",
       locale: "ja_JP",
       type: "article",

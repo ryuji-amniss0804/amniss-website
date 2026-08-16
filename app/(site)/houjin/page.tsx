@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `富山の法人向け軽貨物｜スポット便 1時間 ${yen(SPOT_FEE)}〜 ｜ re'vive 富山`,
     description: `富山県全域。軽貨物のスポット便を1時間からお受けします。2時間・4時間単位の縛りはありません。当日でも土日祝でも割増なし、富山市内・1時間まで${yen(SPOT_FEE)}。事務所移転、什器・備品の移動、複数箇所の配送・集荷。請求書払い（月締め）可。運送保険 補償上限500万円／貨物軽自動車運送事業 届出済。`,
-    url: "https://amniss-japan.jp/houjin",
+    url: "https://revive-toyama.jp/houjin",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

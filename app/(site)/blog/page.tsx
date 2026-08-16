@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "お役立ち情報 | re'vive 富山",
     description:
       "引越し・買取・片付けのお役立ち情報。re'vive 富山（リバイブ）が、富山県での単身引越しと出張買取の実務から書いています。",
-    url: "https://amniss-japan.jp/blog",
+    url: "https://revive-toyama.jp/blog",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

@@ -26,7 +26,7 @@ import { useHydrated } from "./useHydrated";
  * **列の畳み方と `table-layout` の扱いは、55で実測して決めたまま変えていない。**
  */
 
-const SITE_URL = "https://amniss-japan.jp";
+const SITE_URL = "https://revive-toyama.jp";
 
 type RowState =
   | { kind: "idle" }

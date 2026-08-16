@@ -6,7 +6,7 @@
  * GBP と Footer.tsx と一字一句そろえること。ずれると裏取りに失敗する。
  */
 
-export const SITE_URL = "https://amniss-japan.jp";
+export const SITE_URL = "https://revive-toyama.jp";
 export const BIZ_NAME = "re'vive 富山";
 export const BIZ_TEL = "+81-70-8450-0897";
 

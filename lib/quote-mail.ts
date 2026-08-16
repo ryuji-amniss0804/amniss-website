@@ -98,7 +98,7 @@ function blocksOf(p: QuoteMailInput, isEmail: boolean): Block[] {
   b.push(
     { k: "blank" },
     { k: "line", text: "――" },
-    { k: "line", text: "このメールは amniss-japan.jp のお見積り依頼フォームから届いています。" },
+    { k: "line", text: "このメールは revive-toyama.jp のお見積り依頼フォームから届いています。" },
     {
       k: "line",
       text: isEmail

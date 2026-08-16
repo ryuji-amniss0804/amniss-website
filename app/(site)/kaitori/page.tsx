@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: "富山の出張買取｜壊れたパソコン・カメラも査定 ｜ re'vive 富山",
     description:
       "富山県全域へ出張買取に伺います。デジタルカメラ・レンズ、パソコン、精密機器を中心に、ジャンク・動作未確認・他店で断られた物も査定します。査定無料・出張費無料。古物商許可 富山県公安委員会 第501310007877号。",
-    url: "https://amniss-japan.jp/kaitori",
+    url: "https://revive-toyama.jp/kaitori",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

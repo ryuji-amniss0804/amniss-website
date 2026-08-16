@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/posts'
 
-const SITE_URL = 'https://amniss-japan.jp'
+const SITE_URL = 'https://revive-toyama.jp'
 
 /**
  * 実体のあるページだけを載せること。
@@ -22,6 +22,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { path: '/unpan', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/houjin', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/simulator', changeFrequency: 'monthly' as const, priority: 0.7 },
+      // 記事一覧。実体のある公開ページでフッターからもリンクしているのに、
+      // ここに無かったため sitemap から漏れていた（69-5 で追加）。
+      { path: '/blog', changeFrequency: 'weekly' as const, priority: 0.5 },
       // 検索の入口としての価値は低いが、電話とLINEが載っている実ページなので入れる
       { path: '/contact', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/company', changeFrequency: 'monthly' as const, priority: 0.5 },

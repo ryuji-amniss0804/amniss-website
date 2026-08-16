@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `富山の家具・家電の運搬｜1点から ${CARRY_FROM}・室内の移動 ${yen(INDOOR_FEE)} ｜ re'vive 富山`,
     description: `富山県全域。冷蔵庫1台でも、部屋の中で家具を動かすだけでも伺います。運ぶ場合は引越しと同じ計算式で富山市内・平日 ${CARRY_FROM}から、運ばない室内作業（家具移動・模様替え・組み立て・設置）は${yen(INDOOR_FEE)}。金額は運ぶ前に確定します。貨物軽自動車運送事業 届出済。`,
-    url: "https://amniss-japan.jp/unpan",
+    url: "https://revive-toyama.jp/unpan",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

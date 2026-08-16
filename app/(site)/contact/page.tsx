@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "お問い合わせ ｜ re'vive 富山",
     description: DESCRIPTION,
-    url: "https://amniss-japan.jp/contact",
+    url: "https://revive-toyama.jp/contact",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

@@ -31,7 +31,7 @@ export const metadata = {
     title: "会社概要 | re'vive 富山",
     description:
       "re'vive 富山（運営：AmNiss&Co. Japan）の会社概要。代表・小川竜司が直接対応。富山県富山市を拠点に県内全域の単身引越し・出張買取・軽貨物運送。古物商許可、貨物軽自動車運送事業届出済、富山県SDGs宣言企業。",
-    url: "https://amniss-japan.jp/company",
+    url: "https://revive-toyama.jp/company",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

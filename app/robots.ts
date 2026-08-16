@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = 'https://amniss-japan.jp'
+const SITE_URL = 'https://revive-toyama.jp'
 
 /**
  * /robots.txt

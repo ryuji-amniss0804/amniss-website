@@ -48,7 +48,7 @@ export const metadata = {
     title: "特定商取引法に基づく表記 | re'vive 富山",
     description:
       "re'vive 富山（運営：AmNiss&Co. Japan）の特定商取引法に基づく表記。事業者名・所在地・連絡先・料金・キャンセル規定を掲載しています。富山県全域の単身引越し・出張買取・軽貨物運送。",
-    url: "https://amniss-japan.jp/tokushoho",
+    url: "https://revive-toyama.jp/tokushoho",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

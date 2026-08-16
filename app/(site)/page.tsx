@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "富山の単身引越しと出張買取｜軽バン1台 20,000円〜 ｜ re'vive 富山",
     description:
       "富山県全域。軽バン1台でできる範囲だけをやっています。ワンルームから1Kくらいの単身引越しが富山市内・平日 20,000円から、家具1点の運搬、出張買取は査定無料。積める量も日帰りの上限も先に公開しています。貨物軽自動車運送事業 届出済／古物商許可。",
-    url: "https://amniss-japan.jp",
+    url: "https://revive-toyama.jp",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

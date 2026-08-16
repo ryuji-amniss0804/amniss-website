@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: "引越し料金シミュレーター｜富山の単身引越し ｜ re'vive 富山",
     description:
       "運ぶ物を選ぶだけで、軽バンに積めるかどうかと概算金額が出ます。出動料・荷物の量・距離・日程の内訳もそのまま表示します。富山県全域。",
-    url: "https://amniss-japan.jp/simulator",
+    url: "https://revive-toyama.jp/simulator",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",

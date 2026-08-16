@@ -36,7 +36,7 @@ export const metadata = {
     title: "プライバシーポリシー | re'vive",
     description:
       "AmNiss & Co. Japan / re'viveのプライバシーポリシー・免責事項。個人情報の取得・利用目的・管理方針を掲載しています。",
-    url: "https://amniss-japan.jp/privacy",
+    url: "https://revive-toyama.jp/privacy",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",
