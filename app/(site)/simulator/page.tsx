@@ -16,12 +16,12 @@ import Simulator from "./Simulator";
  */
 
 export const metadata: Metadata = {
-  title: "引越し料金シミュレーター｜富山の単身引越し ｜ re'vive 富山",
+  title: "引越し料金シミュレーター｜富山の見積りをその場で計算 ｜ re'vive 富山",
   description:
     "運ぶ物を選ぶだけで、軽バンに積めるかどうかと概算金額が出ます。出動料・荷物の量・距離・日程の内訳もそのまま表示します。富山県全域。",
   alternates: { canonical: "/simulator" },
   openGraph: {
-    title: "引越し料金シミュレーター｜富山の単身引越し ｜ re'vive 富山",
+    title: "引越し料金シミュレーター｜富山の見積りをその場で計算 ｜ re'vive 富山",
     description:
       "運ぶ物を選ぶだけで、軽バンに積めるかどうかと概算金額が出ます。出動料・荷物の量・距離・日程の内訳もそのまま表示します。富山県全域。",
     url: "https://revive-toyama.jp/simulator",
@@ -39,7 +39,7 @@ export default function SimulatorPage() {
       <Hero
         size="md"
         kicker="お 見 積 り シ ミ ュ レ ー タ ー"
-        title="運ぶ物を選ぶだけで、その場で金額が出ます。"
+        title="運ぶ物を選ぶだけで、その場で引越し料金が出ます。"
         lead="お電話も入力フォームも要りません。当社は料金の計算式を全部公開しているので、ご依頼の前にご自身で確認できます。ここで出た金額が、当日お支払いいただく金額です。作業後に増えることはありません。軽バン1台に積み切れない量になった場合も、その場でお伝えします。"
       />
 
