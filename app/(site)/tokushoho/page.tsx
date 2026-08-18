@@ -175,9 +175,6 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
         <span>
           高速道路を利用する場合の高速道路料金　実費（事前のお見積りに含めてご提示します。当日に別途申し受けることはありません）
         </span>
-        <span className="nt">
-          発生する場合は、お見積り時に金額をお伝えします。
-        </span>
       </>
     ),
   },
