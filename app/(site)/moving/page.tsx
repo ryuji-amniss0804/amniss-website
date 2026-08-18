@@ -86,7 +86,8 @@ const VOLUME_ROWS = TIER.map((t) => ({
   price: yen(t.work[0]),
 }));
 
-/** ③ 距離料。片道。高速代と燃料を含む。DIST ＋ 300km超の LONG_HAUL */
+/** ③ 距離料。片道。高速代は含まない（高速を使う場合は事前のお見積りに含めて提示）。
+    DIST ＋ 300km超の LONG_HAUL */
 const DISTANCE_ROWS = [
   ...DIST.map((d) => ({ name: `〜${d.km}km`, desc: d.area, price: yen(d.fee) })),
   ...LONG_HAUL.map((l) => ({ name: l.name, desc: "1泊2日", price: `${yen(l.from)}〜` })),
@@ -213,7 +214,11 @@ export default function MovingPage() {
         </div>
 
         <div className="pt">
-          <PriceTable head={["距離（片道・高速代と燃料込み）", "金額"]} rows={DISTANCE_ROWS} />
+          <PriceTable
+            head={["距離（片道）", "金額"]}
+            rows={DISTANCE_ROWS}
+            note="高速道路を使う場合は、その分を事前のお見積りでお伝えします。当日の追加請求はありません。"
+          />
         </div>
 
         <div className="pt">

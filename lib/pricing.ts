@@ -52,7 +52,10 @@ export const TIER: Tier[] = [
   { cap: 2.8, work: [15000, 24000], name: "軽バン満載" },
 ];
 
-/* ============ 距離（片道・高速代と燃料込み） ============ */
+/* ============ 距離（片道）============
+   高速代は含まない。高速を使う場合は事前のお見積りに含めて提示する（当日精算はしない）。
+   ⚠️ 画面に出す文言に「高速代込み」「燃料代」と書かないこと（2026/8/18 決定）。
+   「込み」と書けば高速代を飲まされ、「燃料代」と書けばその額まで値切られる。 */
 
 export type Dist = {
   /** この km までが該当する */
@@ -392,7 +395,7 @@ export function buildQuote(p: QuoteInput): Quote {
       name: `${p.tier.name}（${p.m3.toFixed(2)}m³）／ 作業員${p.crew}名`,
       amount: p.tier.work[p.crew === 1 ? 0 : 1],
     },
-    { name: `距離 片道${p.km}km`, note: "高速代・燃料込み", amount: p.dist.fee },
+    { name: `距離 片道${p.km}km`, amount: p.dist.fee },
   ];
 
   if (p.floors > 0) {

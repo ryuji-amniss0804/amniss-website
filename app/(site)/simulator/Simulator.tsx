@@ -451,7 +451,7 @@ export default function Simulator() {
         </div>
         <p className="sim-hint">
           {dist
-            ? `〜${dist.km}km の区分です。高速代・燃料はこの中に含みます。`
+            ? `片道〜${dist.km}km の区分です。`
             : `片道${MAX_KM}kmを超えています。1泊2日での個別お見積りになります。`}
         </p>
       </fieldset>
@@ -604,6 +604,8 @@ export default function Simulator() {
       {/* price_simulator.html のフッターにあった但し書き。
           廃棄物の1行はサイト全体のフッターに入っているので、ここでは重ねない */}
       <p className="sim-note sub">
+        高速道路を使う場合は、その分を事前のお見積りでお伝えします。
+        <br />
         有料駐車場しかない場合のパーキング代のみ、実費をご負担いただいています。それ以外に、当日お支払いいただく費用はありません。
         <br />
         買取のご依頼を同時にいただいた場合、買取金額をこのお支払い額から差し引きます。

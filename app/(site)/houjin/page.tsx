@@ -87,7 +87,8 @@ const PRICE_ROWS = [
     price: "荷物の量で算出",
   },
   { name: "長時間のチャーター", desc: "半日・1日の貸切", price: "お見積り" },
-  { name: "高速代・有料駐車場", desc: "コインパーキングしかない場合など", price: "実費" },
+  { name: "有料駐車場", desc: "コインパーキングしかない場合など", price: "実費" },
+  { name: "高速道路料金", desc: "高速道路を使う場合", price: "事前のお見積りに含めてご提示します" },
 ];
 
 /**
@@ -166,7 +167,7 @@ export default function HoujinPage() {
         {/* 距離料は個人と同じ距離表。代表値だけを出す */}
         <div className="pt">
           <PriceTable
-            head={["距離料（片道・高速代と燃料込み）", "加算額"]}
+            head={["距離料（片道）", "加算額"]}
             rows={DIST_ROWS}
             note={
               <>
