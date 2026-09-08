@@ -71,6 +71,22 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
+
+  /**
+   * 【76a】/pc 配下は完成するまで検索に出さない。
+   *
+   * いま /pc から出ているリンクのうち5本（price / symptom / case / used / contact）が
+   * まだ404で、中古PC と お知らせ の2ブロックが「準備中」の状態。
+   * この状態でインデックスされると、あとから中身を入れても評価の戻りが遅くなる。
+   *
+   * `app/sitemap.ts` に載せていないだけでは止まらない（sitemap に無くてもクロールは来る）。
+   * `app/robots.ts` の disallow に足すのも**間違い**。クロールを止めると
+   * ページの中身が読まれず、この noindex の指示自体が届かなくなる。
+   *
+   * ⚠ **81（re'vive トップへの導線と sitemap 追加）で、この robots を必ず外すこと。**
+   *    外し忘れると /pc は永久に検索に出ない。
+   */
+  robots: { index: false, follow: false },
 };
 
 export default function PcLayout({ children }: { children: React.ReactNode }) {
