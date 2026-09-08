@@ -107,3 +107,34 @@ export const PC_NAV = [
 export function yen(n: number): string {
   return n.toLocaleString("ja-JP");
 }
+
+/**
+ * 個別メニュー。工賃の3段（LABOR）に当てはまらないもの。
+ *
+ * ⚠ `price` が null のものは「要見積り」と表示する。**金額を勝手に決めないこと。**
+ *   データ移行は容量別の金額が未決、BTOは構成次第で変わるため、どちらも見積り扱い。
+ */
+export const MENU = [
+  { name: "新入生セットアップパック", note: "初期設定・セキュリティ・保護者設定まで", price: 12000 },
+  { name: "データ移行・取り出し", note: "容量に応じて", price: null },
+  { name: "データ消去（証明書つき）", note: "買取と同時なら無料", price: 5000 },
+  { name: "リモートサポート", note: "30分", price: 5000 },
+  { name: "BTO・組み立て代行", note: "構成のご相談は無料", price: null },
+] as const satisfies ReadonlyArray<{
+  name: string;
+  note: string;
+  price: number | null;
+}>;
+
+/**
+ * お支払い方法。
+ *
+ * ⚠ カードとQRは**まだ開通していない。**`ready: false` のものは「準備中」と表示し、
+ *   使えるかのように書かないこと。開通したらこの1行を true にするだけで直る。
+ */
+export const PAYMENTS = [
+  { name: "現金", ready: true },
+  { name: "銀行振込", ready: true },
+  { name: "クレジットカード", ready: false },
+  { name: "QRコード決済", ready: false },
+] as const satisfies ReadonlyArray<{ name: string; ready: boolean }>;
