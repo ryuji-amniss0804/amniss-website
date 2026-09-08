@@ -727,6 +727,106 @@ body.pc {
 }
 
 /* ============================================================
+   下層ページ（77〜）で足したもの
+   トップページ（.pc-top）には出てこない。新しい文字サイズは作らず、
+   既存の7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）から取っている。
+   ============================================================ */
+
+/* 下層ページは、ヒーローではなく .sec の中に h1 が立つ。
+   大きさは .sec h2 と同じ段（clamp 26〜35px）を使う。 */
+.pc .sec h1 {
+  font-size: clamp(26px, 3.9vw, 35px);
+  letter-spacing: 0.004em;
+  margin-bottom: 16px;
+}
+
+/* 先頭セクションの上罫線は消す。ヘッダーの下線と二重になるため。
+   トップは <main> の直下が .pc-top なので、この指定は当たらない。 */
+.pc main > .sec:first-child {
+  border-top: none;
+}
+
+/* ---- 一覧テーブル ----
+   ⚠ 390px では表が画面に収まらない。横に動かすのは .tw の箱の中だけで、
+     ページ本体は縦にしか動かさない。だから min-width は table 側に持たせる
+     （.tw に持たせると箱ごとはみ出して body が横スクロールする）。 */
+.pc .tw {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: #fff;
+}
+.pc .tw table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  background: #fff;
+}
+.pc .tw th,
+.pc .tw td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule2);
+  vertical-align: top;
+}
+/* 見出し行。灰色を着せるのは thead だけ。
+   行頭の <th scope="row"> は本文なので、td と同じ見た目にする。 */
+.pc .tw thead th {
+  background: var(--bg2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--ink2);
+  white-space: nowrap;
+  border-bottom: 2px solid var(--rule3);
+}
+.pc .tw td,
+.pc .tw tbody th {
+  font-size: 15.5px;
+}
+.pc .tw tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pc .tw tbody tr:last-child > * {
+  border-bottom: none;
+}
+/* 金額の列。桁を揃えたいので等幅・右寄せ・tnum（.num と同じ考え方） */
+.pc .tw .n {
+  text-align: right;
+  white-space: nowrap;
+}
+.pc .tw td.n {
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-weight: 700;
+}
+
+/* 表のあとの但し書き。11px（.foot-note）では小さすぎる本文扱いの1行 */
+.pc .note {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--ink3);
+  margin-top: 10px;
+}
+
+/* ---- 補足の箱 ----
+   背景で区切るのではなく、左の1本で「ここは条件の話」と示す。
+   .sec.band とは別物なので、セクションの区切りには使わないこと。 */
+.pc .callout {
+  background: var(--bg2);
+  border-left: 3px solid var(--ok);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 20px 24px;
+}
+.pc .callout p {
+  font-size: 15.5px;
+  line-height: 1.92;
+  color: var(--ink2);
+}
+
+/* ============================================================
    レスポンシブ
    ⚠ 390px 幅で横スクロールを出さないこと。
      横に出てよいのは表（.tw）の中だけで、ページ本体は縦にしか動かさない。
@@ -820,5 +920,13 @@ body.pc {
   .pc .btn + .btn {
     margin-left: 0;
     margin-top: 10px;
+  }
+  /* 文字は 15.5px のまま。詰めるのは余白だけ（新しい文字サイズを作らない） */
+  .pc .tw th,
+  .pc .tw td {
+    padding: 11px 12px;
+  }
+  .pc .callout {
+    padding: 18px 18px;
   }
 }
