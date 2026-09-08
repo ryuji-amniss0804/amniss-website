@@ -1,0 +1,824 @@
+/* ============================================================
+   /pc（パソコン修理）のデザインシステム
+   出典：D:\revive_toyama_marketing\mockup_pc_site_v1.html を仕様書として読み直したもの
+
+   【重要】このファイルはグローバルに読み込まないこと。
+   トークンも :root ではなく `.pc` に載せている。
+   `.pc` は app/(pc)/layout.tsx が <body> に付ける。
+
+   ⚠ `app/(site)/site.css` と**同じ変数名で違う値**を持っている。
+     `--ink` は site 側が #16202b（青系）、こちらは #131310（暖色系・診断報告書に合わせた）。
+     :root に載せると引越し側のトップページの色が変わる。**絶対に載せないこと。**
+
+   ⚠ site.css をこのルートグループから読み込まないこと。
+     読み込むと `.rv` のリセットと本文指定まで付いてきて、
+     どちらのトークンが勝つかがファイルの読み込み順で決まるようになる。
+
+   【文字の大きさは7段だけ】11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45。
+     11〜16.5px の間に新しいサイズを作らないこと。
+     モックアップ以前の版はこの範囲に11種類あり、全部同じ大きさに見えていた。
+
+   【セクションの区切りに背景色を使わない】余白＋全幅の細い罫線＋セクション番号で区切る。
+     `--bg2` を敷くのは中古PCと最後のCTAの2か所だけ。全部に敷くと色が何も伝えなくなる。
+   ============================================================ */
+
+/* ---- ルート要素（<html>）---- */
+.pc-html {
+  scroll-behavior: smooth;
+}
+
+/* ---- トークン ---- */
+.pc {
+  --bg: #ffffff;
+  --bg2: #f7f7f4;
+  --bg3: #efeee8;
+  --ink: #131310;
+  --ink2: #4b4a45;
+  --ink3: #6e6c65;
+  --rule: #e6e4dc;
+  --rule2: #f1f0ea;
+  --rule3: #cfccc1;
+  --ok: #00795f;
+  --ok-bg: #e9f1ea;
+  --ok-dark: #016a53; /* --ok のホバー。色を増やしたのではなく、押した状態の1段 */
+  --warn: #8a5a00;
+  --warn-bg: #fbf4e6;
+  --panel: #1a1a16;
+  --panel-ink: #ecebe4;
+  --r: 10px;
+  --r-s: 7px;
+  --mark: #cfe6dd; /* 強調のマーカー */
+  --sh1: 0 1px 2px rgba(28, 26, 20, 0.05), 0 2px 8px rgba(28, 26, 20, 0.05);
+  --sh2: 0 2px 4px rgba(28, 26, 20, 0.06), 0 10px 28px rgba(28, 26, 20, 0.09);
+  --w: 1080px;
+  --sans: var(--pc-font-sans), "Noto Sans CJK JP", system-ui, -apple-system, sans-serif;
+  --serif: var(--pc-font-serif), "Noto Serif CJK JP", serif;
+  --mono: var(--pc-font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ---- リセット（.pc 配下だけ）---- */
+.pc,
+.pc *,
+.pc *::before,
+.pc *::after {
+  box-sizing: border-box;
+}
+.pc h1,
+.pc h2,
+.pc h3,
+.pc h4,
+.pc p,
+.pc ul,
+.pc ol,
+.pc figure {
+  margin: 0;
+  padding: 0;
+}
+.pc ul,
+.pc ol {
+  list-style: none;
+}
+
+body.pc {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.85;
+  word-break: auto-phrase;
+  line-break: strict;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pc img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.pc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pc .w {
+  max-width: var(--w);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* 数字と英字ラベル。等幅がこのサイトのトーンの核なので、
+   金額・測定値・エリア名・セクション番号・タグはすべてこれを通す。
+   tnum は桁を揃えるため（`1,240` と `9,420` の幅が違うと表がガタつく） */
+.pc .num {
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+}
+
+/* ---- 見出し ---- */
+.pc h1,
+.pc h2,
+.pc h3,
+.pc h4 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+}
+
+/* ---- 強調：太字＋マーカー ----
+   太字だけでは日本語ゴシックでは目立たない。
+   ⚠ 1セクションにつき1か所まで。それ以上入れると効かなくなる。 */
+.pc .lead b,
+.pc .hero .sub b,
+.pc .article p b,
+.pc .article li b,
+.pc .mk {
+  font-weight: 700;
+  color: var(--ink);
+  background: linear-gradient(transparent 62%, var(--mark) 62%);
+}
+
+/* ============================================================
+   ヘッダー
+   ============================================================ */
+.pc .hd {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+.pc .hd .w {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: 62px;
+}
+.pc .brand {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.pc .brand em {
+  font-style: normal;
+  color: var(--ok);
+}
+.pc .brand span {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink3);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  margin-top: 3px;
+}
+.pc .nav {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  align-items: center;
+}
+.pc .nav a {
+  padding: 8px 13px;
+  font-size: 13.5px;
+  color: var(--ink2);
+  border-radius: var(--r-s);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.pc .nav a:hover {
+  background: var(--bg3);
+  color: var(--ink);
+}
+.pc .nav a.on {
+  color: var(--ok);
+  font-weight: 700;
+  background: var(--ok-bg);
+}
+.pc .nav .cta {
+  background: var(--ok);
+  color: #fff;
+  font-weight: 700;
+  padding: 9px 17px;
+  margin-left: 8px;
+}
+.pc .nav .cta:hover {
+  background: var(--ok-dark);
+  color: #fff;
+}
+.pc .burger {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--rule3);
+  border-radius: var(--r-s);
+  width: 42px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+/* ============================================================
+   セクションの器
+   ============================================================ */
+.pc .sec {
+  padding: 104px 0;
+  border-top: 1px solid var(--rule);
+  background: var(--bg);
+}
+/* 背景を敷いてよいのは中古PCと最後のCTAだけ */
+.pc .sec.band {
+  background: var(--bg2);
+  border-top: 1px solid var(--rule3);
+}
+
+.pc .eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ok);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+/* セクション番号（01 ／ SYMPTOMS）。**トップページだけ**に出す。
+   下層ページは `.pc-top` を付けないので、番号は出ない。 */
+.pc .pc-top {
+  counter-reset: s;
+}
+.pc .pc-top .sec {
+  counter-increment: s;
+}
+.pc .pc-top .eyebrow::before {
+  content: counter(s, decimal-leading-zero) " ／ ";
+  color: var(--ink3);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+.pc .sec h2 {
+  font-size: clamp(26px, 3.9vw, 35px);
+  letter-spacing: 0.004em;
+  margin-bottom: 16px;
+}
+.pc .lead {
+  font-size: 18px;
+  line-height: 1.92;
+  color: var(--ink2);
+  max-width: 640px;
+  margin: 0 0 42px;
+}
+
+/* ---- ボタン ---- */
+.pc .btn {
+  display: inline-block;
+  font-weight: 700;
+  border-radius: var(--r-s);
+  padding: 14px 28px;
+  font-size: 15.5px;
+  transition: 0.16s;
+  border: 1px solid transparent;
+}
+.pc .btn.p {
+  background: var(--ok);
+  color: #fff;
+  box-shadow: var(--sh1);
+}
+.pc .btn.p:hover {
+  background: var(--ok-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--sh2);
+}
+.pc .btn.s {
+  border-color: var(--rule3);
+  background: #fff;
+  color: var(--ink);
+}
+.pc .btn.s:hover {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+.pc .btn + .btn {
+  margin-left: 8px;
+}
+
+.pc .more {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 28px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ok);
+}
+.pc .more:hover {
+  gap: 11px;
+}
+
+/* ---- グリッド ---- */
+.pc .grid {
+  display: grid;
+  gap: 18px;
+}
+.pc .g3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.pc .g4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ---- カード ---- */
+.pc .card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--sh1);
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+}
+.pc a.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh2);
+  border-color: var(--rule3);
+}
+.pc .card .body {
+  padding: 19px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.pc .card h3 {
+  font-size: 18px;
+  line-height: 1.52;
+  margin-bottom: 9px;
+}
+.pc .card p {
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 1.82;
+}
+/* next/image は width/height を持つ <img> を出す。
+   aspect-ratio と object-fit で切り抜くので、比率は CSS 側で決まる。 */
+.pc .thumb {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+  background: var(--bg3);
+}
+.pc .tag {
+  display: inline-block;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--bg3);
+  color: var(--ink2);
+  font-weight: 500;
+}
+.pc .tag.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-weight: 700;
+}
+.pc .tag.top {
+  align-self: flex-start;
+  margin-bottom: 10px;
+}
+.pc .price {
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-weight: 700;
+  font-size: 25px;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+.pc .price small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink3);
+  font-family: var(--sans);
+}
+.pc .foot-of-card {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule2);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pc .foot-note {
+  font-size: 11px;
+  color: var(--ink3);
+}
+.pc .card-meta {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--ink3);
+  font-family: var(--mono);
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   ヒーロー
+   ============================================================ */
+.pc .hero {
+  background: linear-gradient(175deg, #fbfbf8 0%, var(--bg2) 55%, var(--bg3) 100%);
+  border-bottom: 1px solid var(--rule);
+}
+.pc .hero .w {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 52px;
+  align-items: center;
+  padding-top: 66px;
+  padding-bottom: 66px;
+}
+.pc .hero h1 {
+  font-size: clamp(29px, 4.6vw, 45px);
+  line-height: 1.42;
+  letter-spacing: 0.005em;
+}
+.pc .hero h1 b {
+  font-weight: 700;
+  background: linear-gradient(transparent 68%, var(--mark) 68%);
+}
+.pc .hero .sub {
+  color: var(--ink2);
+  margin: 20px 0 28px;
+  font-size: 18px;
+  line-height: 1.9;
+}
+.pc .offers {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.pc .offer {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s);
+  padding: 11px 16px;
+  box-shadow: var(--sh1);
+}
+.pc .offer b {
+  display: block;
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.pc .offer b small {
+  font-size: 12px;
+  font-family: var(--sans);
+  font-weight: 400;
+}
+.pc .offer span {
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 0.06em;
+}
+
+/* 診断報告書の2枚重ね。手前（a）と奥（b） */
+.pc .stack {
+  position: relative;
+  padding: 12px 0;
+  overflow: visible;
+}
+.pc .stack img {
+  border-radius: 6px;
+  box-shadow: var(--sh2);
+  border: 1px solid var(--rule);
+}
+.pc .stack .b {
+  position: absolute;
+  width: 66%;
+  height: auto;
+  right: 0;
+  top: 0;
+  transform: rotate(3.2deg);
+  opacity: 0.92;
+}
+.pc .stack .a {
+  position: relative;
+  width: 88%;
+  height: auto;
+  transform: rotate(-1.6deg);
+  z-index: 2;
+}
+.pc .stack .cap {
+  position: absolute;
+  left: 2%;
+  bottom: -6px;
+  z-index: 3;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 11px;
+  color: var(--ink2);
+  box-shadow: var(--sh1);
+}
+
+/* ---- 許認可バー ---- */
+.pc .lic {
+  background: var(--panel);
+  color: var(--panel-ink);
+  padding: 15px 0;
+  font-size: 12px;
+}
+.pc .lic .w {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.pc .lic i {
+  font-style: normal;
+  opacity: 0.55;
+  margin-right: 7px;
+}
+
+/* ---- 症状カードの線画アイコン ----
+   文字だけだと4枚並んだときに読み分けられないので、必ず出す。 */
+.pc .ic {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 13px;
+}
+.pc .card.sym .body {
+  padding: 21px 20px 19px;
+}
+.pc .card.sym h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.pc .card.sym p {
+  font-size: 13.5px;
+  color: var(--ink3);
+  line-height: 1.7;
+}
+.pc a.card.sym:hover .ic {
+  stroke: var(--ok-dark);
+}
+
+/* 料金カードの「開けるかどうか」の1行 */
+.pc .rule-line {
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+  color: var(--ok);
+  font-weight: 700;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--rule2);
+}
+
+/* 料金カードの中身。`lib/pc.ts` の LABOR[].items */
+.pc .items {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 2;
+}
+.pc .items li {
+  padding-left: 15px;
+  position: relative;
+}
+.pc .items li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.92em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rule3);
+}
+
+/* 中古PCの構成（Core i5 ／ 16GB ／ …） */
+.pc .spec {
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink2);
+}
+
+/* CTA */
+.pc .center {
+  text-align: center;
+}
+.pc .center .lead {
+  margin: 14px auto 30px;
+}
+
+/* ============================================================
+   フッター
+   ============================================================ */
+.pc .ft {
+  background: var(--panel);
+  color: var(--panel-ink);
+  padding: 56px 0 30px;
+  font-size: 13.5px;
+}
+.pc .ft .w {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 34px;
+}
+.pc .ft .brand {
+  color: inherit;
+}
+.pc .ft .brand em {
+  color: #7fc9b3;
+}
+.pc .ft .brand span {
+  color: rgba(255, 255, 255, 0.5);
+}
+.pc .ft h4 {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  font-family: var(--mono);
+  opacity: 0.6;
+  margin: 0 0 14px;
+  font-weight: 500;
+}
+.pc .ft .about {
+  opacity: 0.75;
+  margin-top: 16px;
+  line-height: 1.9;
+}
+.pc .ft a {
+  display: block;
+  color: var(--panel-ink);
+  opacity: 0.85;
+  padding: 4px 0;
+}
+.pc .ft a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+.pc .ft .bot {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 40px;
+  padding-top: 20px;
+  font-size: 12px;
+  opacity: 0.55;
+  text-align: center;
+}
+
+/* ============================================================
+   モバイル固定バー
+   ⚠ (site) の MobileBar は使わない。リンク先が違う（あちらは引越しのLINE）。
+   ============================================================ */
+.pc .fixbar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  background: #fff;
+  border-top: 1px solid var(--rule);
+  padding: 9px 12px;
+  gap: 9px;
+  box-shadow: 0 -4px 16px rgba(28, 26, 20, 0.09);
+}
+.pc .fixbar a {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  border-radius: var(--r-s);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.pc .fixbar .tel {
+  border: 1px solid var(--rule3);
+  color: var(--ink);
+}
+.pc .fixbar .go {
+  background: var(--ok);
+  color: #fff;
+}
+
+/* ============================================================
+   レスポンシブ
+   ⚠ 390px 幅で横スクロールを出さないこと。
+     横に出てよいのは表（.tw）の中だけで、ページ本体は縦にしか動かさない。
+   ============================================================ */
+@media (max-width: 900px) {
+  .pc .hero .w {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-top: 44px;
+    padding-bottom: 52px;
+  }
+  .pc .stack {
+    max-width: 420px;
+  }
+  .pc .g3,
+  .pc .g4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pc .ft .w {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body.pc {
+    font-size: 15.5px;
+    padding-bottom: 64px; /* 固定バーのぶん。バーが出る幅でだけ空ける */
+  }
+  .pc .w {
+    padding: 0 18px;
+  }
+  .pc .sec {
+    padding: 64px 0;
+  }
+  .pc .nav {
+    display: none;
+    position: fixed;
+    top: 62px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 2px;
+    border-bottom: 1px solid var(--rule);
+    box-shadow: var(--sh2);
+  }
+  .pc .nav.open {
+    display: flex;
+  }
+  .pc .nav a {
+    padding: 13px;
+    font-size: 15.5px;
+  }
+  .pc .nav .cta {
+    margin: 8px 0 0;
+    text-align: center;
+  }
+  .pc .burger {
+    display: block;
+  }
+  .pc .g3,
+  .pc .g4 {
+    grid-template-columns: 1fr;
+  }
+  .pc .ft .w {
+    grid-template-columns: 1fr;
+  }
+  .pc .fixbar {
+    display: flex;
+  }
+  .pc .lead {
+    font-size: 18px;
+    margin-bottom: 32px;
+  }
+  .pc .sec h2 {
+    font-size: 27px;
+  }
+  .pc .hero .sub {
+    font-size: 15.5px;
+  }
+  .pc .price {
+    font-size: 23px;
+  }
+  /* ボタンが2つ並ぶと 390px では収まらない。縦に積んで横スクロールを避ける */
+  .pc .btn {
+    display: block;
+    text-align: center;
+  }
+  .pc .btn + .btn {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
