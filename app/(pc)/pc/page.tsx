@@ -19,8 +19,7 @@ import { DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, yen } from "@/lib/pc";
 
 export const metadata: Metadata = {
   title: "パソコン修理・出張診断 | re'vive_doc 富山",
-  description:
-    "富山県全域に伺う出張型のパソコン修理・診断。買い替える前にご相談ください。まず測って、直せるか直せないかを診断報告書でお出しします。出張診断3,000円、ご相談とお見積りは無料。",
+  // description はレイアウト（PC_META.top）を継承する。ここに書かないこと。
   alternates: { canonical: "/pc" },
 };
 
