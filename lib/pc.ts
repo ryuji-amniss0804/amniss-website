@@ -113,14 +113,19 @@ export function yen(n: number): string {
  *
  * ⚠ `price` が null のものは「要見積り」と表示する。**金額を勝手に決めないこと。**
  *   データ移行は容量別の金額が未決、BTOは構成次第で変わるため、どちらも見積り扱い。
+ *
+ * `key` は `priceOf()` から引くためのもの。症状ツール（/pc/symptom）が
+ * 「新入生セットアップパック」の金額をキーで参照する。**表示には使わない**ので、
+ * 足しても /pc/price の見た目は変わらない。
  */
 export const MENU = [
-  { name: "新入生セットアップパック", note: "初期設定・セキュリティ・保護者設定まで", price: 12000 },
-  { name: "データ移行・取り出し", note: "容量に応じて", price: null },
-  { name: "データ消去（証明書つき）", note: "買取と同時なら無料", price: 5000 },
-  { name: "リモートサポート", note: "30分", price: 5000 },
-  { name: "BTO・組み立て代行", note: "構成のご相談は無料", price: null },
+  { key: "setup", name: "新入生セットアップパック", note: "初期設定・セキュリティ・保護者設定まで", price: 12000 },
+  { key: "migrate", name: "データ移行・取り出し", note: "容量に応じて", price: null },
+  { key: "erase", name: "データ消去（証明書つき）", note: "買取と同時なら無料", price: 5000 },
+  { key: "remote", name: "リモートサポート", note: "30分", price: 5000 },
+  { key: "bto", name: "BTO・組み立て代行", note: "構成のご相談は無料", price: null },
 ] as const satisfies ReadonlyArray<{
+  key: string;
   name: string;
   note: string;
   price: number | null;
@@ -154,4 +159,139 @@ export const PC_META = {
 
   /** /pc/price */
   price: `出張診断${yen(DIAGNOSIS_FEE)}円＋作業工賃＋出張費＋部品代。作業工賃は本体を開けるかどうかで3段（${LABOR.map((l) => yen(l.price) + "円").join("／")}）。出張費は富山県内どこでも${yen(TRAVEL_MAX)}円が上限です。直せないときは診断料と出張費のみ。`,
+
+  /** /pc/symptom */
+  symptom: `症状を選ぶと、考えられる原因と費用の目安がその場で出ます。出張診断${yen(DIAGNOSIS_FEE)}円、ご相談とお見積りは無料。富山県全域に伺います。`,
 } as const;
+
+/* ============================================================
+   症状の目安（/pc/symptom）
+   手本：D:\revive_toyama_marketing\mockup_pc_doc_v4.html の「症状の目安（選択式）」
+
+   ⚠ ここは**判定ではなく目安**。「直る／直らない」を断定する文章を書かないこと。
+     確定するのは伺って測ったあと、という前提でひとまとまりになっている。
+   ============================================================ */
+
+/**
+ * 症状の金額は「数字」ではなく「どの料金か」で持つ。
+ * ここを通すことで、料金を変えたときに症状ツールの目安も一緒に直る。
+ */
+export type PriceKey = (typeof LABOR)[number]["key"] | (typeof MENU)[number]["key"];
+
+export function priceOf(key: PriceKey): number | null {
+  const l = LABOR.find((x) => x.key === key);
+  if (l) return l.price;
+  const m = MENU.find((x) => x.key === key);
+  return m ? m.price : null;
+}
+
+/**
+ * 症状の一覧。トップページの症状カードと /pc/symptom の選択肢を、ここ1か所から出す。
+ *
+ * ⚠ `lo` / `hi` に数字を直接書かないこと。必ず `PriceKey` で持ち、`priceOf()` で解決する。
+ *   - `hi: null` … 上限を示さない（「14,000円〜」と出す）
+ *   - `lo: null` … 見て測らないと出せない（「要見積り」と出す。金額を勝手に決めない）
+ *
+ * card / cardNote はトップページの症状カード用（78aで使う）。
+ * t は「そのまま送れる文」の書き出し、c は考えられる原因、k は当日測るところ。
+ */
+export const SYMPTOMS = [
+  { key: "power", icon: "pw", card: "電源が入らない", cardNote: "ボタンを押しても反応がない",
+    t: "パソコンの電源が入りません。",
+    lo: "std", hi: "heavy",
+    n: "標準作業〜重作業。部品が必要な場合は別途お見積りします",
+    c: "電源ユニットの劣化、起動ドライブの不良、マザーボードのボタン電池切れ。",
+    k: "通電と各部の電圧、起動ドライブの健全性、ボタン電池の電圧を測ります。" },
+
+  { key: "slow", icon: "slow", card: "起動しない・動作が遅い", cardNote: "ロゴから進まない／起動に何分もかかる",
+    t: "パソコンの起動が遅く、動きが重いです。",
+    lo: "std", hi: "std",
+    n: "標準作業。SSDへ交換する場合は部品代が別途かかります",
+    c: "ハードディスクの劣化、空き容量の不足、常駐ソフトの増えすぎ。",
+    k: "ディスクの健全性と消耗度、起動にかかる時間、空き容量を測ります。" },
+
+  { key: "display", icon: "disp", card: "画面が映らない", cardNote: "真っ暗・線が入る",
+    t: "画面が映りません（線が入る・真っ暗）。",
+    lo: "std", hi: null,
+    n: "標準作業。液晶パネルやグラフィックボードの交換は別途お見積りします",
+    c: "接続ケーブル、グラフィックボード、ノートの場合は液晶パネル。",
+    k: "別のモニタでの表示、グラフィックボードの動作、内部の接続を確認します。" },
+
+  { key: "heat", icon: "heat", card: "異音がする・熱くて落ちる", cardNote: "ファンの音、使ううちに電源が切れる",
+    t: "ファンの音が大きく、本体が熱くなります。",
+    lo: "std", hi: "std",
+    n: "標準作業。内部清掃＋グリス塗り替え＋健康診断が含まれます",
+    c: "内部のほこり、CPUグリスの劣化、ファンの寿命。",
+    k: "負荷をかけたときの温度と回転数を測り、清掃の前後で比べます。" },
+
+  { key: "game", icon: "game", card: "ゲーム中に落ちる", cardNote: "FPSが出ない・強制終了する",
+    t: "ゲーム中に落ちます。FPSが出ません。",
+    lo: "std", hi: "std",
+    n: "標準作業。部品の交換が必要な場合は別途お見積りします",
+    c: "熱による保護動作、電源ユニットの容量不足、グラフィックボードの劣化。",
+    k: "負荷試験での温度と電圧、グラフィックボードの動作、電源の容量を確認します。" },
+
+  { key: "device", icon: "wifi", card: "周辺機器がつながらない", cardNote: "Wi-Fi・プリンタなど",
+    t: "Wi-Fi・プリンタなどの周辺機器がつながりません。",
+    lo: "light", hi: "light",
+    n: "軽作業。複数の機器をまとめて設定する場合もこの範囲です",
+    c: "ルーター側の設定、ドライバ、機器が認識されていない。",
+    k: "パソコン側とルーター側のどちらに原因があるかを切り分けます。" },
+
+  { key: "virus", icon: "shield", card: "ウイルスの警告が消えない", cardNote: "画面に警告が出続ける",
+    t: "ウイルスの警告が消えません。",
+    lo: "std", hi: "std",
+    n: "標準作業。偽の警告だった場合も同じ料金です",
+    c: "偽の警告（広告）、ブラウザの設定を変えられている、実際のマルウェア。",
+    k: "警告の出どころ、ブラウザとスタートアップの状態を確認します。" },
+
+  { key: "setup", icon: "setup", card: "新しいパソコンの設定", cardNote: "初期設定・データ移行",
+    t: "新しいパソコンの設定とデータ移行をお願いしたいです。",
+    lo: "light", hi: "setup",
+    n: "軽作業〜新入生セットアップパック。移行するデータの量によります",
+    c: "初期設定、Wi-Fi、Office、プリンタ、前の機械からのデータ移行。",
+    k: "移行するデータの量を確認してから、作業の順番をお伝えします。" },
+
+  { key: "water", icon: "water", card: "水をこぼした", cardNote: "キーボードに飲み物",
+    t: "水（飲み物）をこぼしました。",
+    lo: null, hi: null,
+    n: "内部の状態を見ないと金額が出せません。伺って測ってからお伝えします",
+    c: "基板の腐食、キーボード、内部の部品。こぼした量と経過時間で大きく変わります。",
+    k: "分解して内部の腐食を確認します。通電したままにせず、すぐご連絡ください。" },
+
+  { key: "rescue", icon: "data", card: "データを取り出したい", cardNote: "壊れた機体から取り出す",
+    t: "壊れたパソコンからデータを取り出したいです。",
+    lo: null, hi: null,
+    n: "ディスクの状態と容量によります。伺って測ってからお伝えします",
+    c: "ディスクの物理的な故障、論理的な破損、OSが起動しないだけの場合もあります。",
+    k: "まずディスクの健全性を測り、取り出せる見込みがあるかをお伝えします。" },
+] as const satisfies ReadonlyArray<{
+  key: string;
+  icon: string;
+  card: string;
+  cardNote: string;
+  t: string;
+  lo: PriceKey | null;
+  hi: PriceKey | null;
+  n: string;
+  c: string;
+  k: string;
+}>;
+
+/** いつからか */
+export const SYMPTOM_WHEN = ["昨日から急にです。", "ここ数週間で少しずつ悪くなりました。", "以前からずっとです。"] as const;
+
+/** 使用年数。最後の1つは「わからない」で、選んでも文章には入れない */
+export const SYMPTOM_AGE = [
+  { label: "3年未満", text: "3年未満です。" },
+  { label: "3〜6年", text: "3〜6年ほど使っています。" },
+  { label: "7年以上", text: "7年以上使っています。", old: true },
+  { label: "わからない", text: "" },
+] as const;
+
+/** 中のデータ */
+export const SYMPTOM_DATA = [
+  { label: "必要", text: "中のデータは必要です。", needed: true },
+  { label: "どちらでもよい", text: "中のデータはどちらでも構いません。" },
+  { label: "不要", text: "中のデータは不要です。" },
+] as const;

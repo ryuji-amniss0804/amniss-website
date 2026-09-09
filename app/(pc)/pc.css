@@ -930,3 +930,209 @@ body.pc {
     padding: 18px 18px;
   }
 }
+
+/* ============================================================
+   症状の目安（/pc/symptom）
+   手本：D:\revive_toyama_marketing\mockup_pc_doc_v4.html の「症状の目安（選択式）」
+
+   既存クラスで足りないのは「押して選ぶボタン（.opts）」と「結果の箱（.tr）」の2つだけ。
+   金額は `.price`、ボタンは `.btn`、と、あるものはそのまま使う。
+
+   ⚠ 文字サイズは既存の7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）から取ること。
+     モックアップの 10.5 / 11.5 / 12.5 / 13 / 16px はここでは使わない。
+   ⚠ レスポンシブはこのブロックの末尾に自分のぶんを持つ。道具ひとつで完結させる。
+   ============================================================ */
+.pc .triage {
+  border: 1px solid var(--rule3);
+  border-radius: var(--r);
+  background: #fff;
+  overflow: hidden;
+  box-shadow: var(--sh1);
+}
+
+/* ---- 質問1つぶん ---- */
+.pc .triage .tq {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.pc .triage .ql {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink2);
+  margin-bottom: 11px;
+}
+.pc .triage .ql em {
+  font-style: normal;
+  font-family: var(--mono);
+  color: var(--ok);
+  margin-right: 7px;
+}
+
+/* ---- 選択肢 ----
+   押した状態は `aria-pressed` が持ち、見た目はそれに従う。
+   選択中を表す class を別に足さないこと（状態の出どころが2つになる）。 */
+.pc .opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pc .opts button {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink2);
+  background: #fff;
+  border: 1px solid var(--rule3);
+  border-radius: 99px;
+  padding: 9px 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.14s;
+}
+.pc .opts button:hover {
+  border-color: var(--ok);
+  color: var(--ink);
+}
+.pc .opts button[aria-pressed="true"] {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+
+/* ---- 結果 ----
+   ⚠ ここの背景は箱の中の区切りであって、セクションの区切り（.sec.band）ではない。 */
+.pc .triage .tr {
+  padding: 24px;
+  background: var(--bg2);
+  border-top: 1px solid var(--rule3);
+}
+.pc .triage .rl {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--ink3);
+}
+.pc .triage .pz {
+  margin-top: 8px;
+}
+/* 「要見積り」は数字ではないので等幅から外す（Roboto Mono に和文が無い） */
+.pc .triage .price.est {
+  font-family: var(--sans);
+  letter-spacing: 0.02em;
+}
+.pc .triage .pn {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink2);
+  line-height: 1.8;
+  margin-top: 7px;
+}
+
+/* ---- 考えられる原因／当日ここを測ります ---- */
+.pc .triage .cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+.pc .triage .cols > div {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s);
+  padding: 15px 17px;
+}
+.pc .triage .cols h3 {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+}
+.pc .triage .cols p {
+  font-size: 13.5px;
+  color: var(--ink2);
+  line-height: 1.9;
+  margin-top: 7px;
+}
+
+/* ---- 注記 ---- */
+.pc .triage .tn {
+  font-size: 12px;
+  color: var(--ink3);
+  line-height: 1.9;
+  margin-top: 16px;
+}
+.pc .triage .tn li + li {
+  margin-top: 6px;
+}
+
+/* ---- そのまま送れる文 ---- */
+.pc .triage .draft {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule3);
+}
+.pc .triage .dl {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.pc .triage .dl span {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink3);
+  margin-top: 5px;
+  line-height: 1.8;
+}
+.pc .triage textarea {
+  width: 100%;
+  margin-top: 11px;
+  padding: 14px 15px;
+  border: 1px solid var(--rule3);
+  border-radius: var(--r-s);
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 2;
+  resize: vertical;
+  min-height: 112px;
+}
+.pc .triage .dacts {
+  display: flex;
+  gap: 10px;
+  margin-top: 13px;
+  flex-wrap: wrap;
+}
+/* 並びの間隔は .dacts の gap が持つ。`.btn + .btn` のぶんを足さない */
+.pc .triage .dacts .btn + .btn {
+  margin-left: 0;
+  margin-top: 0;
+}
+/* `.btn` は <a> 前提で書かれている。<button> は font-family を継承しないので足す */
+.pc button.btn {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .pc .triage .tq,
+  .pc .triage .tr {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  /* 文が長い選択肢（症状・いつから）だけ縦に積む。市町村や年数は短いので横に並べる */
+  .pc .opts.wide button {
+    width: 100%;
+  }
+  .pc .triage .cols {
+    grid-template-columns: 1fr;
+  }
+  .pc .triage .dacts .btn {
+    width: 100%;
+  }
+}
