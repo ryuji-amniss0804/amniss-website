@@ -4,6 +4,7 @@ import "./pc.css";
 import PcHeader from "./_components/PcHeader";
 import PcFooter from "./_components/PcFooter";
 import Ga4 from "../components/Ga4";
+import { PC_META } from "@/lib/pc";
 
 /**
  * パソコン修理（/pc）のルートレイアウト。
@@ -56,13 +57,11 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://revive-toyama.jp"),
   title: "re'vive_doc | 富山のパソコン修理・出張診断",
-  description:
-    "富山県全域に伺う出張型のパソコン修理・診断。まず測って、直せるか直せないかを診断報告書でお出しします。出張診断3,000円（作業をご依頼の場合は工賃に充当）。診断書付きの中古パソコンもご用意。",
+  description: PC_META.top,
   // canonical はレイアウトに置かない。子ページに継承されるため、各ページ側で指定すること。
   openGraph: {
     title: "re'vive_doc | 富山のパソコン修理・出張診断",
-    description:
-      "富山県全域に伺う出張型のパソコン修理・診断。まず測って、直せるか直せないかを診断報告書でお出しします。",
+    description: PC_META.topOg,
     url: "https://revive-toyama.jp/pc",
     siteName: "re'vive_doc",
     locale: "ja_JP",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DIAGNOSIS_FEE, LABOR, MENU, PAYMENTS, TRAVEL, TRAVEL_MAX, yen } from "@/lib/pc";
+import { DIAGNOSIS_FEE, LABOR, MENU, PAYMENTS, PC_META, TRAVEL, TRAVEL_MAX, yen } from "@/lib/pc";
 
 /**
  * /pc/price 料金ページ。
@@ -19,8 +19,7 @@ import { DIAGNOSIS_FEE, LABOR, MENU, PAYMENTS, TRAVEL, TRAVEL_MAX, yen } from "@
 
 export const metadata: Metadata = {
   title: "料金 | パソコン修理・出張診断 re'vive_doc 富山",
-  description:
-    "出張診断3,000円＋作業工賃＋出張費＋部品代。作業工賃は本体を開けるかどうかで3段（8,000円／14,000円／20,000円）。出張費は富山県内どこでも6,000円が上限です。直せないときは診断料と出張費のみ。",
+  description: PC_META.price,
   alternates: { canonical: "/pc/price" },
 };
 
