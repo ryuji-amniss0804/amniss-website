@@ -328,6 +328,9 @@ body.pc {
   display: grid;
   gap: 18px;
 }
+.pc .g2 {
+  grid-template-columns: repeat(2, 1fr);
+}
 .pc .g3 {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -806,12 +809,33 @@ body.pc {
   font-weight: 700;
 }
 
+/* 合計行。事例の費用表で使う。背景を1段落とすだけで、文字は本文と同じ段のまま */
+.pc .tw tr.total > * {
+  background: var(--bg2);
+}
+.pc .tw tr.total .n {
+  font-size: 18px;
+}
+
 /* 表のあとの但し書き。11px（.foot-note）では小さすぎる本文扱いの1行 */
 .pc .note {
   font-size: 13.5px;
   line-height: 1.85;
   color: var(--ink3);
   margin-top: 10px;
+}
+.pc .note a {
+  color: var(--ok);
+  font-weight: 700;
+}
+/* 但し書きのうち、読み飛ばされると困るもの（当時の金額など）だけ箱に入れる。
+   文字の大きさは `.note` のまま。目立たせるのは枠であって、文字サイズではない。 */
+.pc .note.box {
+  background: var(--bg2);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s);
+  padding: 13px 16px;
+  margin-top: 18px;
 }
 
 /* ---- 補足の箱 ----
@@ -827,6 +851,149 @@ body.pc {
   font-size: 15.5px;
   line-height: 1.92;
   color: var(--ink2);
+}
+/* 注意（保証しないこと）の1枚だけ。左の1本と背景を warn に振り替えるだけで、
+   新しい箱は作らない。⚠ 1ページに1か所まで。 */
+.pc .callout.warn {
+  border-left-color: var(--warn);
+  background: var(--warn-bg);
+}
+
+/* ============================================================
+   記事本文（/pc/case/<slug>）
+   手本：mockup_pc_site_v1.html の `.article`
+
+   ⚠ 文字サイズは既存の7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）から取る。
+     モックアップの 17 / 19 / 12.5 / 24px はここでは使わない。
+     本文は 15.5px（body と同じ）、リード文は 18px（.lead と同じ段）。
+   ⚠ h1 の大きさは `.pc .sec h1` が持つ。ここでは余白だけを足す。
+   ============================================================ */
+.pc .article {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.pc .article h1 {
+  margin: 12px 0 24px;
+}
+.pc .article h2 {
+  font-size: clamp(23px, 2.9vw, 27px);
+  margin: 52px 0 16px;
+}
+.pc .article h3 {
+  font-size: 18px;
+  margin: 32px 0 10px;
+}
+/* 本文の段落。子セレクタなのは、`.callout` や `.voice` の中の <p> まで
+   この余白と行送りに巻き込まないため（あちらは自分の指定を持っている）。 */
+.pc .article > p {
+  font-size: 15.5px;
+  line-height: 2;
+  color: var(--ink2);
+  margin: 0 0 18px;
+}
+/* 但し書きは 13.5px のまま。`.article > p` に上書きされないよう、ここで取り返す */
+.pc .article .note {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--ink3);
+  margin: 10px 0 0;
+}
+.pc .article .note.box {
+  margin-top: 18px;
+}
+/* 書き出しの1段落。`.lead` と同じ 18px だが、幅（640px）を絞らない */
+.pc .article .ld {
+  font-size: 18px;
+  line-height: 1.95;
+  color: var(--ink2);
+  margin: 0 0 34px;
+}
+.pc .article figure {
+  margin: 28px 0;
+}
+.pc .article img {
+  border-radius: var(--r);
+  border: 1px solid var(--rule);
+}
+.pc .article figcaption {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-top: 9px;
+  text-align: center;
+}
+/* 箇条書き。`.pc ul` のリセットで印が消えているので、`.items` と同じ丸を置く */
+.pc .article ul {
+  margin: 20px 0 24px;
+  color: var(--ink2);
+  line-height: 2.05;
+}
+.pc .article li {
+  padding-left: 15px;
+  position: relative;
+  margin-bottom: 10px;
+}
+.pc .article li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.95em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rule3);
+}
+/* 表と補足の箱は、記事の中だけ上下に余白を持つ */
+.pc .article .tw {
+  margin: 22px 0;
+}
+.pc .article .callout {
+  margin: 28px 0;
+}
+
+/* お客様の声。⚠ `CASES[].voice` が null のあいだは**描画しない。**
+   空の引用枠を本番に出さないこと。ここにあるのは、本文をもらったあとの見た目。 */
+.pc .voice {
+  margin: 26px 0;
+  padding: 26px 30px;
+  background: var(--bg2);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  position: relative;
+}
+.pc .voice p {
+  font-size: 18px;
+  line-height: 2;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+.pc .voice footer {
+  font-size: 12px;
+  color: var(--ink3);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+.pc .voice::before {
+  content: "C";
+  position: absolute;
+  top: 2px;
+  left: 14px;
+  font-family: var(--serif);
+  font-size: 45px;
+  color: var(--rule3);
+  line-height: 1;
+}
+
+/* 記事の下のボタン2つ。`.center` が中央寄せ、ここは上の余白だけ */
+.pc .article-cta {
+  margin-top: 56px;
+}
+
+/* 一覧カードの「読む →」。`.more` は 13.5px でカードの足には大きいので、
+   タグ（11px）と `.card p`（13.5px）の間の 12px を取る */
+.pc .read-on {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ok);
 }
 
 /* ============================================================
@@ -892,6 +1059,7 @@ body.pc {
   .pc .burger {
     display: block;
   }
+  .pc .g2,
   .pc .g3,
   .pc .g4 {
     grid-template-columns: 1fr;
@@ -931,6 +1099,12 @@ body.pc {
   }
   .pc .callout {
     padding: 18px 18px;
+  }
+  .pc .voice {
+    padding: 22px 20px;
+  }
+  .pc .article h2 {
+    margin: 38px 0 12px;
   }
 }
 

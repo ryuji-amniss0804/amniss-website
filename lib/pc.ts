@@ -162,6 +162,10 @@ export const PC_META = {
 
   /** /pc/symptom */
   symptom: `症状を選ぶと、考えられる原因と費用の目安がその場で出ます。出張診断${yen(DIAGNOSIS_FEE)}円、ご相談とお見積りは無料。富山県全域に伺います。`,
+
+  /** /pc/case */
+  cases:
+    "実際にお受けした修理を、診断報告書とあわせて公開しています。何を測って、何をして、いくらだったか。富山県全域に伺うパソコン修理・出張診断。",
 } as const;
 
 /* ============================================================
@@ -295,3 +299,54 @@ export const SYMPTOM_DATA = [
   { label: "どちらでもよい", text: "中のデータはどちらでも構いません。" },
   { label: "不要", text: "中のデータは不要です。" },
 ] as const;
+
+/* ============================================================
+   修理事例（/pc/case）
+   ============================================================ */
+
+/**
+ * 修理事例。一覧に出す情報はここ、本文は各ページの TSX。
+ *
+ * 【なぜ markdown（`content/blog/`）に載せないか】
+ * 事例がまだ1本しかなく、本文は表と写真が多い。`/pc/price` と同じ TSX で書けば
+ * いまのPCサイトと見た目がそろう。**3〜5本たまった時点で markdown に移す。**
+ * そのとき困らないよう、一覧に出す情報（題・日付・地域・要約・写真）はここに持たせ、
+ * 本文だけを TSX に書いている。
+ *
+ * ⚠ **金額を持たせないこと。**事例の金額は当時の請求額で、いまの料金表とは別物。
+ *   `LABOR` / `priceOf()` から引くと、料金改定のときに過去の記録まで書き換わる。
+ * ⚠ `voice` は Google のクチコミ。**まだ本文をもらっていないので null。**
+ *    null のあいだは「お客様の声」の節ごと描画しないこと。
+ *    空の引用枠を本番に出すと、作りかけに見える。
+ * ⚠ 「準備中」のダミー事例をここに足さないこと。一覧は実在するものだけを出す。
+ */
+export const CASES = [
+  {
+    slug: "01-raiden",
+    title: "落雷で起動しなくなった1台が、部品交換なしで戻った",
+    date: "2026.09",
+    area: "富山市",
+    machine: "デスクトップ",
+    summary:
+      "電源を入れても反応しない。落雷のあとだったので基板の損傷を疑いましたが、測ってみるとコントローラの一時停止でした。",
+    image: "/pc/case-cooler.jpg",
+    imageAlt: "取り外したCPUクーラー",
+    imageW: 760,
+    imageH: 760,
+    hasReport: true,
+    voice: null as string | null,
+  },
+] as const satisfies ReadonlyArray<{
+  slug: string;
+  title: string;
+  date: string;
+  area: string;
+  machine: string;
+  summary: string;
+  image: string;
+  imageAlt: string;
+  imageW: number;
+  imageH: number;
+  hasReport: boolean;
+  voice: string | null;
+}>;
