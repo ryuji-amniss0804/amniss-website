@@ -51,7 +51,7 @@ const CASES = [
     href: "/pc/case",
     img: "/pc/case-report.jpg",
     w: 680,
-    h: 886,
+    h: 771,
     alt: "お渡しした診断報告書",
     tag: "射水市 ／ 自作PC",
     title: "買い替えをすすめた1台。その理由も報告書に書いた",

@@ -193,7 +193,7 @@ export default function PcCase01Page() {
               src="/pc/case-report.jpg"
               alt="この案件でお渡しした診断報告書"
               width={680}
-              height={886}
+              height={771}
               sizes="(max-width: 760px) 100vw, 720px"
             />
             <figcaption>この案件でお渡しした診断報告書（実物・匿名化しています）</figcaption>
