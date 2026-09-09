@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { AREA, LICENSES } from "@/lib/site";
-import { DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, yen } from "@/lib/pc";
+import { DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, SYMPTOMS, yen } from "@/lib/pc";
+import PcIcon from "../_components/PcIcon";
 
 /**
  * /pc のトップページ。
@@ -22,73 +23,6 @@ export const metadata: Metadata = {
   // description はレイアウト（PC_META.top）を継承する。ここに書かないこと。
   alternates: { canonical: "/pc" },
 };
-
-/** 症状カードの線画アイコン。24×24 の stroke。
-    ⚠ 省略しないこと。文字だけだと4枚並んだときに読み分けられない。 */
-const ICONS = {
-  pw: (
-    <>
-      <path d="M12 3.2v8" />
-      <path d="M6.8 6.6a7.6 7.6 0 1 0 10.4 0" />
-    </>
-  ),
-  boot: (
-    <>
-      <rect x="2.7" y="4" width="18.6" height="12.3" rx="1.6" />
-      <path d="M8.6 20h6.8M12 16.3V20" />
-      <path d="M9.7 10.2a2.4 2.4 0 1 0 2.3-2.4" />
-    </>
-  ),
-  slow: (
-    <>
-      <circle cx="12" cy="12" r="8.4" />
-      <path d="M12 6.9v5.3l3.4 2" />
-    </>
-  ),
-  noise: (
-    <>
-      <path d="M4 9.6v4.8h3.2L12 18.5V5.5L7.2 9.6H4z" />
-      <path d="M15.6 9.5a3.5 3.5 0 0 1 0 5" />
-      <path d="M18.2 7.1a7 7 0 0 1 0 9.8" />
-    </>
-  ),
-  disp: (
-    <>
-      <rect x="2.7" y="4" width="18.6" height="12.3" rx="1.6" />
-      <path d="M8.6 20h6.8M12 16.3V20" />
-      <path d="M4.6 5.9 19.4 14.4" />
-    </>
-  ),
-  heat: (
-    <>
-      <path d="M14 13.6V5.5a2 2 0 1 0-4 0v8.1a4 4 0 1 0 4 0z" />
-      <path d="M12 9.7v4.5" />
-    </>
-  ),
-  water: <path d="M12 3.4s5.5 5.6 5.5 9.1a5.5 5.5 0 1 1-11 0C6.5 9 12 3.4 12 3.4z" />,
-  data: (
-    <>
-      <path d="M12 3.5v10.2" />
-      <path d="M8.3 10.1 12 13.8l3.7-3.7" />
-      <path d="M4.5 15.4v3.1a1.6 1.6 0 0 0 1.6 1.6h11.8a1.6 1.6 0 0 0 1.6-1.6v-3.1" />
-    </>
-  ),
-} as const;
-
-const SYMPTOMS = [
-  { icon: "pw", title: "電源が入らない", desc: "ボタンを押しても反応がない" },
-  { icon: "boot", title: "起動しない", desc: "ロゴから先に進まない" },
-  { icon: "slow", title: "動作が遅い", desc: "起動に何分もかかる" },
-  { icon: "noise", title: "異音がする", desc: "ファンや内部からの音" },
-  { icon: "disp", title: "画面が映らない", desc: "真っ暗・線が入る" },
-  { icon: "heat", title: "熱くて落ちる", desc: "使っているうちに電源が切れる" },
-  { icon: "water", title: "水をこぼした", desc: "キーボードに飲み物" },
-  { icon: "data", title: "データを出したい", desc: "壊れた機体から取り出す" },
-] as const satisfies ReadonlyArray<{
-  icon: keyof typeof ICONS;
-  title: string;
-  desc: string;
-}>;
 
 const CASES = [
   {
@@ -266,15 +200,17 @@ export default function PcTopPage() {
             当てはまるものを選ぶと、考えられる原因と費用の目安をその場でお出しします。
           </p>
 
+          {/* カードは `lib/pc.ts` の `SYMPTOMS` から描く。ここに症状を書き足さないこと。
+              べた書きにすると /pc/symptom の選択肢と食い違い、押した人が
+              自分の症状を選べない行き止まりができる。
+              リンクの `?s=` で押した症状を引き継ぎ、選ばれた状態で開く。 */}
           <div className="grid g4">
             {SYMPTOMS.map((s) => (
-              <Link key={s.title} className="card sym" href="/pc/symptom">
+              <Link key={s.key} className="card sym" href={`/pc/symptom?s=${s.key}`}>
                 <div className="body">
-                  <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
-                    {ICONS[s.icon]}
-                  </svg>
-                  <h3>{s.title}</h3>
-                  <p>{s.desc}</p>
+                  <PcIcon name={s.icon} />
+                  <h3>{s.card}</h3>
+                  <p>{s.cardNote}</p>
                 </div>
               </Link>
             ))}
