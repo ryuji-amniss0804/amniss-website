@@ -574,8 +574,11 @@ body.pc {
 .pc .card.sym .body {
   padding: 21px 20px 19px;
 }
+/* 78aで10枚になり、症状名が最長12文字（「異音がする・熱くて落ちる」）まで伸びた。
+   4列のときカード内は約200pxで、18pxだと語の途中で折り返す。7段の1つ下に落として1行に収める。
+   ⚠ 7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）の外に新しい大きさを作らないこと。 */
 .pc .card.sym h3 {
-  font-size: 18px;
+  font-size: 15.5px;
   margin-bottom: 6px;
 }
 .pc .card.sym p {
