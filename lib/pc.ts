@@ -138,3 +138,20 @@ export const PAYMENTS = [
   { name: "クレジットカード", ready: false },
   { name: "QRコード決済", ready: false },
 ] as const satisfies ReadonlyArray<{ name: string; ready: boolean }>;
+
+/**
+ * metadata の description に金額を直書きしないための組み立て。
+ *
+ * 料金を変えたときに検索結果の文章だけ古い金額が残る事故を防ぐため、
+ * **ページ側で「3,000円」などと書かず、必ずここを経由すること。**
+ */
+export const PC_META = {
+  /** /pc（サイト全体） */
+  top: `富山県全域に伺う出張型のパソコン修理・診断。まず測って、直せるか直せないかを診断報告書でお出しします。出張診断${yen(DIAGNOSIS_FEE)}円（作業をご依頼の場合は工賃に充当）。診断書付きの中古パソコンもご用意。`,
+
+  /** /pc の OGP。金額を出さない短い版 */
+  topOg: "富山県全域に伺う出張型のパソコン修理・診断。まず測って、直せるか直せないかを診断報告書でお出しします。",
+
+  /** /pc/price */
+  price: `出張診断${yen(DIAGNOSIS_FEE)}円＋作業工賃＋出張費＋部品代。作業工賃は本体を開けるかどうかで3段（${LABOR.map((l) => yen(l.price) + "円").join("／")}）。出張費は富山県内どこでも${yen(TRAVEL_MAX)}円が上限です。直せないときは診断料と出張費のみ。`,
+} as const;
