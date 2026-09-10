@@ -1279,7 +1279,23 @@ body.rv,
   letter-spacing: 0.04em;
   border: 1px solid var(--ink);
 }
-.rv .mbar a.p { background: var(--ink); color: #fff; }
+/* 電話にだけ受付時間を添えて2行にする（LINEは24時間なので足さない）。
+   **バーの高さは変えない。** .mbar a は padding 13px + line-height 2（＝枠込み56px）で、
+   この高さは隣のLINEが決める。.p はそこへ flex で伸ばされるので、2行ぶん
+   （18.9＋15.5＝約34px）が収まるところまで自分の padding を詰めておけば、
+   body.rv の padding-bottom:60px もそのままで済む。
+   小さいほうの字は新しい段を作らず、補足文の 11.5px に相乗りしている。 */
+.rv .mbar a.p {
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 0;
+  line-height: 1.35;
+}
+.rv .mbar a.p b { font-weight: inherit; }
+.rv .mbar a.p span { font-size: 11.5px; letter-spacing: 0.06em; opacity: 0.82; }
 @media (max-width: 960px) {
   .rv .mbar { display: flex; }
 }

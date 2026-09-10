@@ -710,6 +710,15 @@ body.pc {
   opacity: 1;
   text-decoration: underline;
 }
+/* 電話の下の受付時間。リンクではないので .ft a の余白には乗らない。
+   新しい段は作らず、7段のいちばん下（11px）に相乗りしている。 */
+.pc .ft .tel-h {
+  display: block;
+  font-size: 11px;
+  font-family: var(--mono);
+  opacity: 0.55;
+  padding-top: 2px;
+}
 .pc .ft .bot {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   margin-top: 40px;
@@ -744,9 +753,27 @@ body.pc {
   font-weight: 700;
   font-size: 13.5px;
 }
+/* 受付時間を添えて2行にする。**バーの高さは変えない。**
+   .fixbar a は padding 12px + line-height 1.85（＝約49px）で、この高さは隣の .go が決める。
+   .tel はそこへ flex で伸ばされるので、2行ぶん（17.6＋14.3＝約32px）が収まるところまで
+   自分の padding を詰めておけば、バーの高さも body.pc の padding-bottom もそのままで済む。 */
 .pc .fixbar .tel {
   border: 1px solid var(--rule3);
   color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6px 0;
+  line-height: 1.3;
+}
+.pc .fixbar .tel b {
+  font-weight: inherit;
+}
+.pc .fixbar .tel span {
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--ink3);
 }
 .pc .fixbar .go {
   background: var(--ok);
