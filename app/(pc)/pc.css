@@ -276,6 +276,20 @@ body.pc {
   max-width: 640px;
   margin: 0 0 42px;
 }
+/* `.lead`（18px）のあとに続く本文の段落。
+   トップの中古PCは在庫が0件でカタログを出せないので、カードではなく文章で説明する。
+   ⚠ 大きさは本文と同じ 15.5px。7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）の外に出ないこと。
+   在庫が入ってカタログに戻すときは、このクラスごと消してよい。 */
+.pc .sec-body {
+  font-size: 15.5px;
+  line-height: 2;
+  color: var(--ink2);
+  max-width: 640px;
+  margin: 0 0 18px;
+}
+.pc .sec-body + .btn {
+  margin-top: 14px;
+}
 
 /* ---- ボタン ---- */
 .pc .btn {
@@ -327,6 +341,13 @@ body.pc {
 .pc .grid {
   display: grid;
   gap: 18px;
+}
+/* 事例が1件だけのときの器。3列に1枚置くと2枚ぶん空いて欠けて見えるので、
+   3件に満たないあいだは `.g3` を使わない（2件は `.g2`）。
+   幅の上限だけを決めて左に寄せる。狭い画面では器の幅まで縮むので、
+   640px 以下の打ち消しは要らない（横スクロールも出ない）。 */
+.pc .g1 {
+  grid-template-columns: minmax(0, 560px);
 }
 .pc .g2 {
   grid-template-columns: repeat(2, 1fr);
