@@ -190,7 +190,7 @@ export default function PcCase01Page() {
 
           <figure>
             <Image
-              src="/pc/case-report.jpg"
+              src="/pc/case-report-anon.jpg"
               alt="この案件でお渡しした診断報告書"
               width={680}
               height={771}
