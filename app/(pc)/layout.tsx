@@ -4,6 +4,7 @@ import "./pc.css";
 import PcHeader from "./_components/PcHeader";
 import PcFooter from "./_components/PcFooter";
 import Ga4 from "../components/Ga4";
+import PcJsonLd from "./_components/PcJsonLd";
 import { PC_META } from "@/lib/pc";
 
 /**
@@ -81,9 +82,10 @@ export default function PcLayout({ children }: { children: React.ReactNode }) {
       className={`pc-html ${notoSans.variable} ${notoSerif.variable} ${robotoMono.variable}`}
     >
       <head>
-        {/* JsonLd は載せない。あちらは MovingCompany の宣言で、修理業の記述ではない。
-            /pc 用の構造化データは、中身のあるページが揃ってから（79以降）足す。 */}
+        {/* `app/components/JsonLd.tsx` は載せない。あちらは MovingCompany の宣言で、
+            修理業の記述ではない。/pc 用は PcJsonLd（LocalBusiness / Service）を出す。【83】 */}
         <Ga4 />
+        <PcJsonLd />
       </head>
       <body className="pc">
         <PcHeader />
