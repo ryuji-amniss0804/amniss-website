@@ -30,6 +30,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { path: '/company', changeFrequency: 'monthly' as const, priority: 0.5 },
       { path: '/tokushoho', changeFrequency: 'yearly' as const, priority: 0.3 },
       { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
+      // 【82】パソコン修理（/pc）。別ルートグループだが同じドメインなので同じ sitemap に載せる。
+      // 実体のあるページだけ。/pc/used /pc/blog はまだ存在しないので載せない。
+      { path: '/pc', changeFrequency: 'weekly' as const, priority: 0.8 },
+      { path: '/pc/price', changeFrequency: 'monthly' as const, priority: 0.7 },
+      { path: '/pc/symptom', changeFrequency: 'monthly' as const, priority: 0.7 },
+      { path: '/pc/case', changeFrequency: 'monthly' as const, priority: 0.6 },
+      { path: '/pc/case/01-raiden', changeFrequency: 'yearly' as const, priority: 0.5 },
+      { path: '/pc/contact', changeFrequency: 'monthly' as const, priority: 0.5 },
     ]
   ).map(({ path, changeFrequency, priority }) => ({
     url: `${SITE_URL}${path}`,
