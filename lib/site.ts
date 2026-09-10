@@ -6,7 +6,36 @@
 
 export const TEL = "070-8450-0897";
 export const TEL_HREF = `tel:${TEL.replace(/-/g, "")}`;
-export const HOURS = "9:00 — 21:00　年中無休";
+
+/**
+ * 電話の受付時間。**ここだけを直せば、サイト全体とJSON-LDが追随する。**
+ *
+ * ⚠ 2026-09-10 に 21:00 → 18:00 に短縮した。理由は、20:00〜21:30 は
+ *   手が離せず電話に出られないため。書いてあるのに出ないほうが損が大きい。
+ * ⚠ 電話番号は1本しかないので、パソコンだけ別の時間にはできない。
+ * ⚠ フォームは24時間受けられる。**電話の時間と混ぜて書かないこと。**
+ * ⚠ content/blog/ の記事2本にも受付時間が直書きされている（Markdownなので
+ *   ここを直しても追随しない）。時間を変えるときは `git grep` で確認すること。
+ */
+const TEL_OPEN = "9:00";
+const TEL_CLOSE = "18:00";
+
+/** ヘッダー・フッターなどの表示用。全角スペースとダッシュはこの形を保つこと */
+export const HOURS = `${TEL_OPEN} — ${TEL_CLOSE}　年中無休`;
+
+/** 文中に書くとき用（「9:00〜18:00の間に、いただいたご連絡先へお返事します」など） */
+export const HOURS_RANGE = `${TEL_OPEN}〜${TEL_CLOSE}`;
+
+/** 文中に終わりの時刻だけを書くとき用（「18:00を過ぎている場合は」など） */
+export const HOURS_CLOSE_TEXT = TEL_CLOSE;
+
+/**
+ * 構造化データ（JsonLd の opens / closes）用。
+ * schema.org は hh:mm を期待するので、表示用（"9:00"）と違い**0埋めする。**
+ */
+export const HOURS_OPEN = TEL_OPEN.padStart(5, "0");
+export const HOURS_CLOSE = TEL_CLOSE.padStart(5, "0");
+
 export const LINE_URL = "https://lin.ee/845Fdsy";
 export const AREA = "富山県全域";
 

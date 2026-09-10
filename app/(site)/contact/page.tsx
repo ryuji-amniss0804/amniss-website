@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Split from "../_components/Split";
 import Cta from "../_components/Cta";
 import QuoteForm from "./QuoteForm";
-import { AREA, HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
+import { AREA, HOURS, HOURS_RANGE, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
 /**
  * お問い合わせ。
@@ -15,8 +15,8 @@ import { AREA, HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
  * 「お急ぎの方は」という代替扱いにしないこと。
  */
 
-const DESCRIPTION =
-  "re'vive 富山へのお問い合わせ。お荷物の写真を送るだけで、お見積りをお返しします。お電話・公式LINEでも承ります。富山県全域、受付9:00〜21:00・年中無休。";
+// 受付時間を書き写さない。検索結果の文章だけ古い時間が残る事故を防ぐ（lib/site.ts から組み立てる）
+const DESCRIPTION = `re'vive 富山へのお問い合わせ。お荷物の写真を送るだけで、お見積りをお返しします。お電話・公式LINEでも承ります。富山県全域、受付${HOURS_RANGE}・年中無休。`;
 
 export const metadata: Metadata = {
   title: "お問い合わせ ｜ re'vive 富山",
@@ -84,6 +84,9 @@ export default function ContactPage() {
             相談する
           </a>
         </p>
+        {/* 電話の受付を 18:00 までに短くした（84）。**短くなったことだけが見えると閉じた印象になる**ので、
+            受け皿が24時間あることを電話番号のすぐ近くで同時に見せる。 */}
+        <p className="lead">フォームとLINEは24時間受け付けています。</p>
         <p className="lead">対応エリア　{AREA}</p>
       </Split>
 

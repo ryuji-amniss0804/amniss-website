@@ -1664,7 +1664,11 @@ body.pc {
   line-height: 1.5;
   margin-bottom: 10px;
 }
-.pc .cf-done p.cf-done-ng {
+/* 写真が送れなかったときの断りと、電話ボタンの上の一言。
+   ⚠ **新しい文字サイズを作らない。**どちらも本文の下に添える一行なので、
+     既にある 13.5px（7段の下から3段目）をそのまま共有する。 */
+.pc .cf-done p.cf-done-ng,
+.pc .cf-done p.cf-done-tel-note {
   margin-top: 14px;
   font-size: 13.5px;
 }

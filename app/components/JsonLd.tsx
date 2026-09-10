@@ -6,6 +6,8 @@
  * GBP と Footer.tsx と一字一句そろえること。ずれると裏取りに失敗する。
  */
 
+import { HOURS_CLOSE, HOURS_OPEN } from "@/lib/site";
+
 export const SITE_URL = "https://revive-toyama.jp";
 export const BIZ_NAME = "re'vive 富山";
 export const BIZ_TEL = "+81-70-8450-0897";
@@ -55,8 +57,8 @@ const businessJsonLd = {
         "Saturday",
         "Sunday",
       ],
-      opens: "09:00",
-      closes: "21:00",
+      opens: HOURS_OPEN,
+      closes: HOURS_CLOSE,
     },
   ],
   sameAs: ["https://lin.ee/845Fdsy"],
