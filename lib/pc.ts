@@ -81,9 +81,11 @@ export const PC_LINE_URL: string | null = "https://lin.ee/yUNaCnL";
 /**
  * お知らせ・記事の置き場所。
  *
- * ⚠ **未決。**既存ブログ（`content/blog/`）にパソコンのカテゴリを足すか、
- *   `content/pc/` を別に作るかが決まっていない。決まるまではここが 404 になる。
- *   決まったらこの1行を差し替えるだけで、ヘッダー・フッター・トップの3か所に反映される。
+ * 【88で決まった】既存ブログ（`content/blog/`）にPCのカテゴリを足すのではなく、
+ * `content/pc-blog/` を別に作った。読み出しは `lib/pc-posts.ts`。
+ * ⚠ 引越し側（`lib/posts.ts` `content/blog/` `app/(site)/blog/`）とは**共有していない。**
+ *   共有すると、片方の frontmatter を変えたときにもう片方が壊れる。
+ *   記事が5本10本と増えて、本当に同じ形だと分かってからまとめれば足りる。
  */
 export const PC_JOURNAL_HREF = "/pc/blog";
 
@@ -102,7 +104,7 @@ export const PC_NAV = [
   { label: "料金", href: "/pc/price", ready: true },
   { label: "修理事例", href: "/pc/case", ready: true },
   { label: "中古PC", href: "/pc/used", ready: false }, // 80で作る（在庫データ待ち）
-  { label: "お知らせ", href: PC_JOURNAL_HREF, ready: false }, // 記事が出たら
+  { label: "お知らせ", href: PC_JOURNAL_HREF, ready: true }, // 88で1本目を公開した
 ] as const satisfies ReadonlyArray<{ label: string; href: string; ready: boolean }>;
 
 /** 金額の表記。3桁区切りだけを付ける（「円」は出す側が書く） */
@@ -168,6 +170,10 @@ export const PC_META = {
   /** /pc/contact */
   contact:
     "ご相談とお見積りは無料です。写真を送っていただけると、伺う前におおよその見当がつきます。富山県全域に伺うパソコン修理・出張診断。",
+
+  /** /pc/blog（お知らせ・記事の一覧） */
+  blog:
+    "パソコンの困りごとについて、実際にお受けした作業から書いています。測った数値はそのまま出します。富山県全域に伺うパソコン修理・出張診断。",
 
   /** /pc/case */
   cases:
