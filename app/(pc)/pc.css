@@ -1020,8 +1020,10 @@ body.pc {
   font-family: var(--mono);
   letter-spacing: 0.04em;
 }
+/* 飾りの引用符（“）。⚠ CSSエスケープ `\201C` のままにすること。
+   直接 “ を書くと、文字コードの扱いを間違えたときに壊れて豆腐＋Cになる（実際に一度なった）。 */
 .pc .voice::before {
-  content: "C";
+  content: "\201C";
   position: absolute;
   top: 2px;
   left: 14px;
