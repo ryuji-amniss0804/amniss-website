@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AREA, COMPANY, LICENSE_LINE, TEL, TEL_HREF } from "@/lib/site";
+import { AREA, COMPANY, HOURS, HOURS_RANGE, LICENSE_LINE, TEL, TEL_HREF } from "@/lib/site";
 import { PC_JOURNAL_HREF, PC_LINE_URL, PC_NAV } from "@/lib/pc";
 
 /**
@@ -73,6 +73,8 @@ export default function PcFooter() {
               </a>
             )}
             <a href={TEL_HREF}>お電話 {TEL}</a>
+            {/* 電話に出られる時間。リンクではないので <a> の外に置く */}
+            <span className="tel-h">受付 {HOURS}</span>
           </div>
         </div>
 
@@ -83,8 +85,12 @@ export default function PcFooter() {
       </footer>
 
       <div className="fixbar">
+        {/* スクロールしても消えないボタンなので、受付時間を添える。
+            `HOURS` は「年中無休」まで入っていてバーには長すぎるので `HOURS_RANGE` を使う。
+            ⚠ いまが受付時間内かで出し分けないこと。サーバーとブラウザで時刻がずれる */}
         <a className="tel" href={TEL_HREF}>
-          お電話
+          <b>お電話</b>
+          <span>{HOURS_RANGE}</span>
         </a>
         <Link className="go" href="/pc/contact">
           無料で相談する
