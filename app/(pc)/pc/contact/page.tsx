@@ -16,9 +16,11 @@ import PcContactForm from "./PcContactForm";
  * 入力を持つのはフォームだけなので、`PcContactForm.tsx` だけをクライアントにしている
  * （`/pc/symptom` と同じ形）。右側の連絡先カードは動かないのでこちらに置く。
  *
- * ⚠ LINEのカードは `PC_LINE_URL` が入るまで出さない。パソコン専用の公式アカウントが
- *   未開設のため。`lib/site.ts` の `LINE_URL`（引越し・買取用）で代用しないこと。
- *   URLが出れば、この `PC_LINE_URL &&` の1行でそのまま描画される。
+ * ⚠ LINEのカードは**電話のカードより下**に置く。電話は受付時間が限られ、
+ *   LINEとフォームは24時間受け付ける。**時間の制約が強いほうを上**に置く。
+ * ⚠ リンク先は `lib/pc.ts` の `PC_LINE_URL`（パソコン専用のアカウント）。
+ *   `lib/site.ts` の `LINE_URL`（引越し・買取用）で代用しないこと。
+ *   アカウントを止めて `PC_LINE_URL` を null に戻せば、このカードごと消える。
  * ⚠ 電話番号と受付時間は `lib/site.ts` から引く。引越しと共通の番号なので書き写さない。
  *
  * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
@@ -46,7 +48,26 @@ export default function PcContactPage() {
           <PcContactForm />
 
           <aside className="cside">
-            {/* ⚠ パソコン専用のLINEは未開設。`PC_LINE_URL` が null のあいだは出さない */}
+            <div className="card">
+              <div className="body">
+                <h3>お電話</h3>
+                {/* 番号そのものがリンクの文字なので、読み上げ用のラベルは足さない */}
+                <p className="cside-tel num">
+                  <a href={TEL_HREF}>{TEL}</a>
+                </p>
+                <p>
+                  受付 {HOURS}
+                  <br />
+                  作業中は折り返しになります。
+                </p>
+                {/* 電話の受付を 18:00 までに短くした（84）。**短くなったことだけが見えると閉じた印象になる**ので、
+                    受け皿が24時間あることを電話番号のすぐ下で同時に見せる。 */}
+                <p>フォームとLINEは24時間受け付けています。</p>
+              </div>
+            </div>
+
+            {/* 電話より下。電話は受付が限られ、LINEは24時間受け付ける。制約の強いほうを上に置く。
+                ⚠ 「24時間対応」と書かないこと。受け付けるのは24時間だが、返事は営業時間になる。 */}
             {PC_LINE_URL && (
               <div className="card">
                 <div className="body">
@@ -67,26 +88,6 @@ export default function PcContactPage() {
                 </div>
               </div>
             )}
-
-            <div className="card">
-              <div className="body">
-                <h3>お電話</h3>
-                {/* 番号そのものがリンクの文字なので、読み上げ用のラベルは足さない */}
-                <p className="cside-tel num">
-                  <a href={TEL_HREF}>{TEL}</a>
-                </p>
-                <p>
-                  受付 {HOURS}
-                  <br />
-                  作業中は折り返しになります。
-                </p>
-                {/* 電話の受付を 18:00 までに短くした（84）。**短くなったことだけが見えると閉じた印象になる**ので、
-                    受け皿が24時間あることを電話番号のすぐ下で同時に見せる。
-                    ⚠ パソコン用のLINE（`lib/pc.ts` の `PC_LINE_URL`）はまだ無いので、ここにはLINEを書かない。
-                       URLが入ったら「フォームとLINEは24時間受け付けています。」にする（/contact と同じ文）。 */}
-                <p>フォームは24時間受け付けています。</p>
-              </div>
-            </div>
 
             <div className="card">
               <div className="body">
