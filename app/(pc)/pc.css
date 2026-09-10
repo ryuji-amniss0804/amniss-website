@@ -1334,3 +1334,347 @@ body.pc {
     width: 100%;
   }
 }
+
+/* ============================================================
+   ご相談フォーム（/pc/contact）
+   手本：D:\revive_toyama_marketing\mockup_pc_site_v1.html の `#/contact`
+
+   ⚠ 文字サイズは既存の7段（11 / 12 / 13.5 / 15.5 / 18 / 23〜27 / 35・45）から取ること。
+     入力欄だけ新しい大きさを作らない。
+   ⚠ トークン（色・角丸・影）は `.pc` のものをそのまま使う。`:root` に足さないこと。
+   ⚠ 入力欄は font-family を継承しない。**input / select / textarea / button に
+     明示して書く。**書かないとフォームだけ OS の既定フォントで出る。
+   ⚠ 390px 幅で横スクロールを出さないこと。2段組みは 900px で1列に落とす。
+   ============================================================ */
+
+/* ---- 2段組み（フォーム＋連絡先） ---- */
+.pc .cwrap {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 34px;
+  align-items: start;
+}
+.pc .cside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* 電話番号。カードの中でいちばん大きい文字（23px の段） */
+.pc .cside-tel {
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.pc .cside-tel a {
+  color: inherit;
+}
+/* 代表の顔写真。next/image は width/height を持つ <img> を出すので、
+   表示の大きさはここで決める（原寸は 520px 角） */
+.pc .cside-face {
+  width: 64px;
+  height: 64px;
+  border-radius: 99px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+/* ---- 入力欄 ---- */
+.pc .cf .f {
+  margin-bottom: 20px;
+}
+.pc .cf label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+/* 「必須」「任意・5枚まで」。ラベルの右に置く小さい札 */
+.pc .cf label em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ok);
+  background: var(--ok-bg);
+  border-radius: 3px;
+  padding: 2px 7px;
+  margin-left: 8px;
+}
+.pc .cf input,
+.pc .cf select,
+.pc .cf textarea {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--rule3);
+  border-radius: var(--r-s);
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.8;
+}
+.pc .cf textarea {
+  line-height: 2;
+  resize: vertical;
+  min-height: 132px;
+}
+.pc .cf input:focus,
+.pc .cf select:focus,
+.pc .cf textarea:focus {
+  outline: 2px solid var(--ok);
+  outline-offset: -1px;
+  border-color: var(--ok);
+}
+.pc .cf input::placeholder,
+.pc .cf textarea::placeholder {
+  color: var(--ink3);
+}
+
+/* 市町村と出張費。狭い画面では出張費が下へ回る（横に押し出さない） */
+.pc .cf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.pc .cf-row select {
+  flex: 1 1 200px;
+}
+/* 出張費。金額なので等幅（`.num` と同じ考え方）。選ぶまでは空で、:empty で消える */
+.pc .cf-fee {
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ok);
+  white-space: nowrap;
+}
+.pc .cf-fee:empty {
+  display: none;
+}
+
+/* 補足の1行と、必須項目の案内。
+   ⚠ 「送信できませんでした」の理由はここに出さない（.cf-ng を見ること） */
+.pc .cf .hint,
+.pc .cside .hint {
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--ink3);
+  margin-top: 7px;
+}
+.pc .cf .hint a {
+  color: var(--ok);
+  font-weight: 700;
+  text-decoration: underline;
+}
+.pc .cf .err {
+  font-size: 13.5px;
+  line-height: 1.8;
+  font-weight: 700;
+  color: var(--warn);
+  margin-top: 7px;
+}
+
+/* ---- 写真を選ぶ ----
+   **ブラウザ標準の「ファイル選択／選択されていません」を出さない。**
+   input は DOM に残したまま <label> で包み、見た目だけ枠線ボタン（.btn.s）にする。
+   **display:none にしない。**キーボードと読み上げから触れなくなる。
+   opacity:0 のままボタンいっぱいに広げてあるので、タブキーで止まり、
+   ボタンのどこを押しても押しているのは input 本体、の両方が成り立つ。 */
+.pc .cf-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.pc .cf .cf-file-b {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  margin-bottom: 0;
+  font-size: 13.5px;
+  padding: 11px 22px;
+  cursor: pointer;
+}
+.pc .cf .cf-file-i {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.pc .cf .cf-file-i:disabled {
+  cursor: default;
+}
+.pc .cf-file-n {
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+/* ---- 選んだ写真 ---- */
+.pc .cf-thumbs {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pc .cf-thumbs li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s);
+  padding: 9px 11px;
+}
+/* `.pc .article li::before` のような丸は付かない（.article の外なので）。
+   念のため印を消しておく */
+.pc .cf-thumbs li::before {
+  content: none;
+}
+.pc .cf-thumbs img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--r-s);
+  flex: none;
+}
+.pc .cf-thumb-m {
+  flex: 1;
+  min-width: 0;
+}
+.pc .cf-thumb-m span {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pc .cf-thumb-m small {
+  display: block;
+  font-size: 11px;
+  color: var(--ink3);
+}
+.pc .cf-thumbs button {
+  flex: none;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink2);
+  background: #fff;
+  border: 1px solid var(--rule3);
+  border-radius: 99px;
+  padding: 6px 13px;
+  cursor: pointer;
+}
+.pc .cf-thumbs button:hover {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+/* ---- ハニーポット。人には見えない。自動送信だけがここを埋める ---- */
+.pc .cf-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Turnstile。サイトキーが無いときは中身が空なので、:empty で余白ごと消す */
+.pc .cf-cf {
+  margin: 22px 0;
+}
+.pc .cf-cf:empty {
+  margin: 0;
+}
+
+/* ---- 送信 ---- */
+.pc .cf-send {
+  margin-top: 26px;
+}
+.pc .cf-send .btn {
+  width: 100%;
+  text-align: center;
+}
+.pc .cf-send .hint {
+  text-align: center;
+}
+.pc .cf button.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+  box-shadow: var(--sh1);
+}
+.pc .cf-pp {
+  margin-top: 16px;
+}
+
+/* ---- 送信できなかったとき ----
+   ⚠ **理由は書かない。**読んだお客様にできることは何もない。理由はログに残す。 */
+.pc .cf-ng {
+  background: var(--warn-bg);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 18px 20px;
+  margin-top: 22px;
+}
+.pc .cf-ng p {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--ink2);
+}
+.pc .cf-ng p.cf-ng-t {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.pc .cf-ng a {
+  color: var(--warn);
+  font-weight: 700;
+  text-decoration: underline;
+}
+.pc .cf-ng p.cf-ng-k {
+  margin-top: 8px;
+  color: var(--ink3);
+}
+
+/* ---- 送信できたとき。**別ページに飛ばさず、同じ場所に出す** ---- */
+.pc .cf-done {
+  border: 1px solid var(--ok);
+  background: var(--ok-bg);
+  border-radius: var(--r);
+  padding: 26px 24px;
+}
+.pc .cf-done p {
+  font-size: 15.5px;
+  line-height: 1.9;
+  color: var(--ink2);
+}
+.pc .cf-done p.cf-done-t {
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.pc .cf-done p.cf-done-ng {
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+.pc .cf-done-acts {
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .pc .cwrap {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
