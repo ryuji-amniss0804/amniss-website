@@ -3,6 +3,7 @@ import Link from "next/link";
 import Hero from "../_components/Hero";
 import { INDOOR_FEE, SPOT_FEE } from "../_fees";
 import { DEPART, yen } from "@/lib/pricing";
+import { HOURS_RANGE } from "@/lib/site";
 
 /**
  * 特定商取引法に基づく表記（法定表示）。
@@ -80,7 +81,7 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
           {TEL}
         </a>
         <span className="nt">
-          受付 9:00〜21:00（年中無休）／作業中は折り返しになる場合があります
+          受付 {HOURS_RANGE}（年中無休）／作業中は折り返しになる場合があります
         </span>
       </>
     ),

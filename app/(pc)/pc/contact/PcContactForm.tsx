@@ -13,7 +13,7 @@ import {
   PHOTO_PREFIX,
   SHRINK_LONG_EDGE,
 } from "@/lib/quote";
-import { TEL, TEL_HREF } from "@/lib/site";
+import { HOURS_CLOSE_TEXT, HOURS_RANGE, TEL, TEL_HREF } from "@/lib/site";
 
 /**
  * パソコン修理のご相談フォーム（/pc/contact の本体）。
@@ -541,9 +541,16 @@ export default function PcContactForm() {
     return (
       <div className="cf">
         <div className="cf-done" role="status">
-          <p className="cf-done-t">お送りいただきました。</p>
+          {/* 送った人が知りたいのは「いつ返事が来るか」。営業時間の説明ではない（84）。
+              ⚠ 「折り返し」は電話の言葉なのでここには書かない（右カードの電話の説明には残してある）。
+              ⚠ 「その日のうちに」と書かない。夜に送った人にも出るので、**守れない約束**になる。 */}
+          <p className="cf-done-t">ご相談をお受けいたしました。</p>
           <p>
-            9:00〜21:00に受け付けています。作業中は折り返しになりますが、その日のうちにご連絡します。
+            内容は、代表の小川が直接見ています。
+            <br />
+            <b>{HOURS_RANGE}のあいだに、いただいたご連絡先へお返事します。</b>
+            <br />
+            {HOURS_CLOSE_TEXT}を過ぎている場合は、翌朝からになります。
           </p>
           {photoFailed ? (
             <p className="cf-done-ng">
@@ -551,6 +558,7 @@ export default function PcContactForm() {
               ご相談の内容は届いています。写真はお電話でご相談いただくか、伺ったときに拝見します。
             </p>
           ) : null}
+          <p className="cf-done-tel-note">お急ぎのときは、{HOURS_RANGE}にお電話ください。</p>
           <div className="cf-done-acts">
             <a className="btn p" href={TEL_HREF}>
               {TEL}
@@ -811,7 +819,7 @@ export default function PcContactForm() {
             <a href={TEL_HREF}>{TEL}</a>
             ）でご連絡ください。
             <br />
-            9:00〜21:00 の間、年中無休で受け付けています。
+            {HOURS_RANGE} の間、年中無休で受け付けています。
           </p>
           <p className="cf-ng-k">入力していただいた内容はそのまま残してあります。</p>
         </div>

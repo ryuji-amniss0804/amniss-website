@@ -2,7 +2,7 @@ import Hero from "../_components/Hero";
 import Photo from "../_components/Photo";
 import Split from "../_components/Split";
 import { images } from "@/lib/images";
-import { LINE_URL } from "@/lib/site";
+import { HOURS_RANGE, LINE_URL } from "@/lib/site";
 
 /**
  * 会社概要。
@@ -57,8 +57,8 @@ const TABLE_ROWS = [
   { label: "運営事業者", value: "AmNiss&Co. Japan" },
   { label: "代表者", value: "小川 竜司" },
   { label: "所在地", value: "富山県富山市" },
-  { label: "電話番号", value: `${TEL}（受付 9:00〜21:00）` },
-  { label: "営業時間", value: "9:00〜21:00（年中無休）" },
+  { label: "電話番号", value: `${TEL}（受付 ${HOURS_RANGE}）` },
+  { label: "営業時間", value: `${HOURS_RANGE}（年中無休）` },
   { label: "対応エリア", value: "富山県全域（即日対応可）" },
   {
     label: "事業内容",

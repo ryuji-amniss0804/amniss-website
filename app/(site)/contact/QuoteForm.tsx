@@ -16,7 +16,7 @@ import {
   parseHandoff,
   type QuoteHandoff,
 } from "@/lib/quote";
-import { LINE_URL, TEL, TEL_HREF } from "@/lib/site";
+import { HOURS_RANGE, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
 /**
  * お見積り依頼フォーム。
@@ -527,7 +527,7 @@ export default function QuoteForm() {
         <div className="qf-done" role="status">
           <p className="qf-done-t">お送りいただきました。</p>
           <p>
-            9:00〜21:00の間に、いただいたご連絡先へお返事します。
+            {HOURS_RANGE}の間に、いただいたご連絡先へお返事します。
             <br />
             お急ぎの場合は、お電話かLINEをお使いください。
           </p>
@@ -763,7 +763,7 @@ export default function QuoteForm() {
             </a>
             でご連絡ください。
             <br />
-            9:00〜21:00 の間、年中無休で受け付けています。
+            {HOURS_RANGE} の間、年中無休で受け付けています。
           </p>
           <p className="qf-ng-k">入力していただいた内容はそのまま残してあります。</p>
         </div>
