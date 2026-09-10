@@ -12,6 +12,10 @@ import Figure, { CARGO_CAPTION } from "./_components/Figure";
 import { MOVING_REASONS } from "./_reasons";
 import { INDOOR_FEE, SPOT_FEE } from "./_fees";
 import { AREA, HOURS, LICENSES, TEL, TEL_HREF, WASTE_NOTICE } from "@/lib/site";
+// ③の出張診断の金額。**ここに数字を書き写さないこと**（/pc /pc/price と同じ出どころ）。
+// lib/pc.ts はデータだけで CSS もコンポーネントも持たないので、(site) から読んでよい。
+// yen は lib/pricing にも同名の別物（あちらは「円」まで付ける）があるので必ず別名で入れる。
+import { DIAGNOSIS_FEE, yen as pcYen } from "@/lib/pc";
 import {
   CAP,
   COEF,
@@ -224,6 +228,30 @@ export default function TopPage() {
             パソコン修理
           </Link>
         </p>
+
+        {/* 89 パソコン修理（4つ目の事業）の案内。**新しい節を作らないこと。**
+            トップの Split は 白 → tint → 白 → tint と交互に並んでいて、
+            あいだに1つ挟むと ④以降の背景色が全部ずれる。
+            ③が「事業／メニュー」の節なので、ここに置くのが場所として正しい。
+            上の .pnote の文中リンク（一覧の一部）は残す。**役割が違う。**
+            区切りは既存の `.pt`（margin-top:46px）だけ。site.css に何も足さない。
+            ⚠ 金額は lib/pc.ts の DIAGNOSIS_FEE から組む。**直書きしないこと。**
+              /pc /pc/price と同じ出どころ。2か所に書くと値上げのとき片方だけ残る。
+              pcYen は「円」を付けない（lib/pricing の yen とは別物）ので、文の側で付ける。
+            本文は {} を混ぜると text node が割れて <!-- --> が入るので、文字列1本で渡す */}
+        <div className="pt">
+          <h3>パソコンの修理・診断もしています</h3>
+          <p className="pnote">
+            {`富山県全域に伺います。まず測って、直せるか直せないかを診断報告書でお出しします。出張診断${pcYen(
+              DIAGNOSIS_FEE,
+            )}円、ご相談とお見積りは無料です。`}
+          </p>
+          <div className="go">
+            <Link className="btn" href="/pc">
+              パソコン修理のページへ
+            </Link>
+          </div>
+        </div>
       </Split>
 
       {/* ④ 先に出している数字。3つ横並び。罫線で区切る。箱で囲まない */}
