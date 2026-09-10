@@ -219,6 +219,10 @@ export default function TopPage() {
           <Link className="tl" href="/kaitori">
             出張買取
           </Link>
+          {" ／ "}
+          <Link className="tl" href="/pc">
+            パソコン修理
+          </Link>
         </p>
       </Split>
 
