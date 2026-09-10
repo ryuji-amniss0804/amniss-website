@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { AREA, COMPANY, LICENSE_LINE, TEL, TEL_HREF } from "@/lib/site";
-import { PC_JOURNAL_HREF, PC_LINE_URL } from "@/lib/pc";
+import { PC_JOURNAL_HREF, PC_LINE_URL, PC_NAV } from "@/lib/pc";
+
+/**
+ * まだ無いページへのリンクを出さないための判定。ヘッダーと同じ `PC_NAV` の `ready` を見る。
+ *
+ * ⚠ フッターの文言はヘッダーより長い（「診断書付き中古PC」「お知らせ・記事」）ので、
+ *   `PC_NAV` の `label` ではなく `href` だけを照合する。出す・出さないの判断だけを借りる。
+ */
+function ready(href: string): boolean {
+  return PC_NAV.some((item) => item.href === href && item.ready);
+}
 
 /**
  * /pc のフッターと、モバイルの固定バー。
@@ -41,12 +51,14 @@ export default function PcFooter() {
             <Link href="/pc/symptom">症状から探す</Link>
             <Link href="/pc/price">料金</Link>
             <Link href="/pc/case">修理事例</Link>
-            <Link href="/pc/used">診断書付き中古PC</Link>
+            {/* 中古PCのページはまだ無い。`lib/pc.ts` の PC_NAV を true にすると戻る */}
+            {ready("/pc/used") && <Link href="/pc/used">診断書付き中古PC</Link>}
           </div>
 
           <div>
             <h4>知る</h4>
-            <Link href={PC_JOURNAL_HREF}>お知らせ・記事</Link>
+            {/* 記事が0本のあいだは出さない。トップの JOURNAL 節を出さないのと同じ判断 */}
+            {ready(PC_JOURNAL_HREF) && <Link href={PC_JOURNAL_HREF}>お知らせ・記事</Link>}
             <Link href="/company">事業者情報</Link>
             <Link href="/privacy">プライバシーポリシー</Link>
           </div>

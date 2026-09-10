@@ -93,15 +93,17 @@ export const PC_JOURNAL_HREF = "/pc/blog";
  * ⚠ `lib/site.ts` の `NAV` / `FOOTER_SERVICES` は引越し・買取の導線。**変更しない。**
  *   そちらにパソコンを混ぜず、こちらに別で持つ。
  *
- * 実ページは 77 以降で作るので、いまはリンク先が 404 になるものがある（想定どおり）。
+ * ⚠ `ready: false` のものは**描画しないこと。**まだページが無いので404になる。
+ *   押せるのに行き止まり、は中身の無いページより悪い。
+ *   ページを作ったらここを true にする。ヘッダーとフッターの両方に同時に反映される。
  */
 export const PC_NAV = [
-  { label: "症状から探す", href: "/pc/symptom" },
-  { label: "料金", href: "/pc/price" },
-  { label: "修理事例", href: "/pc/case" },
-  { label: "中古PC", href: "/pc/used" },
-  { label: "お知らせ", href: PC_JOURNAL_HREF },
-] as const;
+  { label: "症状から探す", href: "/pc/symptom", ready: true },
+  { label: "料金", href: "/pc/price", ready: true },
+  { label: "修理事例", href: "/pc/case", ready: true },
+  { label: "中古PC", href: "/pc/used", ready: false }, // 80で作る（在庫データ待ち）
+  { label: "お知らせ", href: PC_JOURNAL_HREF, ready: false }, // 記事が出たら
+] as const satisfies ReadonlyArray<{ label: string; href: string; ready: boolean }>;
 
 /** 金額の表記。3桁区切りだけを付ける（「円」は出す側が書く） */
 export function yen(n: number): string {
