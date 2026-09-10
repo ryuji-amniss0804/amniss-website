@@ -53,7 +53,9 @@ import { HOURS_CLOSE_TEXT, HOURS_RANGE, TEL, TEL_HREF } from "@/lib/site";
  *
  * ⚠ 市町村の一覧・出張費・写真の上限を、このファイルに書かないこと。
  *   すべて `lib/pc.ts` の `TRAVEL` と `lib/quote.ts` の定数から出す。
- * ⚠ LINEのボタンは出さない（`PC_LINE_URL` が null）。右側のカードも同じ扱い。
+ * ⚠ このフォームの中にLINEのボタンを置かないこと。書きかけで別の場所へ連れていくと、
+ *   それまでに入力した内容が捨てられる（送信中・送信後の画面でも同じ）。
+ *   LINEの入口は同じページの右側のカード（`page.tsx`）にある。
  */
 
 /** Turnstile が window に生やす API のうち、使うものだけ */
