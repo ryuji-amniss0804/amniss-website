@@ -71,12 +71,8 @@ export default function PcContactPage() {
             {PC_LINE_URL && (
               <div className="card">
                 <div className="body">
-                  <h3>パソコン専用のLINEがあります</h3>
-                  <p>
-                    フォームより気軽です。写真もそのまま送れます。
-                    <b>引越し・買取とは別のアカウント</b>
-                    なので、パソコンの話だけがここに届きます。
-                  </p>
+                  <h3>公式LINE</h3>
+                  <p>写真もそのまま送れます。</p>
                   <a
                     className="btn p"
                     href={PC_LINE_URL}
@@ -101,7 +97,7 @@ export default function PcContactPage() {
                 />
                 <h3>代表 小川 竜司</h3>
                 <p>
-                  富山県内を1台ずつ回っています。ご相談の内容は、私が直接見ています。
+                  富山県内を1台ずつ回っています。お返事するのも、伺うのも私です。
                 </p>
               </div>
             </div>
