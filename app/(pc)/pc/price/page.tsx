@@ -13,8 +13,7 @@ import { DIAGNOSIS_FEE, LABOR, MENU, PAYMENTS, PC_META, TRAVEL, TRAVEL_MAX, yen 
  * ⚠ マーカー（`.lead b` と `.mk`）は1セクションにつき1か所まで。
  *   このページで引くのは3か所（リード文／作業工賃／直せないとき）だけ。
  *
- * noindex はレイアウト（`app/(pc)/layout.tsx`）の `robots` が効いている。
- * ここでは指定しない（外すのは81）。
+ * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
 
 export const metadata: Metadata = {

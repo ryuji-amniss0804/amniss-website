@@ -12,8 +12,7 @@ import { CASES, PC_META } from "@/lib/pc";
  *   事例が増えたら `lib/pc.ts` の `CASES` に足すだけで、ここは触らなくてよい。
  * ⚠ `.pc-top` を付けないこと。付けるとセクション番号（01 ／ …）が出る。
  *
- * noindex はレイアウト（`app/(pc)/layout.tsx`）の `robots` が効いている。
- * ここでは指定しない（外すのは81）。
+ * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
 
 export const metadata: Metadata = {
