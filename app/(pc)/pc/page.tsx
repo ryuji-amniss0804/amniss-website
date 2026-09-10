@@ -49,7 +49,7 @@ const CASES = [
   },
   {
     href: "/pc/case",
-    img: "/pc/case-report.jpg",
+    img: "/pc/case-report-anon.jpg",
     w: 680,
     h: 771,
     alt: "お渡しした診断報告書",
