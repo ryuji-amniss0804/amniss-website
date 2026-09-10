@@ -21,8 +21,7 @@ import PcContactForm from "./PcContactForm";
  *   URLが出れば、この `PC_LINE_URL &&` の1行でそのまま描画される。
  * ⚠ 電話番号と受付時間は `lib/site.ts` から引く。引越しと共通の番号なので書き写さない。
  *
- * noindex はレイアウト（`app/(pc)/layout.tsx`）の `robots` が効いている。
- * ここでは指定しない（外すのは82）。
+ * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
 
 export const metadata: Metadata = {

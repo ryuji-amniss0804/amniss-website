@@ -12,8 +12,7 @@ import SymptomTool from "./SymptomTool";
  *   `priceOf()` が引く。**ここにも道具側にも数字を書かないこと。**
  * ⚠ `.pc-top` を付けないこと。付けるとセクション番号（01 ／ …）が出る。
  *
- * noindex はレイアウト（`app/(pc)/layout.tsx`）の `robots` が効いている。
- * ここでは指定しない（外すのは81）。
+ * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
 
 export const metadata: Metadata = {

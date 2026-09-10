@@ -23,8 +23,7 @@ import { CASES, LABOR, yen } from "@/lib/pc";
  *   空の引用枠を本番に出すと、作りかけに見える。
  * ⚠ `.pc-top` を付けないこと。付けるとセクション番号（01 ／ …）が出る。
  *
- * noindex はレイアウト（`app/(pc)/layout.tsx`）の `robots` が効いている。
- * ここでは指定しない（外すのは81）。
+ * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
 
 const CASE = CASES.find((c) => c.slug === "01-raiden")!;
