@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { AREA, LICENSES } from "@/lib/site";
-import { DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, SYMPTOMS, yen } from "@/lib/pc";
+import { CASES, DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, SYMPTOMS, yen } from "@/lib/pc";
 import PcIcon from "../_components/PcIcon";
 
 /**
@@ -24,73 +24,29 @@ export const metadata: Metadata = {
   alternates: { canonical: "/pc" },
 };
 
-const CASES = [
-  {
-    href: "/pc/case/01-raiden",
-    img: "/pc/case-cooler.jpg",
-    w: 760,
-    h: 760,
-    alt: "取り外したCPUクーラー",
-    tag: "富山市 ／ デスクトップ",
-    title: "落雷で起動しなくなった1台が、部品交換なしで戻った",
-    desc: "コントローラの完全放電。原因を特定できれば、部品を買わずに済むことがあります。",
-    date: "2026.08",
-  },
-  {
-    href: "/pc/case",
-    img: "/pc/case-memory.jpg",
-    w: 760,
-    h: 760,
-    alt: "取り外したメモリと冷却ファン",
-    tag: "高岡市 ／ ノート",
-    title: "「動作が遅い」の正体が、埃と熱だった1台",
-    desc: "部品を替える前に、まず測る。清掃と再組み立てだけで戻った例です。",
-    date: "準備中",
-  },
-  {
-    href: "/pc/case",
-    img: "/pc/case-report-anon.jpg",
-    w: 680,
-    h: 771,
-    alt: "お渡しした診断報告書",
-    tag: "射水市 ／ 自作PC",
-    title: "買い替えをすすめた1台。その理由も報告書に書いた",
-    desc: "直せないと判断することもあります。何を見てそう決めたかをお伝えします。",
-    date: "準備中",
-  },
-] as const;
-
 /**
- * 中古PCの3枚。
- * ⚠ 価格と構成（SSDの使用時間など）は**在庫の実データ**で、まだ出どころがない。
- *   モックアップの「42,000円」「SSD 使用 1,240時間」は見本の数字なので写さない。
- *   在庫は 79（/pc/used）で作る。それまでは「準備中」を出す。
+ * 修理事例は `lib/pc.ts` の `CASES` から描く。**実在するものだけ。**
+ * 「準備中」のダミーで枠を埋めないこと。事例が増えたらここは触らなくてよい。
+ *
+ * 3列に1枚だけ置くと2枚ぶんが空いて欠けて見えるので、
+ * 3件に満たないあいだはグリッドを使わない（1件＝`.g1` ／ 2件＝`.g2`）。
+ * `CASES` はタプル型（いまは長さ1）で、そのまま `=== 2` と比べると
+ * 型が重ならず tsc が落ちる。number に落としてから比べている。
  */
-const USED = [
-  {
-    img: "/pc/used-desktop.jpg",
-    w: 520,
-    h: 520,
-    title: "デスクトップ／事務・学習向け",
-  },
-  {
-    img: "/pc/used-gaming.jpg",
-    w: 520,
-    h: 520,
-    title: "デスクトップ／ゲーミング",
-  },
-  {
-    img: "/pc/used-desktop.jpg",
-    w: 520,
-    h: 520,
-    title: "デスクトップ／省スペース",
-  },
-] as const;
+const caseCount: number = CASES.length;
+const caseGrid = caseCount >= 3 ? "g3" : caseCount === 2 ? "g2" : "g1";
 
 /**
- * お知らせ・記事の3枚。
+ * お知らせ・記事（05）を出すかどうか。
+ * 記事がまだ1本も無いので false。**判定はこの1か所だけ。**
+ * 1本でも公開したら true にすればセクションが戻る。
+ * ⚠ 05 が消えているあいだ、セクション番号は 01〜04 になる。それが正しい状態。
+ */
+const HAS_JOURNAL: boolean = false;
+
+/**
+ * お知らせ・記事の3枚（`HAS_JOURNAL` が true のときだけ描く）。
  * ⚠ 置き場所が未決（既存ブログにPCカテゴリを足すか、`content/pc/` を別に作るか）。
- *   記事はまだ1本も無いので、日付は書かずに「準備中」を出す。
  *   見出しはモックアップの予定タイトルをそのまま置いている。
  */
 const JOURNAL = [
@@ -274,24 +230,30 @@ export default function PcTopPage() {
             実際にお受けした作業を、診断報告書とあわせて公開しています。
           </p>
 
-          <div className="grid g3">
+          {/* 器は件数で変わる（`caseGrid`）。3件に満たないあいだは3列に置かない。 */}
+          <div className={`grid ${caseGrid}`}>
             {CASES.map((c) => (
-              <Link key={c.title} className="card" href={c.href}>
+              <Link key={c.slug} className="card" href={`/pc/case/${c.slug}`}>
                 <Image
                   className="thumb"
-                  src={c.img}
-                  alt={c.alt}
-                  width={c.w}
-                  height={c.h}
-                  sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 340px"
+                  src={c.image}
+                  alt={c.imageAlt}
+                  width={c.imageW}
+                  height={c.imageH}
+                  sizes="(max-width: 640px) 100vw, 560px"
                 />
                 <div className="body">
-                  <span className="tag top">{c.tag}</span>
+                  <div className="card-meta">
+                    <span>{c.date}</span>
+                    <span className="tag">
+                      {c.area} ／ {c.machine}
+                    </span>
+                  </div>
                   <h3>{c.title}</h3>
-                  <p>{c.desc}</p>
+                  <p>{c.summary}</p>
                   <div className="foot-of-card">
-                    <span className="tag ok">診断報告書あり</span>
-                    <span className="num foot-note">{c.date}</span>
+                    {c.hasReport && <span className="tag ok">診断報告書あり</span>}
+                    <span className="read-on">読む →</span>
                   </div>
                 </div>
               </Link>
@@ -304,73 +266,64 @@ export default function PcTopPage() {
         </div>
       </section>
 
-      {/* ---------- 04 診断書付き中古PC（背景を敷く1か所目） ---------- */}
+      {/* ---------- 04 診断書付き中古PC（背景を敷く1か所目） ----------
+          ⚠ **在庫が0件なのでカタログの形にしない。**
+            価格・構成・バッテリー健全度の数字は1つも書かないこと。実在庫が無く、
+            出どころのない数字になる。「在庫あり」「商談中」のタグも同じ理由で出さない。
+            `used-desktop.jpg` `used-gaming.jpg` も実在庫の写真ではないので使わない
+            （ファイルは残してある。在庫が入る80でカタログに戻すときに使う）。 */}
       <section className="sec band">
         <div className="w">
           <p className="eyebrow">USED PC</p>
           <h2>診断書付きの中古パソコン</h2>
           <p className="lead">
             修理より買い替えのほうが良いときのために、整備済みの中古パソコンもご用意しています。
-            <b>どの個体にも、新品と同じ項目を測った診断報告書が付きます。</b>
+            <b>どの個体にも、修理のときと同じ項目を測った診断報告書が付きます。</b>
+            バッテリーの健全度もSSDの使用時間も、隠さず書いてあります。
           </p>
 
-          <div className="grid g3">
-            {USED.map((u) => (
-              <Link key={u.title} className="card" href="/pc/used">
-                <Image
-                  className="thumb"
-                  src={u.img}
-                  alt={u.title}
-                  width={u.w}
-                  height={u.h}
-                  sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 340px"
-                />
-                <div className="body">
-                  <h3>{u.title}</h3>
-                  <p>
-                    <span className="tag ok">診断報告書つき</span>
-                  </p>
-                  <div className="foot-of-card">
-                    {/* 在庫の実データ（構成・価格・使用時間）は 79 で入れる */}
-                    <span className="num foot-note">在庫を準備中</span>
-                    <span className="foot-note">税込・保証3か月</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <p className="sec-body">
+            いまご案内できる在庫はありません。ご希望の用途とご予算を伺って、入荷したときにご連絡することもできます。
+          </p>
+          <p className="sec-body">
+            新品のパーツで組むこともできます。用途とご予算を伺って構成をご提案します。
+            <b>構成のご相談は無料</b>です。組み立てと初期設定までお引き受けします。
+          </p>
 
-          <Link className="more" href="/pc/used">
-            在庫をすべて見る →
+          <Link className="btn p" href="/pc/contact">
+            中古パソコン・BTOの相談をする
           </Link>
         </div>
       </section>
 
       {/* ---------- 05 お知らせ・記事 ---------- */}
-      <section className="sec">
-        <div className="w">
-          <p className="eyebrow">JOURNAL</p>
-          <h2>お知らせ・記事</h2>
+      {/* ⚠ 記事が0本のあいだは**見出しも枠も出さない。**空の枠は作りかけに見える。
+          出し戻しは `HAS_JOURNAL` の1か所だけで済むようにしてある。 */}
+      {HAS_JOURNAL && (
+        <section className="sec">
+          <div className="w">
+            <p className="eyebrow">JOURNAL</p>
+            <h2>お知らせ・記事</h2>
 
-          <div className="grid g3">
-            {JOURNAL.map((j) => (
-              <Link key={j.title} className="card" href={PC_JOURNAL_HREF}>
-                <div className="body">
-                  <div className="card-meta">
-                    <span>準備中</span>
-                    <span className="tag">{j.cat}</span>
+            <div className="grid g3">
+              {JOURNAL.map((j) => (
+                <Link key={j.title} className="card" href={PC_JOURNAL_HREF}>
+                  <div className="body">
+                    <div className="card-meta">
+                      <span className="tag">{j.cat}</span>
+                    </div>
+                    <h3>{j.title}</h3>
                   </div>
-                  <h3>{j.title}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
 
-          <Link className="more" href={PC_JOURNAL_HREF}>
-            すべての記事を見る →
-          </Link>
-        </div>
-      </section>
+            <Link className="more" href={PC_JOURNAL_HREF}>
+              すべての記事を見る →
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ---------- CTA（背景を敷く2か所目） ----------
           LINE のボタンは出さない。PC専用の公式アカウントが未開設で、
