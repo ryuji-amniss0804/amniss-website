@@ -23,7 +23,8 @@ import {
  * ⚠ 市町村の一覧をここに書かないこと。`TRAVEL` を平らにして作る（下の `CITIES`）。
  *   同じ一覧が2か所にできると、出張費を変えたときに片方だけ古くなる。
  * ⚠ これは**判定ではなく目安**。「直る／直らない」と断定する文言を足さないこと。
- * ⚠ LINEのボタンは `PC_LINE_URL` が入るまで出ない。`lib/site.ts` の `LINE_URL`
+ * ⚠ LINEのボタンは `PC_LINE_URL` が null のあいだは描画しない
+ *   （リンク先の無いボタンを置かない）。`lib/site.ts` の `LINE_URL`
  *   （引越し・買取用）で代用しないこと。
  *
  * ページの枠と metadata はサーバーコンポーネント（`page.tsx`）側にある。
@@ -351,7 +352,8 @@ export default function SymptomTool({ initialSymptom }: { initialSymptom: string
               <Link className="btn p" href="/pc/contact">
                 この内容で相談する
               </Link>
-              {/* LINEは公式アカウントが開くまで出さない。URLが入ればここが自動で出る */}
+              {/* `PC_LINE_URL` が null のあいだは出さない。アカウントを止めて
+                  null に戻せば、このボタンごと消える */}
               {PC_LINE_URL && (
                 <a className="btn s" href={PC_LINE_URL} target="_blank" rel="noopener noreferrer">
                   LINEで相談する

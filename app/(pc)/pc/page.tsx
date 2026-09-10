@@ -327,8 +327,10 @@ export default function PcTopPage() {
       )}
 
       {/* ---------- CTA（背景を敷く唯一の場所） ----------
-          LINE のボタンは出さない。PC専用の公式アカウントが未開設で、
-          `PC_LINE_URL` が null のため。引越し用の LINE_URL で代用しないこと。 */}
+          LINE のボタンは出さない。トップのCTAは `/pc/contact` の1本に絞る。
+          入口を増やすと、どれを押せばよいかが薄まる。
+          85で `PC_LINE_URL` にURLが入ったあとも、この判断は変わらない。
+          LINEの入口は `/pc/contact` のカードとフッターにある。 */}
       <section className="sec band">
         <div className="w center">
           <h2>まずは、状態を聞かせてください</h2>

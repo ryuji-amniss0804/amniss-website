@@ -24,10 +24,13 @@ function ready(href: string): boolean {
  *
  * 固定バーは 640px 以下でだけ出る（`pc.css` の `.fixbar`）。
  * バーの高さぶんは `body.pc` の padding-bottom:64px で逃がしてある。
- * 受けるのは電話と相談フォームの2本。LINE は下の理由で出さない。
+ * 受けるのは電話と相談フォームの2本。LINE はバーには出さない。
+ * ボタンは flex で横幅を分け合うので、3本目を足すとそれぞれが細くなり、
+ * どれを押せばよいかも薄まる（トップのCTAを1本に絞るのと同じ判断）。
  *
- * LINE は `PC_LINE_URL` が入るまで描画しない（リンク先の無いボタンを置かない）。
- * 引越し用の `LINE_URL` で代用しないこと。問い合わせを分けるために別アカウントを作る。
+ * フッターのLINEの行は、`PC_LINE_URL` が null のあいだは描画しない
+ * （リンク先の無いボタンを置かない）。引越し用の `LINE_URL` で代用しないこと。
+ * 問い合わせを分けるための、パソコン専用の別アカウント（85で開設）。
  */
 export default function PcFooter() {
   return (
@@ -66,7 +69,7 @@ export default function PcFooter() {
           <div>
             <h4>お問い合わせ</h4>
             <Link href="/pc/contact">相談フォーム</Link>
-            {/* PC専用のLINE公式アカウントは開設待ち。URLが入るまで行を出さない */}
+            {/* `PC_LINE_URL` が null のあいだは行を出さない */}
             {PC_LINE_URL && (
               <a href={PC_LINE_URL} target="_blank" rel="noopener noreferrer">
                 LINEで相談
