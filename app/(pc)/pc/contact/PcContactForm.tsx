@@ -75,6 +75,8 @@ declare global {
   interface Window {
     turnstile?: TurnstileApi;
     onRvTurnstileLoad?: () => void;
+    /** GA4（app/components/Ga4.tsx）。タグが読めていないときは undefined */
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -510,6 +512,25 @@ export default function PcContactForm() {
       fail("本文の送信で通信できませんでした");
       return;
     }
+
+    /**
+     * GA4 に1件だけ数える。
+     *
+     * 【なぜ引越しと同じ generate_lead を使わないのか】81b
+     * 引越しの見積り（QuoteForm.tsx）は generate_lead を撃っている。同じ名前を使うと、
+     * GA4のキーイベント数が「引越し＋パソコン」の合計になり、**分けた意味が消える。**
+     * 導線もフォームもメールも分けたのは、3か月後に「パソコンに時間を張るべきか」を
+     * 数字で判断するため。分子が混ざると、その判断ができない。
+     *
+     * ⚠ `generate_lead` を**足さない**こと。両方撃つと1件が2件に数えられる。
+     *
+     * 【なぜここなのか】QuoteForm.tsx と同じ考え方。
+     * 本文の送信が成功したことを確認した後なので「押した数」ではなく「届いた数」になる。
+     * 失敗して return した経路は通らない。写真だけ失敗していても本文は届いているので数える。
+     *
+     * タグが読めていない（広告ブロック等）ときは何もしない。数え損なうだけで、送信は妨げない。
+     */
+    window.gtag?.("event", "pc_inquiry");
 
     setPhotoFailed(failed);
     setStatus("done");
