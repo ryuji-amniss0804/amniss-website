@@ -31,12 +31,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { path: '/tokushoho', changeFrequency: 'yearly' as const, priority: 0.3 },
       { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
       // 【82】パソコン修理（/pc）。別ルートグループだが同じドメインなので同じ sitemap に載せる。
-      // 実体のあるページだけ。/pc/used /pc/blog はまだ存在しないので載せない。
+      // 実体のあるページだけ。/pc/used はまだ存在しないので載せない。
       { path: '/pc', changeFrequency: 'weekly' as const, priority: 0.8 },
       { path: '/pc/price', changeFrequency: 'monthly' as const, priority: 0.7 },
       { path: '/pc/symptom', changeFrequency: 'monthly' as const, priority: 0.7 },
       { path: '/pc/case', changeFrequency: 'monthly' as const, priority: 0.6 },
       { path: '/pc/case/01-raiden', changeFrequency: 'yearly' as const, priority: 0.5 },
+      // 【88】お知らせ・記事（/pc/blog）。記事のURLは事例と同じで直書き。
+      // ⚠ 記事が増えたら、ここに1行ずつ足すのではなく `lib/pc-posts.ts` の
+      //   `getAllPcPosts()` から組み立てる形に変えること（下のブログ記事と同じやり方）。
+      { path: '/pc/blog', changeFrequency: 'weekly' as const, priority: 0.6 },
+      { path: '/pc/blog/raiden-kidou-shinai', changeFrequency: 'yearly' as const, priority: 0.5 },
       { path: '/pc/contact', changeFrequency: 'monthly' as const, priority: 0.5 },
     ]
   ).map(({ path, changeFrequency, priority }) => ({
