@@ -69,14 +69,14 @@ export const TRAVEL = [
 export const TRAVEL_MAX = 6000;
 
 /**
- * パソコン専用のLINE公式アカウント。開設待ちのため未定。
+ * パソコン修理専用のLINE公式アカウント（@680gavoj）。
  *
- * ⚠ `lib/site.ts` の `LINE_URL`（引越し・買取用）で代用しないこと。
- *   問い合わせをパソコンと引越しで分けるために、別アカウントを作る。
- * ⚠ `null` のあいだは **LINEのボタンを描画しない。**
- *   リンク先の無いボタンを置かない。URLが出たらこの1行を差し替えるだけで全ページに反映される。
+ * ⚠ `lib/site.ts` の `LINE_URL` は**引越し・買取用の別アカウント**。混同しないこと。
+ *   分けているのは、3か月後に「パソコンに時間を張るべきか」を数字で見るため。
+ * ⚠ null にすると、ヘッダー・フッター・相談ページのLINE導線が**すべて消える**。
+ *   アカウントを止めるとき以外は触らないこと。
  */
-export const PC_LINE_URL: string | null = null;
+export const PC_LINE_URL: string | null = "https://lin.ee/yUNaCnL";
 
 /**
  * お知らせ・記事の置き場所。
