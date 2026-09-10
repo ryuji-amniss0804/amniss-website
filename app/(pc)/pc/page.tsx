@@ -12,7 +12,8 @@ import PcIcon from "../_components/PcIcon";
  * ⚠ 金額はすべて `lib/pc.ts` から引く。ページに直接書かないこと。
  * ⚠ セクション番号（01 ／ SYMPTOMS）は `.pc-top` のカウンタで出る。
  *   **トップページだけ。**下層ページ（77以降）に `.pc-top` を付けないこと。
- * ⚠ 背景（`.sec.band`）を敷いてよいのは中古PCと最後のCTAの2か所だけ。
+ * ⚠ 背景（`.sec.band`）を敷いてよいのは最後のCTAの1か所だけ。
+ *   （2か所あると帯が繋がって「ここは他と違う」が伝わらない。）
  *
  * 料金・事例・中古PC・お問い合わせの各ページは 77 以降で作る。
  * それまでリンク先は 404 になる（想定どおり。`app/sitemap.ts` には載せていない）。
@@ -272,7 +273,7 @@ export default function PcTopPage() {
             出どころのない数字になる。「在庫あり」「商談中」のタグも同じ理由で出さない。
             `used-desktop.jpg` `used-gaming.jpg` も実在庫の写真ではないので使わない
             （ファイルは残してある。在庫が入る80でカタログに戻すときに使う）。 */}
-      <section className="sec band">
+      <section className="sec">
         <div className="w">
           <p className="eyebrow">USED PC</p>
           <h2>診断書付きの中古パソコン</h2>
@@ -325,7 +326,7 @@ export default function PcTopPage() {
         </section>
       )}
 
-      {/* ---------- CTA（背景を敷く2か所目） ----------
+      {/* ---------- CTA（背景を敷く唯一の場所） ----------
           LINE のボタンは出さない。PC専用の公式アカウントが未開設で、
           `PC_LINE_URL` が null のため。引越し用の LINE_URL で代用しないこと。 */}
       <section className="sec band">
