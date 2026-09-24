@@ -56,15 +56,21 @@ import {
  * 「格安」「業界最安」「絶対」「100%」「積み放題」も書かない。
  */
 
+/**
+ * ワンルーム〜1K一式・富山市内・作業員2名・平日。「実際の金額」の4行目と同じ条件。
+ * title / description / Hero のリードに出す下限額。**数字を書き写さないこと。**
+ */
+const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
+
 export const metadata: Metadata = {
-  title: "富山の単身引越し｜最短当日・軽バン1台 20,000円〜 ｜ re'vive 富山",
+  title: `富山の単身引越し｜最短当日・軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
   description:
-    "富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員1名で、富山市内・平日 20,000円から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。",
+    `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
   alternates: { canonical: "/moving" },
   openGraph: {
-    title: "富山の単身引越し｜最短当日・軽バン1台 20,000円〜 ｜ re'vive 富山",
+    title: `富山の単身引越し｜最短当日・軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
     description:
-      "富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員1名で、富山市内・平日 20,000円から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。",
+      `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
     url: "https://revive-toyama.jp/moving",
     siteName: "re'vive 富山",
     locale: "ja_JP",
@@ -80,10 +86,11 @@ function item(id: string) {
 }
 
 /** ② 作業料（荷物の量 × 人員）。TIER から */
+/** 大型があれば2名。2名が既定なので、2名を主にして1名を注に回す */
 const VOLUME_ROWS = TIER.map((t) => ({
   name: t.name,
-  desc: `〜${t.cap.toFixed(1)}m³　作業員2名なら${yen(t.work[1])}`,
-  price: yen(t.work[0]),
+  desc: `〜${t.cap.toFixed(1)}m³　大型がなければ作業員1名で${yen(t.work[0])}`,
+  price: yen(t.work[1]),
 }));
 
 /** ③ 距離料。片道。高速代は含まない（高速を使う場合は事前のお見積りに含めて提示）。
@@ -133,14 +140,14 @@ const EXAMPLE_CASES: {
   crew: 1 | 2;
   coef: CoefKey;
 }[] = [
-  { name: "冷蔵庫1点・富山市内", cond: "作業員1名・平日", tier: 0, km: 12, crew: 1, coef: "heijitsu" },
-  { name: "冷蔵庫1点・富山市内", cond: "作業員1名・", strong: "当日", tier: 0, km: 12, crew: 1, coef: "touji" },
-  { name: "1K一式・富山市内", cond: "作業員1名・", strong: "日程おまかせ", tier: 2, km: 12, crew: 1, coef: "omakase" },
-  { name: "1K一式・富山市内", cond: "作業員1名・平日", tier: 2, km: 12, crew: 1, coef: "heijitsu" },
-  { name: "1K一式・富山市内", cond: "作業員1名・土日祝", tier: 2, km: 12, crew: 1, coef: "donichi" },
-  { name: "1K一式・高岡（40km）", cond: "作業員1名・平日", tier: 2, km: 40, crew: 1, coef: "heijitsu" },
-  { name: "1K一式・金沢（60km）", cond: "作業員1名・土日祝", tier: 2, km: 60, crew: 1, coef: "donichi" },
-  { name: "1K一式・名古屋（250km）", cond: "作業員1名・平日", tier: 2, km: 250, crew: 1, coef: "heijitsu" },
+  { name: "冷蔵庫1点・富山市内", cond: "作業員2名・平日", tier: 0, km: 12, crew: 2, coef: "heijitsu" },
+  { name: "冷蔵庫1点・富山市内", cond: "作業員2名・", strong: "当日", tier: 0, km: 12, crew: 2, coef: "touji" },
+  { name: "1K一式・富山市内", cond: "作業員2名・", strong: "日程おまかせ", tier: 2, km: 12, crew: 2, coef: "omakase" },
+  { name: "1K一式・富山市内", cond: "作業員2名・平日", tier: 2, km: 12, crew: 2, coef: "heijitsu" },
+  { name: "1K一式・富山市内", cond: "作業員2名・土日祝", tier: 2, km: 12, crew: 2, coef: "donichi" },
+  { name: "1K一式・高岡（40km）", cond: "作業員2名・平日", tier: 2, km: 40, crew: 2, coef: "heijitsu" },
+  { name: "1K一式・金沢（60km）", cond: "作業員2名・土日祝", tier: 2, km: 60, crew: 2, coef: "donichi" },
+  { name: "1K一式・名古屋（250km）", cond: "作業員2名・平日", tier: 2, km: 250, crew: 2, coef: "heijitsu" },
 ];
 
 const EXAMPLE_ROWS = EXAMPLE_CASES.map((c) => ({
@@ -170,7 +177,7 @@ export default function MovingPage() {
         size="md"
         kicker="単 身 引 越 し ／ 富 山 県 全 域"
         title="荷物、そんなに多くないんですけど。"
-        lead="——という規模のお引越しだけ、やっています。ワンルームから1Kくらいを、軽バン1台と作業員1名で。富山市内・平日で20,000円から。予定が空いていれば、今日でも明日でも伺います。"
+        lead={`——という規模のお引越しだけ、やっています。ワンルームから1Kくらいを、軽バン1台と作業員2名で。富山市内・平日で${yen(MOVING_FROM)}から。予定が空いていれば、今日でも明日でも伺います。`}
         actions={
           <>
             <Link className="btn btn-fill" href="/contact">
@@ -320,7 +327,7 @@ export default function MovingPage() {
             },
             {
               q: "お手伝いは必要ですか？",
-              a: "必要ありません。2名必要と判断した内容は2名で伺います。人数が増えても追加料金はいただきません。",
+              a: "必要ありません。冷蔵庫・洗濯機・ベッド・食器棚・タンス・ソファなど大型がひとつでもあるご依頼は、安全のため作業員2名で伺います。人数はお客様に選んでいただくものではなく、荷物で決まります。2名ぶんの作業料はお見積りの時点で入っていますので、当日に人を増やして追加請求することはありません。",
             },
             {
               q: "400L以上の冷蔵庫は運べますか？",

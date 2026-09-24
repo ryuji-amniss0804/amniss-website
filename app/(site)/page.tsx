@@ -57,36 +57,36 @@ import {
  * 住所は富山県富山市まで。番地を出さない。
  */
 
+/* ============ lib/pricing.ts から引く数字 ============ */
+
+/** ワンルーム〜1K・富山市内・作業員2名・平日。/moving の検算表の4行目と同じ条件 */
+const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
+/** 家具・家電1〜3点（小口）・富山市内・作業員2名・平日 */
+const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
+/**
+ * 当日のお引越し。ワンルーム〜1K一式・富山市内・作業員2名。
+ * MOVING_FROM と条件は同じで、日程係数だけが平日(×1.00)→当日(×1.50)。
+ * (5,000 ＋ 15,000 ＋ 0) × 1.50 ＝ 30,000。**ベタ書きしない。**
+ */
+const TOUJI_FULL = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "touji" });
+/** 日帰りの上限。距離表のいちばん遠い行 */
+const MAX_KM = DIST[DIST.length - 1].km;
+
 export const metadata: Metadata = {
-  title: "富山の単身引越しと出張買取｜軽バン1台 20,000円〜 ｜ re'vive 富山",
+  title: `富山の単身引越しと出張買取｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
   description:
-    "富山県全域。軽バン1台でできる範囲だけをやっています。ワンルームから1Kくらいの単身引越しが富山市内・平日 20,000円から、家具1点の運搬、出張買取は査定無料。積める量も日帰りの上限も先に公開しています。貨物軽自動車運送事業 届出済／古物商許可。",
+    `富山県全域。軽バン1台でできる範囲だけをやっています。ワンルームから1Kくらいの単身引越しが富山市内・平日 ${yen(MOVING_FROM)}から、家具1点の運搬、出張買取は査定無料。積める量も日帰りの上限も先に公開しています。貨物軽自動車運送事業 届出済／古物商許可。`,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "富山の単身引越しと出張買取｜軽バン1台 20,000円〜 ｜ re'vive 富山",
+    title: `富山の単身引越しと出張買取｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
     description:
-      "富山県全域。軽バン1台でできる範囲だけをやっています。ワンルームから1Kくらいの単身引越しが富山市内・平日 20,000円から、家具1点の運搬、出張買取は査定無料。積める量も日帰りの上限も先に公開しています。貨物軽自動車運送事業 届出済／古物商許可。",
+      `富山県全域。軽バン1台でできる範囲だけをやっています。ワンルームから1Kくらいの単身引越しが富山市内・平日 ${yen(MOVING_FROM)}から、家具1点の運搬、出張買取は査定無料。積める量も日帰りの上限も先に公開しています。貨物軽自動車運送事業 届出済／古物商許可。`,
     url: "https://revive-toyama.jp",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",
   },
 };
-
-/* ============ lib/pricing.ts から引く数字 ============ */
-
-/** ワンルーム〜1K・富山市内・作業員1名・平日。/moving の検算表の4行目と同じ条件 */
-const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 1, km: 12, coefKey: "heijitsu" });
-/** 家具・家電1〜3点（小口）・富山市内・作業員1名・平日 */
-const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 1, km: 12, coefKey: "heijitsu" });
-/**
- * 当日のお引越し。ワンルーム〜1K一式・富山市内・作業員1名。
- * MOVING_FROM と条件は同じで、日程係数だけが平日(×1.00)→当日(×1.50)。
- * (5,000 ＋ 15,000 ＋ 0) × 1.50 ＝ 30,000。**ベタ書きしない。**
- */
-const TOUJI_FULL = plainTotal({ tier: TIER[2], crew: 1, km: 12, coefKey: "touji" });
-/** 日帰りの上限。距離表のいちばん遠い行 */
-const MAX_KM = DIST[DIST.length - 1].km;
 
 /**
  * 古物商許可の「富山県公安委員会 第501310007877号」を、発行者と番号に割る。
@@ -107,7 +107,7 @@ const [KOBUTSU_ISSUER, KOBUTSU_NO] = (() => {
 const SERVICE_ROWS = [
   {
     name: "単身引越し",
-    desc: "ワンルーム〜1K　富山市内・作業員1名・平日",
+    desc: "ワンルーム〜1K　富山市内・作業員2名・平日",
     price: `${yen(MOVING_FROM)}〜`,
   },
   {
@@ -117,7 +117,7 @@ const SERVICE_ROWS = [
   },
   {
     // ここは14では「県外へのお引越し（長距離）30,000円〜」だった。
-    // 30,000円は実在するが（1K一式・1名・当日）、**富山市内の額**で、
+    // 43,500円は実在するが（1K一式・2名・当日）、**富山市内の額**で、
     // 距離表はそもそも「片道◯kmで＋◯円」の加算表であり県内／県外の境目を持たない。
     // ラベルと数字が結び付いていなかったので、17_hero で当日の行に差し替えた。
     // 17では「〜を付けない・確定額」としていたが、それが間違い。式から一意に出るのは
@@ -125,7 +125,7 @@ const SERVICE_ROWS = [
     // ×1.50 が掛かる。列の見出しが「料金の目安」なので、他の4行と同じく「〜」を付ける。
     // 長距離は ④「日帰りの上限 300km」がすでに言っているので、ここでは重ねない。
     name: "当日のお引越し",
-    desc: "市内・ワンルーム〜1K一式・作業員1名",
+    desc: "市内・ワンルーム〜1K一式・作業員2名",
     price: `${yen(TOUJI_FULL)}〜`,
   },
   {
@@ -158,7 +158,7 @@ const NUMBERS = [
     label: "富 山 市 内 ・ 平 日",
     value: fmt(MOVING_FROM),
     unit: "円",
-    note: "ワンルーム〜1K、作業員1名。出動料・養生・搬入後の設置まで込みです。",
+    note: "ワンルーム〜1K、作業員2名。出動料・養生・搬入後の設置まで込みです。",
   },
   {
     label: "日 帰 り の 上 限",
@@ -323,8 +323,8 @@ export default function TopPage() {
           壊れていることに誰も気づかない。
 
           金額はすべて定数から。③メニュー と同じ数字を2回出しているので、
-          **本文に書かないこと。**（12,000 ＝ CARRY_FROM、8,000 ＝ INDOOR_FEE、
-          30,000 ＝ TOUJI_FULL、5,000 ＝ DEPART、1.50 ＝ COEF.touji、75km ＝ ROUNDTRIP_MAX_KM）
+          **本文に書かないこと。**（21,000 ＝ CARRY_FROM、8,000 ＝ INDOOR_FEE、
+          43,500 ＝ TOUJI_FULL、5,000 ＝ DEPART、1.50 ＝ COEF.touji、75km ＝ ROUNDTRIP_MAX_KM）
 
           文字列は必ずテンプレートリテラルで1本にする。
           JSX で `{yen(x)}です。` と割ると、React が境目に `<!-- -->` を入れる */}
@@ -337,11 +337,11 @@ export default function TopPage() {
             },
             {
               q: "1点だけでもお願いできますか。",
-              a: `お受けします。富山市内・平日・作業員1名で${yen(CARRY_FROM)}です。室内で動かすだけ（車を出さない場合）は${yen(INDOOR_FEE)}です。`,
+              a: `お受けします。富山市内・平日・作業員2名で${yen(CARRY_FROM)}です。室内で動かすだけ（車を出さない場合）は${yen(INDOOR_FEE)}です。`,
             },
             {
               q: "当日でもお願いできますか。",
-              a: `空きがあればお受けします。当日のご依頼は日程係数が${COEF.touji.coef.toFixed(2)}になります。富山市内・ワンルーム〜1K一式・作業員1名で${yen(TOUJI_FULL)}からです。`,
+              a: `空きがあればお受けします。当日のご依頼は日程係数が${COEF.touji.coef.toFixed(2)}になります。富山市内・ワンルーム〜1K一式・作業員2名で${yen(TOUJI_FULL)}からです。`,
             },
             {
               q: "荷物が積みきれるか分かりません。",
