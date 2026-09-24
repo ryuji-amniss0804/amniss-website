@@ -73,7 +73,7 @@ export const PREVIEWS: Record<string, PreviewEntry> = {
         <PriceTable
           rows={[
             { name: "単身引越し", desc: "ワンルーム〜1K　富山市内・作業員2名・平日", price: "29,000円〜" },
-            { name: "家具・家電の運搬", desc: "1〜3点　富山市内・平日", price: "21,000円〜" },
+            { name: "家具・家電の運搬", desc: "大型1〜2点　富山市内・作業員2名・平日", price: "21,000円〜" },
             { name: "当日のお引越し", desc: "市内・ワンルーム〜1K一式・作業員2名", price: "43,500円" },
             { name: "法人スポット便", desc: "富山市内・1時間まで　当日でも土日祝でも割増なし", price: "8,000円〜" },
             { name: "出張買取", desc: "査定のみで終わっても費用はいただきません", price: "査定無料" },

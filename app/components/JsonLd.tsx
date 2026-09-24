@@ -15,7 +15,7 @@ import { TIER, fmt, plainTotal, yen } from "@/lib/pricing";
  */
 /** ワンルーム〜1K一式・富山市内・作業員2名・平日 */
 const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
-/** 家具・家電1〜3点（小口）・富山市内・作業員2名・平日 */
+/** 家具・家電1〜2点（小口）・富山市内・作業員2名・平日 */
 const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
 
 export const SITE_URL = "https://revive-toyama.jp";
@@ -92,7 +92,7 @@ const businessJsonLd = {
       {
         "@type": "Offer",
         name: "家具・家電の運搬",
-        description: "富山市内・1〜3点・平日の目安",
+        description: "富山市内・大型1〜2点・作業員2名・平日の目安",
         price: String(CARRY_FROM),
         priceCurrency: "JPY",
       },

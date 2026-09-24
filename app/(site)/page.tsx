@@ -61,7 +61,9 @@ import {
 
 /** ワンルーム〜1K・富山市内・作業員2名・平日。/moving の検算表の4行目と同じ条件 */
 const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
-/** 家具・家電1〜3点（小口）・富山市内・作業員2名・平日 */
+/** 家具・家電1〜2点（小口・〜0.9m³）・富山市内・作業員2名・平日
+ *  ⚠ 段は点数ではなく体積で決まる。3点以上とソファ・自転車は次の段（軽バン半分）。
+ *     点数の幅でラベルを付け直すときは注意。3点を小口に含めると4,000円足りない。 */
 const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
 /**
  * 当日のお引越し。ワンルーム〜1K一式・富山市内・作業員2名。
@@ -112,7 +114,7 @@ const SERVICE_ROWS = [
   },
   {
     name: "家具・家電の運搬",
-    desc: "1〜3点　富山市内・平日",
+    desc: "大型1〜2点　富山市内・作業員2名・平日",
     price: `${yen(CARRY_FROM)}〜`,
   },
   {
