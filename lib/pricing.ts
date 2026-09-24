@@ -388,7 +388,7 @@ export function buildQuote(p: QuoteInput): Quote {
   const rows: Row[] = [
     {
       name: "出動料",
-      note: "軽バン1台・養生材・運送保険（上限500万円）・搬入後の設置",
+      note: "軽バン1台・養生材・搬入後の設置",
       amount: DEPART,
     },
     {

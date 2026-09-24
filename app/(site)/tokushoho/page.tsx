@@ -162,7 +162,7 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
         </span>
 
         <span className="nt gap">
-          毛布・養生材・運送保険・2階までの階段作業を含みます。
+          毛布・養生材・2階までの階段作業を含みます。
           作業前にお見積り金額を確定させ、当日の追加請求は行いません。
         </span>
       </>
