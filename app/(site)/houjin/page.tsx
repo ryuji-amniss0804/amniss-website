@@ -45,7 +45,6 @@ function license(label: string) {
 }
 
 const KOBUTSU = license("古物商許可");
-const HOKEN = license("運送保険");
 const UNSOU = license("貨物軽自動車運送事業");
 const SDGS = license("富山県SDGs宣言企業");
 
@@ -65,11 +64,11 @@ const [KOBUTSU_ISSUER, KOBUTSU_NO] = (() => {
 
 export const metadata: Metadata = {
   title: `富山の法人向け軽貨物｜スポット便 1時間 ${yen(SPOT_FEE)}〜 ｜ re'vive 富山`,
-  description: `富山県全域。軽貨物のスポット便を1時間からお受けします。2時間・4時間単位の縛りはありません。当日でも土日祝でも割増なし、富山市内・1時間まで${yen(SPOT_FEE)}。事務所移転、什器・備品の移動、複数箇所の配送・集荷。請求書払い（月締め）可。運送保険 補償上限500万円／貨物軽自動車運送事業 届出済。`,
+  description: `富山県全域。軽貨物のスポット便を1時間からお受けします。2時間・4時間単位の縛りはありません。当日でも土日祝でも割増なし、富山市内・1時間まで${yen(SPOT_FEE)}。事務所移転、什器・備品の移動、複数箇所の配送・集荷。請求書払い（月締め）可。貨物軽自動車運送事業 届出済。`,
   alternates: { canonical: "/houjin" },
   openGraph: {
     title: `富山の法人向け軽貨物｜スポット便 1時間 ${yen(SPOT_FEE)}〜 ｜ re'vive 富山`,
-    description: `富山県全域。軽貨物のスポット便を1時間からお受けします。2時間・4時間単位の縛りはありません。当日でも土日祝でも割増なし、富山市内・1時間まで${yen(SPOT_FEE)}。事務所移転、什器・備品の移動、複数箇所の配送・集荷。請求書払い（月締め）可。運送保険 補償上限500万円／貨物軽自動車運送事業 届出済。`,
+    description: `富山県全域。軽貨物のスポット便を1時間からお受けします。2時間・4時間単位の縛りはありません。当日でも土日祝でも割増なし、富山市内・1時間まで${yen(SPOT_FEE)}。事務所移転、什器・備品の移動、複数箇所の配送・集荷。請求書払い（月締め）可。貨物軽自動車運送事業 届出済。`,
     url: "https://revive-toyama.jp/houjin",
     siteName: "re'vive 富山",
     locale: "ja_JP",
@@ -118,7 +117,6 @@ const CAN_DO = [
 /** ⑤ 事業者様向けの体制。許認可は LICENSES から組む。番号を書き写さない */
 const KITAI = [
   { name: "請求書払い可", note: "月締め対応" },
-  { name: `${HOKEN.label}加入済み`, note: HOKEN.value },
   {
     name: KOBUTSU.label,
     note: (

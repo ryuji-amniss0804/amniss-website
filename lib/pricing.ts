@@ -127,6 +127,12 @@ export type Item = {
   m3: number;
   /** 分解・組み立てを選べる品目 */
   disassemble?: true;
+  /**
+   * 1人では安全に扱えない品目。**ひとつでもあれば作業員2名で伺う。**
+   * 重さだけでなく、階段・廊下で1人では回せない寸法のものも含む
+   * （マットレスSDは幅120cm）。2026-09-24 本人確認。
+   */
+  heavy?: true;
   /** LINE に貼るテキストで使う短い名前。無ければ name を使う */
   short?: string;
 };
@@ -139,13 +145,13 @@ export const CAT: ItemGroup[] = [
     name: "大 型 家 具",
     items: [
       { id: "mattress-s", name: "マットレス（シングル）", size: "97×195×20　最後に一番上へ載せます", m3: 0.4 },
-      { id: "mattress-sd", name: "マットレス（セミダブル）", size: "120×195×20　荷室の3分の1を使います", m3: 0.9 },
-      { id: "bedframe-s", name: "ベッドフレーム（シングル）", size: "分解後 97×195×15", m3: 0.3, disassemble: true },
-      { id: "bedframe-sd", name: "ベッドフレーム（セミダブル）", size: "分解後 120×195×15", m3: 0.38, disassemble: true },
-      { id: "sofa-2", name: "ソファ（2人掛け）", size: "150×85×82", m3: 1.05 },
-      { id: "sofa-3", name: "ソファ（3人掛け）", size: "185×88×85", m3: 1.38 },
-      { id: "tansu", name: "タンス・チェスト", size: "100×45×120", m3: 0.54, disassemble: true },
-      { id: "shokki", name: "食器棚", size: "90×45×180", m3: 0.73, disassemble: true },
+      { id: "mattress-sd", name: "マットレス（セミダブル）", size: "120×195×20　荷室の3分の1を使います", m3: 0.9, heavy: true },
+      { id: "bedframe-s", name: "ベッドフレーム（シングル）", size: "分解後 97×195×15", m3: 0.3, disassemble: true, heavy: true },
+      { id: "bedframe-sd", name: "ベッドフレーム（セミダブル）", size: "分解後 120×195×15", m3: 0.38, disassemble: true, heavy: true },
+      { id: "sofa-2", name: "ソファ（2人掛け）", size: "150×85×82", m3: 1.05, heavy: true },
+      { id: "sofa-3", name: "ソファ（3人掛け）", size: "185×88×85", m3: 1.38, heavy: true },
+      { id: "tansu", name: "タンス・チェスト", size: "100×45×120", m3: 0.54, disassemble: true, heavy: true },
+      { id: "shokki", name: "食器棚", size: "90×45×180", m3: 0.73, disassemble: true, heavy: true },
       { id: "hondana", name: "本棚", size: "90×30×180", m3: 0.49, disassemble: true },
       { id: "desk", name: "学習机・パソコンデスク", size: "100×60×70 ＋ 引き出し", m3: 0.5, disassemble: true },
       { id: "dining", name: "ダイニングテーブル", size: "120×75×70", m3: 0.63, disassemble: true },
@@ -162,10 +168,11 @@ export const CAT: ItemGroup[] = [
         name: "冷蔵庫（2ドア・高さ142cmまで）",
         size: "48×60×140　400L以上の大型は積めません",
         m3: 0.4,
+        heavy: true,
         short: "冷蔵庫（2ドア）",
       },
-      { id: "washer-top", name: "洗濯機（縦型）", size: "57×60×100", m3: 0.34 },
-      { id: "washer-drum", name: "洗濯機（ドラム式）", size: "60×65×105", m3: 0.41 },
+      { id: "washer-top", name: "洗濯機（縦型）", size: "57×60×100", m3: 0.34, heavy: true },
+      { id: "washer-drum", name: "洗濯機（ドラム式）", size: "60×65×105", m3: 0.41, heavy: true },
       { id: "tv-42", name: "テレビ（〜42型）", size: "梱包 100×20×65", m3: 0.13 },
       { id: "tv-55", name: "テレビ（43〜55型）", size: "梱包 130×22×80", m3: 0.23 },
       { id: "renji", name: "電子レンジ・オーブン", size: "50×45×35", m3: 0.08 },
@@ -323,6 +330,21 @@ export function tierOf(m3: number): Tier | null {
   return TIER.find((t) => m3 <= t.cap) ?? null;
 }
 
+/** 大型品目（1人では安全に扱えないもの）。表示にも使う */
+export const HEAVY_ITEMS: Item[] = ALL_ITEMS.filter((it) => it.heavy);
+
+/**
+ * 作業員の人数。**お客様に選んでいただくものではなく、荷物で決まる。**
+ *
+ * 大型（冷蔵庫・洗濯機・ベッドフレーム・食器棚・タンス・ソファ・マットレスSD）が
+ * ひとつでもあれば2名。1人での積み下ろしは危険で、実際にお断りしている。
+ * ⚠ ここを「お客様が選べる」形に戻さないこと。戻すと、画面に出る金額と
+ *   当日の人数が食い違い、その差はそのまま請求のずれになる（各段 +9,000円）。
+ */
+export function crewFor(counts: Counts): 1 | 2 {
+  return HEAVY_ITEMS.some((it) => (counts[it.id] ?? 0) > 0) ? 2 : 1;
+}
+
 /** 片道300kmを超えると null（＝日帰りができない） */
 export function distOf(km: number): Dist | null {
   return DIST.find((d) => km <= d.km) ?? null;
@@ -388,7 +410,7 @@ export function buildQuote(p: QuoteInput): Quote {
   const rows: Row[] = [
     {
       name: "出動料",
-      note: "軽バン1台・養生材・運送保険（上限500万円）・搬入後の設置",
+      note: "軽バン1台・養生材・搬入後の設置",
       amount: DEPART,
     },
     {

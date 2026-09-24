@@ -7,6 +7,16 @@
  */
 
 import { HOURS_CLOSE, HOURS_OPEN } from "@/lib/site";
+import { TIER, fmt, plainTotal, yen } from "@/lib/pricing";
+
+/**
+ * 金額は lib/pricing.ts から出す。**ここに書き写さないこと。**
+ * 大型がひとつでもあれば作業員2名なので、目安も2名で出す（crewFor と同じ考え方）。
+ */
+/** ワンルーム〜1K一式・富山市内・作業員2名・平日 */
+const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
+/** 家具・家電1〜2点（小口）・富山市内・作業員2名・平日 */
+const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
 
 export const SITE_URL = "https://revive-toyama.jp";
 export const BIZ_NAME = "re'vive 富山";
@@ -24,11 +34,11 @@ const businessJsonLd = {
   ],
   legalName: "AmNiss&Co. Japan",
   description:
-    "富山県全域の単身引越し・出張買取・軽貨物運送。軽バンでの単身引越しは20,000円から。不用品はその場で買取査定し、引越し費用から差し引きます。古物商許可・貨物軽自動車運送事業届出済。",
+    `富山県全域の単身引越し・出張買取・軽貨物運送。軽バンでの単身引越しは${yen(MOVING_FROM)}から。不用品はその場で買取査定し、引越し費用から差し引きます。古物商許可・貨物軽自動車運送事業届出済。`,
   url: SITE_URL,
   telephone: BIZ_TEL,
   image: `${SITE_URL}/favicon.png`,
-  priceRange: "¥12,000〜¥150,000",
+  priceRange: `¥${fmt(CARRY_FROM)}〜¥150,000`,
   currenciesAccepted: "JPY",
   paymentAccepted: "現金",
   address: {
@@ -76,14 +86,14 @@ const businessJsonLd = {
         "@type": "Offer",
         name: "単身引越し",
         description: "富山市内・ワンルーム〜1K・平日の目安",
-        price: "20000",
+        price: String(MOVING_FROM),
         priceCurrency: "JPY",
       },
       {
         "@type": "Offer",
         name: "家具・家電の運搬",
-        description: "富山市内・1〜3点・平日の目安",
-        price: "12000",
+        description: "富山市内・大型1〜2点・作業員2名・平日の目安",
+        price: String(CARRY_FROM),
         priceCurrency: "JPY",
       },
     ],

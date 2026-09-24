@@ -17,6 +17,7 @@ import {
   TIER,
   buildQuote,
   buyable,
+  crewFor,
   distOf,
   fmt,
   itemOf,
@@ -68,7 +69,6 @@ export default function Simulator() {
   });
   const counts = picked.counts;
   const dis = picked.dis;
-  const [crew, setCrew] = useState<1 | 2>(1);
   const [kmInput, setKmInput] = useState("10");
   const [floorInput, setFloorInput] = useState("0");
   const [slot, setSlot] = useState(false);
@@ -78,6 +78,8 @@ export default function Simulator() {
   const km = toInt(kmInput);
   const floors = toInt(floorInput);
   const l = load(counts);
+  /** 人数は選ばせない。荷物から決まる（lib/pricing.ts の crewFor） */
+  const crew = crewFor(counts);
   const dist = distOf(km);
   const tier = tierOf(l.m3);
   const warnings = itemWarnings(counts);
@@ -402,31 +404,21 @@ export default function Simulator() {
         ))}
       </div>
 
-      {/* ---- 作業人数 ---- */}
+      {/* ---- 作業人数（選べない。荷物から決まる） ---- */}
       <fieldset className="sim-fs">
         <legend className="sim-leg">作 業 人 数</legend>
-        <div className="sim-opts">
-          {([1, 2] as const).map((c) => (
-            <label key={c}>
-              <input
-                type="radio"
-                name="crew"
-                checked={crew === c}
-                onChange={() => {
-                  setCrew(c);
-                  setCopied("");
-                }}
-              />
-              <span>
-                {c}名<small>{c === 1 ? "通常はこちら" : "大型家具・3階以上・搬出入が同時"}</small>
-              </span>
-            </label>
-          ))}
-        </div>
         <p className="sim-hint">
-          2名が必要かどうかは、こちらで判断してお伝えします。お客様に積み下ろしをお手伝いいただくことはありません。
+          <b>{crew}名</b>
+          {crew === 2
+            ? "　大型の家具・家電が入っているため、安全のため2名で伺います。"
+            : "　大型の家具・家電がないため、1名で伺います。"}
           <br />
-          人数を増やしても積める量は変わりません。作業が速く、安全になります。
+          人数はお選びいただくものではなく、荷物で決まります。
+          冷蔵庫・洗濯機・ベッドフレーム・食器棚・タンス・ソファ・マットレス（セミダブル）が
+          ひとつでも入ると2名になります。
+          <br />
+          2名ぶんの作業料はこの金額に入っています。当日に人を増やして追加請求することはありません。
+          お客様に積み下ろしをお手伝いいただくこともありません。
         </p>
       </fieldset>
 

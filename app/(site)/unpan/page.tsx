@@ -17,7 +17,7 @@ import { CAP, TIER, plainTotal, yen } from "@/lib/pricing";
  * このページが言いたいのは1つだけ。
  * **「車が動くかどうか」で料金の決まり方が変わる。**
  * 動かすなら引越しと同じ計算式、動かさない（室内作業だけ）なら 8,000円。
- * これが先に分かれば、8,000円と12,000円が同じページに並んでいても混乱しない。
+ * これが先に分かれば、8,000円と21,000円が同じページに並んでいても混乱しない。
  *
  * 【料金の出どころ】
  *  - 「運ぶ場合」の3行は **lib/pricing.ts** から算出している。手で書かない。
@@ -43,9 +43,9 @@ import { CAP, TIER, plainTotal, yen } from "@/lib/pricing";
 /** 富山市内。/moving の検算表・トップと同じ 12km を代表値にしている */
 const CITY_KM = 12;
 
-/** 運ぶ場合（富山市内・平日・作業員1名・階段なし）。荷物の量だけが違う3行 */
+/** 運ぶ場合（富山市内・平日・作業員2名・階段なし）。荷物の量だけが違う3行 */
 const CARRY_CASES: { name: string; tier: number }[] = [
-  { name: "冷蔵庫・洗濯機・テレビ・机など1〜3点", tier: 0 },
+  { name: "冷蔵庫・洗濯機・テレビ・机など1〜2点", tier: 0 },
   { name: "ソファ（2人掛け）・自転車1台", tier: 1 },
   { name: "軽バン満載くらいの量", tier: 2 },
 ];
@@ -55,7 +55,7 @@ const CARRY_ROWS = CARRY_CASES.map((c) => {
   return {
     name: c.name,
     desc: `${t.name}　〜${t.cap.toFixed(1)}m³`,
-    price: yen(plainTotal({ tier: t, crew: 1, km: CITY_KM, coefKey: "heijitsu" })),
+    price: yen(plainTotal({ tier: t, crew: 2, km: CITY_KM, coefKey: "heijitsu" })),
   };
 });
 
@@ -133,14 +133,14 @@ export default function UnpanPage() {
       <LicenseStrip />
 
       {/* ③ 料金。決まり方 → 運ぶ場合 → 運ばない場合 の順。
-          この順番でないと、8,000円と12,000円が並んでいる理由が分からない */}
+          この順番でないと、8,000円と21,000円が並んでいる理由が分からない */}
       <Split kicker="料 金" title="「運ぶ」か「運ばない」かで分かれます" first>
         <PriceTable head={["ご依頼の内容", "料金の決まり方"]} rows={HOW_ROWS} />
 
         {/* 運ぶ場合。金額は lib/pricing.ts から算出している。ここに書かない */}
         <div className="pt">
           <PriceTable
-            head={["運ぶ場合（富山市内・平日・作業員1名・階段なし）", "お支払額"]}
+            head={["運ぶ場合（富山市内・平日・作業員2名・階段なし）", "お支払額"]}
             rows={CARRY_ROWS}
             note={
               <>

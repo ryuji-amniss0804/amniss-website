@@ -6,6 +6,7 @@ import Footer from "./_components/Footer";
 import MobileBar from "./_components/MobileBar";
 import JsonLd from "../components/JsonLd";
 import Ga4 from "../components/Ga4";
+import { TIER, plainTotal, yen } from "@/lib/pricing";
 
 /**
  * 新デザインのルートグループ。
@@ -35,16 +36,22 @@ const notoSerif = Noto_Serif_JP({
   preload: false,
 });
 
+/**
+ * 単身引越しの下限額。ワンルーム〜1K一式・富山市内・作業員2名・平日。
+ * app/(site)/page.tsx の MOVING_FROM と同じ条件。**数字を書き写さないこと。**
+ */
+const SINGLE_FROM = yen(plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" }));
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://revive-toyama.jp"),
   title: "re'vive 富山 | 単身引越し・出張買取・軽貨物運送",
   description:
-    "富山県の単身引越しと出張買取ならre'vive 富山（リバイブ）。単身引越し20,000円〜・出張買取 査定無料。富山県全域、当日対応可。引越し費用を不用品買取で実質削減。古物商許可・貨物軽自動車運送事業届出済。富山県SDGs宣言企業。",
+    `富山県の単身引越しと出張買取ならre'vive 富山（リバイブ）。単身引越し${SINGLE_FROM}〜・出張買取 査定無料。富山県全域、当日対応可。引越し費用を不用品買取で実質削減。古物商許可・貨物軽自動車運送事業届出済。富山県SDGs宣言企業。`,
   // canonical はレイアウトに置かない。子ページに継承されるため、各ページ側で指定すること。
   openGraph: {
     title: "re'vive 富山 | 単身引越し・出張買取・軽貨物運送",
     description:
-      "富山県の単身引越しと出張買取ならre'vive 富山（リバイブ）。単身引越し20,000円〜・出張買取 査定無料。富山県全域、当日対応可。引越し費用を不用品買取で実質削減。古物商許可・貨物軽自動車運送事業届出済。富山県SDGs宣言企業。",
+      `富山県の単身引越しと出張買取ならre'vive 富山（リバイブ）。単身引越し${SINGLE_FROM}〜・出張買取 査定無料。富山県全域、当日対応可。引越し費用を不用品買取で実質削減。古物商許可・貨物軽自動車運送事業届出済。富山県SDGs宣言企業。`,
     url: "https://revive-toyama.jp",
     siteName: "re'vive 富山",
     locale: "ja_JP",
