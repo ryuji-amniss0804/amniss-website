@@ -1,8 +1,14 @@
 import React from "react";
 import Link from "next/link";
 import Hero from "../_components/Hero";
-import { INDOOR_FEE, SPOT_FEE } from "../_fees";
-import { DEPART, yen } from "@/lib/pricing";
+import {
+  INDOOR_FEE,
+  INBUILDING_MOVE_FEE,
+  INSTALL_FEE,
+  INBUILDING_CAP,
+  SPOT_FEE,
+} from "../_fees";
+import { DEPART, DISASSEMBLE_FEE, STAIRS_FEE, yen } from "@/lib/pricing";
 import { HOURS_RANGE } from "@/lib/site";
 
 /**
@@ -27,6 +33,8 @@ import { HOURS_RANGE } from "@/lib/site";
  * **金額は必ず、ほかのページと同じソースから引くこと。**
  *  - 出動料 5,000 … `lib/pricing.ts` の DEPART
  *  - 室内作業のみ 8,000 … `app/(site)/_fees.ts` の INDOOR_FEE
+ *  - 建物の中での移動 … `app/(site)/_fees.ts` の INBUILDING_MOVE_FEE / INSTALL_FEE /
+ *    INBUILDING_CAP（階段 STAIRS_FEE・分解組立 DISASSEMBLE_FEE は `lib/pricing.ts`）
  *  - 法人スポット便 8,000 … `app/(site)/_fees.ts` の SPOT_FEE
  *
  * INDOOR_FEE と SPOT_FEE は**同額だが別の定数のまま**にしてある。
@@ -146,6 +154,16 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 
         <span className="h">
           室内での作業のみ（車を出さない場合）　{yen(INDOOR_FEE)}
+        </span>
+
+        <span className="h">
+          建物の中での移動（車を出さない場合）　出動料 {yen(DEPART)} ＋ 1点につき{" "}
+          {yen(INBUILDING_MOVE_FEE)}
+        </span>
+        <span>
+          （階段 1フロアにつき {yen(STAIRS_FEE)}／分解・組み立て 1点につき{" "}
+          {yen(DISASSEMBLE_FEE)}／取り外し・設置 1点につき {yen(INSTALL_FEE)}。上限{" "}
+          {yen(INBUILDING_CAP)}）
         </span>
 
         <span className="h">

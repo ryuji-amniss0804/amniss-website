@@ -10,7 +10,7 @@ import Cta from "./_components/Cta";
 import Faq from "./_components/Faq";
 import Figure, { CARGO_CAPTION } from "./_components/Figure";
 import { MOVING_REASONS } from "./_reasons";
-import { INDOOR_FEE, SPOT_FEE } from "./_fees";
+import { INDOOR_FEE, INBUILDING_MOVE_FEE, SPOT_FEE } from "./_fees";
 import { AREA, HOURS, LICENSES, TEL, TEL_HREF, WASTE_NOTICE } from "@/lib/site";
 // ③の出張診断の金額。**ここに数字を書き写さないこと**（/pc /pc/price と同じ出どころ）。
 // lib/pc.ts はデータだけで CSS もコンポーネントも持たないので、(site) から読んでよい。
@@ -326,7 +326,8 @@ export default function TopPage() {
 
           金額はすべて定数から。③メニュー と同じ数字を2回出しているので、
           **本文に書かないこと。**（21,000 ＝ CARRY_FROM、8,000 ＝ INDOOR_FEE、
-          43,500 ＝ TOUJI_FULL、5,000 ＝ DEPART、1.50 ＝ COEF.touji、75km ＝ ROUNDTRIP_MAX_KM）
+          43,500 ＝ TOUJI_FULL、5,000 ＝ DEPART、1.50 ＝ COEF.touji、75km ＝ ROUNDTRIP_MAX_KM、
+          4,000 ＝ INBUILDING_MOVE_FEE〈建物の中での移動・1点につき。2026-09-24 新設〉）
 
           文字列は必ずテンプレートリテラルで1本にする。
           JSX で `{yen(x)}です。` と割ると、React が境目に `<!-- -->` を入れる */}
@@ -339,7 +340,7 @@ export default function TopPage() {
             },
             {
               q: "1点だけでもお願いできますか。",
-              a: `お受けします。富山市内・平日・作業員2名で${yen(CARRY_FROM)}です。室内で動かすだけ（車を出さない場合）は${yen(INDOOR_FEE)}です。`,
+              a: `お受けします。富山市内・平日・作業員2名で${yen(CARRY_FROM)}です。同じお部屋の中で動かすだけなら${yen(INDOOR_FEE)}、同じ建物の中で階や部屋をまたぐ場合は出動料＋1点につき${yen(INBUILDING_MOVE_FEE)}です。`,
             },
             {
               q: "当日でもお願いできますか。",

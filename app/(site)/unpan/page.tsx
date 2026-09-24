@@ -7,23 +7,39 @@ import PriceTable from "../_components/PriceTable";
 import Spec from "../_components/Spec";
 import ItemList from "../_components/ItemList";
 import Cta from "../_components/Cta";
-import { INDOOR_FEE } from "../_fees";
+import {
+  INDOOR_FEE,
+  INBUILDING_MOVE_FEE,
+  INSTALL_FEE,
+  INBUILDING_CAP,
+  inBuildingTotal,
+} from "../_fees";
 import { TEL, TEL_HREF } from "@/lib/site";
-import { CAP, TIER, plainTotal, yen } from "@/lib/pricing";
+import { CAP, DEPART, DISASSEMBLE_FEE, STAIRS_FEE, TIER, plainTotal, yen } from "@/lib/pricing";
 
 /**
  * 運搬・配送。
  *
  * このページが言いたいのは1つだけ。
- * **「車が動くかどうか」で料金の決まり方が変わる。**
- * 動かすなら引越しと同じ計算式、動かさない（室内作業だけ）なら 8,000円。
+ * **「どこまで動かすか」で料金の決まり方が変わる。**
  * これが先に分かれば、8,000円と21,000円が同じページに並んでいても混乱しない。
  *
+ * 【どこまで動かすかで3つに分かれる】2026-09-24 改訂
+ *   ① 同じ部屋の中だけ        … INDOOR_FEE 8,000円（定額）
+ *   ② 建物の中（階・部屋をまたぐ・車は出さない）… inBuildingTotal()
+ *   ③ 建物の外へ（車を出す）  … lib/pricing.ts の式
+ *
+ * ②は 2026-09-24 に新設した。それまで①と②の区別がなく、同じマンション内の階移動で
+ * 3点・作業員2名・26,000円で受けた案件が、サイト上は 8,000円 に落ちていた。
+ * 判断の基準を「車が動くかどうか」から「どこまで動かすか」に変えている
+ * （元の基準は 2026/8/6 決定。pricing_unpan_houjin）。
+ *
  * 【料金の出どころ】
- *  - 「運ぶ場合」の3行は **lib/pricing.ts** から算出している。手で書かない。
+ *  - ③「建物の外へ」の3行は **lib/pricing.ts** から算出している。手で書かない。
  *  - 計算式そのものは /moving に全部載っているので、ここでは繰り返さずリンクする。
- *  - 「運ばない場合」の 8,000円 だけは式から出ない。理由は _fees.ts の INDOOR_FEE。
- *    **同じ数字をトップのFAQも出すので、定義はこのファイルに戻さないこと。**
+ *  - ①の 8,000円 と②の加算は式から出ない。理由は _fees.ts の INDOOR_FEE /
+ *    INBUILDING_MOVE_FEE / INSTALL_FEE / INBUILDING_CAP / inBuildingTotal()。
+ *    **同じ数字をトップのFAQと /tokushoho も出すので、定義はこのファイルに戻さないこと。**
  *
  * 【ヒーローに画像を置かない】
  * image_decision.md の枠C（雰囲気）は画像を使わない。
@@ -75,11 +91,11 @@ const CARGO_PCT = Math.round((CAP / CARGO_M3) * 100);
 
 export const metadata: Metadata = {
   title: `富山の家具・家電の運搬｜1点から ${CARRY_FROM}・室内の移動 ${yen(INDOOR_FEE)} ｜ re'vive 富山`,
-  description: `富山県全域。冷蔵庫1台でも、部屋の中で家具を動かすだけでも伺います。運ぶ場合は引越しと同じ計算式で富山市内・平日 ${CARRY_FROM}から、運ばない室内作業（家具移動・模様替え・組み立て・設置）は${yen(INDOOR_FEE)}。金額は運ぶ前に確定します。貨物軽自動車運送事業 届出済。`,
+  description: `富山県全域。冷蔵庫1台でも、部屋の中で家具を動かすだけでも伺います。運ぶ場合は引越しと同じ計算式で富山市内・平日 ${CARRY_FROM}から、運ばない室内作業（家具移動・模様替え・組み立て・設置）は${yen(INDOOR_FEE)}、同じ建物の中での階移動は出動料＋1点${yen(INBUILDING_MOVE_FEE)}。金額は運ぶ前に確定します。貨物軽自動車運送事業 届出済。`,
   alternates: { canonical: "/unpan" },
   openGraph: {
     title: `富山の家具・家電の運搬｜1点から ${CARRY_FROM}・室内の移動 ${yen(INDOOR_FEE)} ｜ re'vive 富山`,
-    description: `富山県全域。冷蔵庫1台でも、部屋の中で家具を動かすだけでも伺います。運ぶ場合は引越しと同じ計算式で富山市内・平日 ${CARRY_FROM}から、運ばない室内作業（家具移動・模様替え・組み立て・設置）は${yen(INDOOR_FEE)}。金額は運ぶ前に確定します。貨物軽自動車運送事業 届出済。`,
+    description: `富山県全域。冷蔵庫1台でも、部屋の中で家具を動かすだけでも伺います。運ぶ場合は引越しと同じ計算式で富山市内・平日 ${CARRY_FROM}から、運ばない室内作業（家具移動・模様替え・組み立て・設置）は${yen(INDOOR_FEE)}、同じ建物の中での階移動は出動料＋1点${yen(INBUILDING_MOVE_FEE)}。金額は運ぶ前に確定します。貨物軽自動車運送事業 届出済。`,
     url: "https://revive-toyama.jp/unpan",
     siteName: "re'vive 富山",
     locale: "ja_JP",
@@ -87,17 +103,22 @@ export const metadata: Metadata = {
   },
 };
 
-/** ① 料金の決まり方。この2行がこのページの主題 */
+/** ① 料金の決まり方。この3行がこのページの主題。どこまで動かすかで分かれる */
 const HOW_ROWS = [
   {
-    name: "運ぶ",
-    desc: "1点配送・お部屋からの搬出・自転車など、車を出して動かすもの",
-    price: "引越しと同じ計算式",
+    name: "同じ部屋の中だけ",
+    desc: "家具の移動・模様替え・組み立て・設置。運びません",
+    price: yen(INDOOR_FEE),
   },
   {
-    name: "運ばない",
-    desc: "室内での家具移動・模様替え・家具の組み立て・設置だけ",
-    price: yen(INDOOR_FEE),
+    name: "建物の中",
+    desc: "階や部屋をまたぐ移動。車は出しません",
+    price: `${yen(inBuildingTotal({ items: 1, floors: 0, disassembles: 0, installs: 0 }))}〜`,
+  },
+  {
+    name: "建物の外へ",
+    desc: "1点配送・お部屋からの搬出・自転車など、車を出して動かすもの",
+    price: "引越しと同じ計算式",
   },
 ];
 
@@ -132,9 +153,9 @@ export default function UnpanPage() {
       {/* ② 許認可 */}
       <LicenseStrip />
 
-      {/* ③ 料金。決まり方 → 運ぶ場合 → 運ばない場合 の順。
+      {/* ③ 料金。決まり方 → ③建物の外へ（運ぶ場合の表）→ ①同じ部屋の中 → ②建物の中 の順。
           この順番でないと、8,000円と21,000円が並んでいる理由が分からない */}
-      <Split kicker="料 金" title="「運ぶ」か「運ばない」かで分かれます" first>
+      <Split kicker="料 金" title="どこまで動かすかで、3つに分かれます" first>
         <PriceTable head={["ご依頼の内容", "料金の決まり方"]} rows={HOW_ROWS} />
 
         {/* 運ぶ場合。金額は lib/pricing.ts から算出している。ここに書かない */}
@@ -158,14 +179,44 @@ export default function UnpanPage() {
           />
         </div>
 
-        {/* 運ばない場合。車を出さないので距離料が発生しない＝式に載らない金額 */}
+        {/* ① 同じ部屋の中だけ。定額。車も出さず、部屋も出ない */}
         <Spec
-          label="運 ば な い 場 合"
-          value={`室内での家具移動・模様替え・家具の組み立て・設置だけ　${yen(INDOOR_FEE)}`}
+          label="同 じ 部 屋 の 中 だ け"
+          value={`家具の移動・模様替え・組み立て・設置だけ　${yen(INDOOR_FEE)}`}
           small
         >
-          {"お住まいの中だけで完結する作業です。車を出さないぶん、距離の加算がありません。大型家具の位置替え、レイアウト変更、通販で届いた家具の組み立て、洗濯機や冷蔵庫の設置だけ、といったご依頼が入ります。"}
+          {"お部屋の中だけで完結する作業です。大型家具の位置替え、レイアウト変更、通販で届いた家具の組み立て。車も出さず、お部屋からも出ないぶん、いちばんお安くなります。"}
         </Spec>
+
+        {/* ② 建物の中。車は出さないが階・部屋をまたぐ。2026-09-24 新設 */}
+        <Spec
+          label="建 物 の 中 を 移 動 す る 場 合"
+          value={`出動料 ${yen(DEPART)} ＋ 1点につき ${yen(INBUILDING_MOVE_FEE)}`}
+          small
+        >
+          {`同じマンション・同じ建物の中で、階や部屋をまたいで動かす場合です。車を出さないので距離の加算はありません。エレベーターがない場合は1フロアにつき ${yen(STAIRS_FEE)}、家具の分解・組み立ては1点につき ${yen(DISASSEMBLE_FEE)}、洗濯機の取り外し・設置は1点につき ${yen(INSTALL_FEE)} を加算します。冷蔵庫は置くだけなので移動のぶんだけです。合計が ${yen(INBUILDING_CAP)} を超える場合は、引越しとして承ったほうがお安くなりますので、そちらでお見積りします。`}
+        </Spec>
+
+        <PriceTable
+          head={["建物の中を移動する例（作業員2名・エレベーターあり）", "お支払額"]}
+          rows={[
+            {
+              name: "洗濯機（ドラム式）1点",
+              desc: "取り外し・設置つき",
+              price: yen(inBuildingTotal({ items: 1, floors: 0, disassembles: 0, installs: 1 })),
+            },
+            {
+              name: "冷蔵庫1点",
+              desc: "移動と設置",
+              price: yen(inBuildingTotal({ items: 1, floors: 0, disassembles: 0, installs: 0 })),
+            },
+            {
+              name: "洗濯機（ドラム式）・冷蔵庫・ベッドの3点",
+              desc: "洗濯機は取り外し・設置、ベッドは解体・組み立て",
+              price: yen(inBuildingTotal({ items: 3, floors: 0, disassembles: 1, installs: 1 })),
+            },
+          ]}
+        />
       </Split>
 
       {/* ④ 積める量。**断面図は使わない**（/moving のものを流用しない）。
