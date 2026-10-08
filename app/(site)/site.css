@@ -1990,8 +1990,317 @@ body.rv,
   .rv .tp-flow .v { font-size: 30px; }
 }
 
+/* ==================================================================
+   91_top_lower：トップの下半分（許認可の帯 〜 最後の案内）
+   見た目の正は参考モック（top_mock_20261008/Main.dc.html）の「下半分」。
+   ★ここも .tp / tp-* だけで組んである。ほかのページの部品
+     （.lic .cta .faq .reasons .split）には1行も触れていない。
+   ================================================================== */
+
+/* 下半分の節は、見出しと中身の間が 44px（上半分は 48px） */
+.rv .tp-svc .tp-sec-in,
+.rv .tp-nums .tp-sec-in,
+.rv .tp-pol .tp-sec-in { gap: 44px; }
+
+/* スクロールで下から浮き上がる。**使えるブラウザだけ。**使えなければ動かさない（最初から見えている）。
+   ⚠ transform ではなく translate を動かしている。animation の fill が効いている間は
+      その値が通常の指定に勝つので、transform を使うとカードの :hover（4px 浮く）が効かなくなる。 */
+@keyframes tp-rise { from { opacity: 0; translate: 0 28px; } to { opacity: 1; translate: 0 0; } }
+@supports (animation-timeline: view()) {
+  .rv .tp-rise {
+    animation: tp-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+/* ---- 許認可の帯：紺の地にバッジ。上の「料金のしくみ」と地続き ----
+   ⚠ padding をショートハンドで書かないこと。.tw の左右が 0 になる */
+.rv .tp-lic { background: var(--rv-navy); border-top: 1px solid rgba(250, 248, 243, 0.12); }
+.rv .tp-lic .tw {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  justify-content: center;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+.rv .tp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(250, 248, 243, 0.28);
+  border-radius: 999px;
+  color: var(--rv-paper);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.rv .tp-badge svg { flex: none; color: var(--rv-yellow); }
+@media (max-width: 480px) {
+  /* 古物商の行が2行に折れる幅。丸が潰れて見えるので角を小さくする */
+  .rv .tp-badge { border-radius: 20px; }
+}
+
+/* ---- できること：カード6枚 ---- */
+.rv .tp-svc { padding: 104px 0 96px; background: var(--rv-paper); }
+.rv .tp-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rv .tp-svc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 24px 24px;
+  background: #fff;
+  color: var(--rv-navy);
+  border: 2px solid var(--rv-navy);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--rv-navy);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.rv .tp-svc-card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 var(--rv-navy); }
+.rv .tp-svc-card:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 3px; }
+.rv .tp-svc-card .no { font-size: 20px; font-weight: 800; line-height: 1.3; color: var(--rv-yellow-shadow); }
+.rv .tp-svc-card .t { font-weight: 900; font-size: 22px; line-height: 1.35; }
+.rv .tp-svc-card .d { flex: 1; font-size: 14px; line-height: 1.8; color: var(--rv-sub); }
+.rv .tp-svc-card .p { font-size: 38px; font-weight: 800; line-height: 1.1; }
+.rv .tp-svc-card .p small { font-size: 15px; font-weight: 700; margin-left: 2px; }
+/* 「査定無料」は金額ではないので、数字の書体にしない */
+.rv .tp-svc-card .p.free { font-size: 26px; font-weight: 900; line-height: 1.6; color: var(--rv-green); }
+.rv .tp-svc-card .go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #E6E0D4;
+  font-weight: 900;
+  font-size: 14px;
+}
+.rv .tp-svc-card .go svg { transition: transform 0.2s; }
+.rv .tp-svc-card:hover .go svg { transform: translateX(4px); }
+/* re'vive_doc のカードだけ紺の地・グリーンの影 */
+.rv .tp-svc-card.doc { background: var(--rv-navy); color: var(--rv-paper); box-shadow: 0 6px 0 var(--rv-doc); }
+.rv .tp-svc-card.doc:hover { box-shadow: 0 10px 0 var(--rv-doc); }
+.rv .tp-svc-card.doc .no { font-family: var(--rv-ff-num); letter-spacing: 0.02em; color: var(--rv-doc); }
+.rv .tp-svc-card.doc .d { color: var(--rv-sub-on-navy); }
+.rv .tp-svc-card.doc .p { color: var(--rv-doc); }
+.rv .tp-svc-card.doc .go { border-top-color: rgba(250, 248, 243, 0.16); }
+@media (max-width: 860px) {
+  .rv .tp-svc { padding: 72px 0; }
+  .rv .tp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-cards { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- 先に出している数字：黄色の地、上下に紺の線 ---- */
+.rv .tp-nums {
+  background: var(--rv-yellow);
+  border-top: 3px solid var(--rv-navy);
+  border-bottom: 3px solid var(--rv-navy);
+  padding: 88px 0;
+}
+.rv .tp-nums .tp-eyebrow { color: var(--rv-navy); }
+.rv .tp-nums .tp-h2 { font-size: 40px; line-height: 1.35; }
+.rv .tp-nbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rv .tp-nb { display: flex; flex-direction: column; gap: 10px; padding: 0 28px; border-left: 3px solid var(--rv-navy); }
+.rv .tp-nb-k { font-weight: 900; font-size: 16px; }
+.rv .tp-nb-v { font-size: 88px; font-weight: 800; line-height: 1; }
+.rv .tp-nb-v small { font-size: 26px; margin-left: 4px; }
+.rv .tp-nb-d { font-size: 14px; line-height: 1.8; }
+@media (max-width: 860px) {
+  .rv .tp-nums { padding: 64px 0; }
+  .rv .tp-nums .tp-h2 { font-size: 32px; }
+  .rv .tp-nbs { grid-template-columns: minmax(0, 1fr); row-gap: 32px; }
+  .rv .tp-nb { padding: 0 20px; }
+  .rv .tp-nb-v { font-size: 72px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-nums .tp-h2 { font-size: 28px; }
+}
+
+/* ---- 4つの約束：黄色の丸に紺の番号、項目の間は紺の線 ---- */
+.rv .tp-pol { padding: 104px 0; background: var(--rv-paper); }
+.rv .tp-rs-list { list-style: none; display: flex; flex-direction: column; }
+.rv .tp-rs { display: flex; gap: 28px; padding: 32px 0; border-top: 2px solid var(--rv-navy); }
+.rv .tp-rs:last-child { border-bottom: 2px solid var(--rv-navy); }
+.rv .tp-rs-n {
+  flex: 0 0 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--rv-yellow);
+  border: 2px solid var(--rv-navy);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+}
+.rv .tp-rs-b { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.rv .tp-rs-b h3 { font-family: var(--rv-ff-zen); font-size: 24px; font-weight: 900; line-height: 1.4; letter-spacing: 0; }
+.rv .tp-rs-b p { font-size: 15px; line-height: 1.95; color: var(--rv-sub); max-width: 44em; }
+.rv .tp-rs-e {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #E7F0EC;
+  color: var(--rv-green);
+  font-size: 13px;
+  font-weight: 700;
+}
+@media (max-width: 860px) {
+  .rv .tp-pol { padding: 72px 0; }
+}
+@media (max-width: 480px) {
+  .rv .tp-rs { gap: 16px; padding: 26px 0; }
+  .rv .tp-rs-n { flex-basis: 48px; height: 48px; font-size: 24px; }
+  .rv .tp-rs-b h3 { font-size: 21px; }
+}
+
+/* ---- 会社：紺の面（角丸・下に黄色の影） ---- */
+.rv .tp-co-sec { padding: 0 0 104px; background: var(--rv-paper); }
+.rv .tp-co {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 56px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 28px;
+  box-shadow: 0 10px 0 var(--rv-yellow);
+}
+.rv .tp-co-hd { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.rv .tp-co .tp-eyebrow { color: var(--rv-yellow); }
+.rv .tp-co .tp-h2 { font-size: 36px; line-height: 1.35; color: var(--rv-paper); }
+.rv .tp-co-hd .tp-btn { margin-top: 8px; }
+.rv .tp-co-body { flex: 999 1 440px; min-width: 0; display: flex; flex-direction: column; }
+.rv .tp-co-dl > div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(250, 248, 243, 0.16);
+}
+.rv .tp-co-dl dt { font-weight: 900; font-size: 14px; line-height: 1.9; color: var(--rv-yellow); }
+.rv .tp-co-dl dd { font-size: 15px; line-height: 1.8; }
+/* WASTE_NOTICE。法務確認済みの一文をそのまま。小さい字で */
+.rv .tp-co-note {
+  padding-top: 18px;
+  border-top: 1px solid rgba(250, 248, 243, 0.16);
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--rv-sub-on-navy);
+}
+@media (max-width: 860px) {
+  .rv .tp-co-sec { padding-bottom: 80px; }
+  .rv .tp-co { padding: 36px 24px; gap: 28px; }
+  .rv .tp-co .tp-h2 { font-size: 30px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-co .tp-h2 { font-size: 26px; }
+  .rv .tp-co-dl > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+/* ---- よくあるご質問：薄いベージュの地、幅 960px まで。開け閉めは FaqTop.tsx ---- */
+.rv .tp-faq { background: #F1EDE4; padding: 104px 0; }
+.rv .tp-faq .tw { max-width: 960px; }
+.rv .tp-faq .tp-sec-in { gap: 40px; }
+.rv .tp-fqs { display: flex; flex-direction: column; gap: 12px; }
+.rv .tp-fq { background: #fff; border: 2px solid var(--rv-navy); border-radius: 16px; overflow: hidden; }
+/* h3 は見出しの階層のためだけ。見た目は中のボタンが持つ */
+.rv .tp-fq h3 { font: inherit; letter-spacing: 0; }
+.rv .tp-fq-q {
+  appearance: none;
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--rv-ff-zen);
+  font-weight: 900;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--rv-navy);
+  text-align: left;
+}
+.rv .tp-fq-q:focus-visible { outline: 3px solid var(--rv-green); outline-offset: -3px; border-radius: 14px; }
+.rv .tp-fq-mark { font-size: 24px; font-weight: 800; line-height: 1; color: var(--rv-yellow-shadow); }
+.rv .tp-fq-t { flex: 1; min-width: 0; }
+/* 黄色の丸の ＋。開くと −（縦棒が寝る） */
+.rv .tp-fq-pm {
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--rv-yellow);
+  transition: transform 0.3s;
+}
+.rv .tp-fq-pm::before,
+.rv .tp-fq-pm::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  top: 15px;
+  height: 2px;
+  background: var(--rv-navy);
+}
+.rv .tp-fq-pm::after { transform: rotate(90deg); transition: transform 0.3s; }
+.rv .tp-fq.open .tp-fq-pm { transform: rotate(180deg); }
+.rv .tp-fq.open .tp-fq-pm::after { transform: rotate(0); }
+.rv .tp-fq-a {
+  padding: 0 22px 22px 60px;
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--rv-sub);
+  animation: tp-up 0.35s ease both;
+}
+.rv .tp-fq-a a { color: var(--rv-navy); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.rv .tp-fq-a a:hover { color: var(--rv-green); }
+@media (max-width: 860px) {
+  .rv .tp-faq { padding: 72px 0; }
+}
+@media (max-width: 480px) {
+  .rv .tp-fq-q { padding: 18px 16px; gap: 10px; font-size: 16px; }
+  .rv .tp-fq-a { padding: 0 16px 20px; }
+}
+
+/* ---- 最後の案内：黄色の地、上に紺の線。下層ページの .cta（濃紺の帯）とは別物 ---- */
+.rv .tp-last { background: var(--rv-yellow); border-top: 3px solid var(--rv-navy); padding: 96px 0; }
+.rv .tp-last-in { display: flex; flex-wrap: wrap; gap: 40px; align-items: center; justify-content: space-between; }
+.rv .tp-last-l { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.rv .tp-last .tp-h2 { font-size: 52px; line-height: 1.25; }
+.rv .tp-last-l p { font-size: 16px; line-height: 1.9; max-width: 32em; }
+.rv .tp-last-r { flex: 0 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+/* 黄色の地の上なので、フォーカスの枠は紺（.tp-btn の既定は生成り色で、ここでは見えない） */
+.rv .tp-last .tp-btn:focus-visible { outline-color: var(--rv-navy); }
+.rv .tp-btn-n { background: var(--rv-navy); color: var(--rv-yellow); box-shadow: 0 5px 0 var(--rv-navy-2); }
+.rv .tp-btn-n:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--rv-navy-2); }
+.rv .tp-btn-n:active { transform: translateY(2px); box-shadow: 0 3px 0 var(--rv-navy-2); }
+.rv .tp-btn-nw { background: var(--rv-paper); color: var(--rv-navy); border: 2px solid var(--rv-navy); }
+.rv .tp-btn-nw:hover { background: #fff; }
+.rv .tp-btn-nw.sm { font-size: 15px; }
+.rv .tp-last-tel { font-size: 26px; font-weight: 800; letter-spacing: 0.02em; }
+.rv .tp-last-hrs { margin-top: 4px; font-size: 13px; font-weight: 700; line-height: 1.7; text-align: center; }
+@media (max-width: 860px) {
+  .rv .tp-last { padding: 72px 0; }
+  .rv .tp-last .tp-h2 { font-size: 40px; }
+  /* 1列に落ちたら、ボタンの列も幅いっぱいに */
+  .rv .tp-last-r { flex: 1 1 420px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-last .tp-h2 { font-size: 34px; }
+}
+
 /* ---- 動きを止める設定のとき：トップの新しい節の動きをすべて止める ----
-   金額の数え上げ（JS）は QuickEstimate.tsx の側で同じ設定を見て止めている。 */
+   数え上げ（JS）は QuickEstimate.tsx と CountUp.tsx の側で同じ設定を見て止めている。 */
 @media (prefers-reduced-motion: reduce) {
   .rv .tp,
   .rv .tp *,
