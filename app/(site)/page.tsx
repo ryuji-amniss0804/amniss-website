@@ -2,17 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import HeroTop from "./_components/HeroTop";
 import LicenseStrip from "./_components/LicenseStrip";
-import Split from "./_components/Split";
-import PriceTable from "./_components/PriceTable";
-import Spec from "./_components/Spec";
-import ReasonList from "./_components/ReasonList";
-import Cta from "./_components/Cta";
-import Faq from "./_components/Faq";
 import QuickEstimate from "./_components/QuickEstimate";
+import CountUp from "./_components/CountUp";
+import FaqTop from "./_components/FaqTop";
 import { MOVING_REASONS } from "./_reasons";
-import { INDOOR_FEE, INBUILDING_MOVE_FEE, SPOT_FEE } from "./_fees";
-import { AREA, HOURS, LICENSES, WASTE_NOTICE } from "@/lib/site";
-// ③の出張診断の金額。**ここに数字を書き写さないこと**（/pc /pc/price と同じ出どころ）。
+import { INDOOR_FEE, SPOT_FEE } from "./_fees";
+import { AREA, COMPANY, HOURS, LICENSES, LINE_URL, TEL, TEL_HREF, WASTE_NOTICE } from "@/lib/site";
+// 「できること」の re'vive_doc のカードに出す出張診断の金額。**ここに数字を書き写さないこと**（/pc /pc/price と同じ出どころ）。
 // lib/pc.ts はデータだけで CSS もコンポーネントも持たないので、(site) から読んでよい。
 // yen は lib/pricing にも同名の別物（あちらは「円」まで付ける）があるので必ず別名で入れる。
 import { DIAGNOSIS_FEE, yen as pcYen } from "@/lib/pc";
@@ -37,16 +33,20 @@ import {
  *
  * 【90_top_renewal】上の4つ（ヒーロー・流れる帯・料金の目安・料金のしくみ）を新しく組んだ。
  * 見た目・動き・文言の正は参考モック（top_mock_20261008/Main.dc.html）。
- * ②以降は中身も文言もそのままで、**色だけ**を新しい変数に合わせてある
- * （site.css の `.rv .top` が --ink などを差し替えている。ほかのページには効かない）。
+ *
+ * 【91_top_lower】その下（許認可の帯から最後の案内まで）も同じモックで組み直した。
+ * 文章は「説明」ではなく、ページに載せる短い言葉にしてある（本人の指摘）。**長く書き戻さないこと。**
+ * ほかのページと共有している部品（Cta・Faq・Split・ReasonList）はここでは使っていない。
+ * あちらの既定の見た目を変えないために、トップ用は tp-* のクラスでこのファイルに組んである。
+ * LicenseStrip だけは `variant="badge"` を足して共有している。
  *
  * 【料金の出どころ】**lib/pricing.ts**。
  * 引ける数字は引く。**このファイルに金額を書き足さないこと。**
  * 式から出ない8,000円（法人スポット便・室内作業）だけは _fees.ts から引く。
  * /unpan /houjin と同じ定数を見ているので、3ページでずれることがない。
  *
- * 【③ メニュー と ⑧ FAQ は、同じ数字を2回出す】
- * 12,000／8,000／20,000／30,000 は、どちらの節でも同じ定数から組んでいる。
+ * 【「できること」と FAQ は、同じ数字を2回出す】
+ * 運搬（CARRY_FROM）と当日（TOUJI_FULL）の金額は、どちらの節でも同じ定数から組んでいる。
  * **片方だけ手で書き換えられる状態を作らないこと。**1円ずれたらそこで終わる。
  *
  * 【本文に数字を埋め込まないこと】
@@ -54,8 +54,9 @@ import {
  * 文字列はテンプレートリテラルで1本にしてから渡す。
  *
  * 【変えてはいけない文言】
- *  - WASTE_NOTICE（一般廃棄物収集運搬業の許可がない旨）
- *  - ReasonList の4項目（_reasons.ts。/moving と共通）
+ *  - WASTE_NOTICE（一般廃棄物収集運搬業の許可がない旨。会社の節に**1回だけ**そのまま出す）
+ *  - 「4つの約束」の4項目（_reasons.ts。/moving と共通。直すなら向こうで）
+ *  - FAQ「不用品の処分」の答えの電話番号（富山市の戸別収集）
  *
  * 「不用品回収」「不用品処分」「引き取り」「処分します」をサービスとして書かない。
  * 「格安」「業界最安」「絶対」「100%」「積み放題」、口コミ、他社比較も書かない。
@@ -78,6 +79,17 @@ const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijit
 const TOUJI_FULL = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "touji" });
 /** 日帰りの上限。距離表のいちばん遠い行 */
 const MAX_KM = DIST[DIST.length - 1].km;
+
+/**
+ * 「先に出している数字」の一言に出す地名。**距離表（DIST）に載っている所だけを書く。**
+ * 表から行が消えたのに「日帰りで」と書いたままになるのを、ビルドで止める。
+ */
+const DAYTRIP_PLACES = ["長野", "名古屋"];
+for (const place of DAYTRIP_PLACES) {
+  if (!DIST.some((d) => d.area.split("・").includes(place))) {
+    throw new Error(`「${place}」が距離表（DIST）の area にありません。トップの「日帰りの上限」の一言を直してください`);
+  }
+}
 
 export const metadata: Metadata = {
   title: `富山の単身引越しと出張買取｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
@@ -110,70 +122,148 @@ const [KOBUTSU_ISSUER, KOBUTSU_NO] = (() => {
   return [v.slice(0, i), v.slice(i + 1)];
 })();
 
-/** ③ やっていること */
-const SERVICE_ROWS = [
+/**
+ * できること（カード6枚）。
+ *
+ * 金額は数字と単位に分けている（単位だけ小さくするため。site.css の .tp-svc-card .p small）。
+ * ⚠ 当日の行は「〜」を外さないこと。式から一意に出るのは建物の条件が0のときだけで、
+ *    3階以上の階段や時刻指定にも当日の係数が掛かる。
+ * ⚠ 法人スポット便と出張診断は式から出ない（_fees.ts の SPOT_FEE、lib/pc.ts の DIAGNOSIS_FEE）。
+ *    /houjin /pc と同じ定数。pcYen は「円」を付けないので、単位の側で付ける。
+ */
+type ServiceRow = {
+  /** 左上の番号。re'vive_doc のカードだけは名前を出す */
+  no: string;
+  name: string;
+  desc: string;
+  href: string;
+  /** 金額（3桁区切り・単位なし）と単位。金額でない行は free を使う */
+  price?: string;
+  unit?: string;
+  /** 金額の代わりに出す言葉（深緑）。数字の書体にしない */
+  free?: string;
+  /** re'vive_doc のカード。紺の地・グリーン（--rv-doc）の影 */
+  doc?: boolean;
+};
+
+const SERVICE_ROWS: ServiceRow[] = [
   {
+    no: "01",
     name: "単身引越し",
-    desc: "ワンルーム〜1K　富山市内・作業員2名・平日",
-    price: `${yen(MOVING_FROM)}〜`,
+    desc: "ワンルーム〜1K一式。富山市内・平日の場合",
+    price: fmt(MOVING_FROM),
+    unit: "円〜",
+    href: "/moving",
   },
   {
+    no: "02",
     name: "家具・家電の運搬",
-    desc: "大型1〜2点　富山市内・作業員2名・平日",
-    price: `${yen(CARRY_FROM)}〜`,
+    desc: "冷蔵庫や洗濯機を1〜2点。富山市内・平日の場合",
+    price: fmt(CARRY_FROM),
+    unit: "円〜",
+    href: "/unpan",
   },
   {
-    // ここは14では「県外へのお引越し（長距離）30,000円〜」だった。
-    // 43,500円は実在するが（1K一式・2名・当日）、**富山市内の額**で、
-    // 距離表はそもそも「片道◯kmで＋◯円」の加算表であり県内／県外の境目を持たない。
-    // ラベルと数字が結び付いていなかったので、17_hero で当日の行に差し替えた。
-    // 17では「〜を付けない・確定額」としていたが、それが間違い。式から一意に出るのは
-    // ④建物の条件が0のときだけで、3階以上の階段(+2,000)や時刻指定(+2,000)にも
-    // ×1.50 が掛かる。列の見出しが「料金の目安」なので、他の4行と同じく「〜」を付ける。
-    // 長距離は ④「日帰りの上限 300km」がすでに言っているので、ここでは重ねない。
+    no: "03",
     name: "当日のお引越し",
-    desc: "市内・ワンルーム〜1K一式・作業員2名",
-    price: `${yen(TOUJI_FULL)}〜`,
+    desc: "空きがあれば、その日のうちに伺います。",
+    price: fmt(TOUJI_FULL),
+    unit: "円〜",
+    href: "/moving",
   },
   {
-    // 8,000円は式から出ない（_fees.ts の SPOT_FEE）。/houjin と同じ定数。
-    // 14の「富山県内・1配送　時間チャーターは1時間8,000円（2時間〜）」は、
-    // 料金が決まる前の文言で、8/6の決定（1時間から・割増なし）と矛盾していた。
+    no: "04",
     name: "法人スポット便",
-    desc: "富山市内・1時間まで　当日でも土日祝でも割増なし",
-    price: `${yen(SPOT_FEE)}〜`,
+    desc: "1時間まで。当日も土日祝も同じ料金です。",
+    price: fmt(SPOT_FEE),
+    unit: "円〜",
+    href: "/houjin",
   },
   {
+    no: "05",
     name: "出張買取",
-    desc: "査定のみで終わっても費用はいただきません",
-    price: "査定無料",
+    desc: "査定だけでも無料です。",
+    free: "査定無料",
+    href: "/kaitori",
+  },
+  {
+    doc: true,
+    no: "re'vive_doc",
+    name: "パソコンの修理・診断",
+    desc: "出張で診断して、直せるかどうかを報告書でお渡しします。",
+    price: pcYen(DIAGNOSIS_FEE),
+    unit: "円　出張診断",
+    href: "/pc",
   },
 ];
 
 /**
- * ④ 先に出している数字。
- * 数字と単位を分けているのは、単位だけ 22px に落とすため（site.css の .nums .u）。
+ * 先に出している数字。画面に入ったら 0 から数え上げる（CountUp）。
+ * 数字と単位を分けているのは、単位だけ小さくするため（site.css の .tp-nb-v small）。
  */
-const NUMBERS = [
+const NUMBERS: { label: string; to: number; digits?: number; unit: string; note: string }[] = [
   {
-    label: "積 め る 量",
-    value: CAP.toFixed(1),
+    label: "積める量",
+    to: CAP,
+    digits: 1,
     unit: "m³",
-    note: "荷室3.78m³のうち、隙間を引いた実効値。品目ごとの容積も全部出しています。",
+    note: "ワンルーム〜1Kの荷物が、1台に収まります。",
   },
   {
-    label: "富 山 市 内 ・ 平 日",
-    value: fmt(MOVING_FROM),
+    label: "富山市内・平日",
+    to: MOVING_FROM,
     unit: "円",
-    note: "ワンルーム〜1K、作業員2名。出動料・養生・搬入後の設置まで込みです。",
+    note: "ワンルーム〜1K一式。養生と設置まで込み。",
   },
   {
-    label: "日 帰 り の 上 限",
-    value: String(MAX_KM),
+    label: "日帰りの上限",
+    to: MAX_KM,
     unit: "km",
-    note: "拘束13時間から積込・搬入・休憩を引いた運転可能時間で計算しています。",
+    note: `${DAYTRIP_PLACES.join("・")}も、日帰りで。`,
   },
 ];
+
+/**
+ * よくあるご質問。金額と距離はすべて定数から。**本文に数字を書かないこと。**
+ * 「できること」と同じ数字を2回出している（CARRY_FROM・TOUJI_FULL）。
+ * 答えは必ずテンプレートリテラルで1本にする。「シミュレーター」の語は FaqTop がリンクにする。
+ */
+const FAQ = [
+  {
+    q: "見積りはどうやって出ますか。",
+    a: `出動料${yen(DEPART)}＋荷物＋距離に、日程を掛けた金額です。シミュレーターで、そのまま出せます。`,
+  },
+  {
+    q: "1点だけでもお願いできますか。",
+    a: `はい。冷蔵庫1点なら、富山市内・平日で${yen(CARRY_FROM)}です。同じ部屋の中で動かすだけなら${yen(INDOOR_FEE)}です。`,
+  },
+  {
+    q: "当日でもお願いできますか。",
+    a: `空きがあればお受けします。ワンルーム〜1K一式・富山市内で${yen(TOUJI_FULL)}からです。`,
+  },
+  {
+    q: "荷物が積みきれるか分かりません。",
+    a: `シミュレーターで品目を選ぶと、積めるかどうかがわかります。積みきれなければ、同じ日に2回に分けて運べます（片道${ROUNDTRIP_MAX_KM}kmまで）。`,
+  },
+  {
+    // 許可がないことを先に言う。★富山市の戸別収集の番号は変えてはいけない
+    q: "不用品の処分もお願いできますか。",
+    a: "できません。廃棄物を回収する許可がないためです。売れる物は買取でご相談ください。処分は富山市の戸別収集（076-428-4040）へ。",
+  },
+  {
+    q: "法人ですが、請求書払いはできますか。",
+    a: "できます。月締めです。",
+  },
+];
+
+/** カードの「くわしく」の矢印 */
+function Arrow() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+      <path d="M3 8h9M8 3.5L12.5 8 8 12.5" />
+    </svg>
+  );
+}
 
 /** 流れる帯 */
 const MARQUEE = [
@@ -254,163 +344,180 @@ export default function TopPage() {
         </div>
       </section>
 
-      {/* ② 許認可 */}
-      <LicenseStrip />
+      {/* 許認可の帯。紺の地にバッジ3つ。料金のしくみ（紺）と地続きになる */}
+      <LicenseStrip variant="badge" />
 
-      {/* ③ メニュー */}
-      <Split kicker="事 業" title="メニュー" first>
-        <PriceTable head={["サービス", "料金の目安"]} rows={SERVICE_ROWS} />
-        {/* 表の並び（単身引越し → 運搬 → 当日 → 法人 → 買取）と同じ順で出す。
-            /unpan /houjin は段階4でできたので、17_hero で足した */}
-        <p className="pnote">
-          くわしくは
-          <Link className="tl" href="/moving">
-            単身引越し
-          </Link>
-          {" ／ "}
-          <Link className="tl" href="/unpan">
-            家具・家電の運搬
-          </Link>
-          {" ／ "}
-          <Link className="tl" href="/houjin">
-            法人のお客様
-          </Link>
-          {" ／ "}
-          <Link className="tl" href="/kaitori">
-            出張買取
-          </Link>
-          {" ／ "}
-          <Link className="tl" href="/pc">
-            パソコン修理
-          </Link>
-        </p>
-
-        {/* 89 パソコン修理（4つ目の事業）の案内。**新しい節を作らないこと。**
-            トップの Split は 白 → tint → 白 → tint と交互に並んでいて、
-            あいだに1つ挟むと ④以降の背景色が全部ずれる。
-            ③が「事業／メニュー」の節なので、ここに置くのが場所として正しい。
-            上の .pnote の文中リンク（一覧の一部）は残す。**役割が違う。**
-            区切りは既存の `.pt`（margin-top:46px）だけ。site.css に何も足さない。
-            ⚠ 金額は lib/pc.ts の DIAGNOSIS_FEE から組む。**直書きしないこと。**
-              /pc /pc/price と同じ出どころ。2か所に書くと値上げのとき片方だけ残る。
-              pcYen は「円」を付けない（lib/pricing の yen とは別物）ので、文の側で付ける。
-            本文は {} を混ぜると text node が割れて <!-- --> が入るので、文字列1本で渡す */}
-        <div className="pt">
-          <h3>パソコンの修理・診断もしています</h3>
-          <p className="pnote">
-            {`富山県全域に伺います。まず測って、直せるか直せないかを診断報告書でお出しします。出張診断${pcYen(
-              DIAGNOSIS_FEE,
-            )}円、ご相談とお見積りは無料です。`}
-          </p>
-          <div className="go">
-            <Link className="btn" href="/pc">
-              パソコン修理のページへ
-            </Link>
+      {/* できること。カード6枚。文中リンクの一覧と「パソコンの修理・診断もしています」の節は、
+          このカードが代わりになるので外した（91_top_lower） */}
+      <section className="tp tp-svc" id="svc">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">SERVICE</p>
+            <h2 className="tp-h2">できること</h2>
+            <p className="tp-sec-lead">{`軽バン1台で、${AREA}へ。`}</p>
+          </div>
+          <div className="tp-cards">
+            {SERVICE_ROWS.map((r) => (
+              <Link href={r.href} className={r.doc ? "tp-svc-card doc tp-rise" : "tp-svc-card tp-rise"} key={r.name}>
+                <span className={r.doc ? "no" : "no tp-num"}>{r.no}</span>
+                <span className="t">{r.name}</span>
+                <span className="d">{r.desc}</span>
+                {r.free ? (
+                  <span className="p free">{r.free}</span>
+                ) : (
+                  <span className="p tp-num">
+                    {r.price}
+                    <small>{r.unit}</small>
+                  </span>
+                )}
+                <span className="go">
+                  {r.doc ? "専用ページへ" : "くわしく"}
+                  <Arrow />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
-      </Split>
+      </section>
 
-      {/* ④ 先に出している数字。3つ横並び。罫線で区切る。箱で囲まない */}
-      <Split kicker="先 に 出 し て い る 数 字" title="積める量も、上限も、先に書いてあります" tint>
-        <div className="nums">
-          {NUMBERS.map((n) => (
-            <div className="it" key={n.label}>
-              <div className="k">{n.label}</div>
-              <div className="v mincho">
-                {n.value}
-                <span className="u">{n.unit}</span>
+      {/* 先に出している数字。黄色の地。数字は CAP・MOVING_FROM・MAX_KM。**直書きしない** */}
+      <section className="tp tp-nums">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">NUMBERS</p>
+            <h2 className="tp-h2">
+              積める量も、上限も、
+              <br />
+              ぜんぶ先に。
+            </h2>
+          </div>
+          <div className="tp-nbs">
+            {NUMBERS.map((n) => (
+              <div className="tp-nb" key={n.label}>
+                <span className="tp-nb-k">{n.label}</span>
+                <span className="tp-nb-v tp-num">
+                  <CountUp to={n.to} digits={n.digits} />
+                  <small>{n.unit}</small>
+                </span>
+                <span className="tp-nb-d">{n.note}</span>
               </div>
-              <p>{n.note}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4つの約束。/moving と同じ4項目（_reasons.ts）を、トップの見た目で出す。
+          ReasonList は使わない（あちらの見た目を変えないため） */}
+      <section className="tp tp-pol">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">POLICY</p>
+            <h2 className="tp-h2">
+              当日、困らないための
+              <br />
+              {`${MOVING_REASONS.length}つの約束`}
+            </h2>
+          </div>
+          <ol className="tp-rs-list">
+            {MOVING_REASONS.map((r, i) => (
+              <li className="tp-rs tp-rise" key={r.title}>
+                <span className="tp-rs-n tp-num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div className="tp-rs-b">
+                  <h3>{r.title}</h3>
+                  <p>{r.body}</p>
+                  {r.evidence ? <span className="tp-rs-e">{r.evidence}</span> : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* 会社。トップに来る人は「ちゃんとした業者か」を見に来るので、そこに答える。
+          許認可の文言は lib/site.ts の LICENSES から組む。番号を書き写さない。
+          番号は .nw で束ねて、行末で「第」と数字に割れないようにしている。
+          ★いちばん下の一文（WASTE_NOTICE）は法務確認済み。**消さない・変えない** */}
+      <section className="tp tp-co-sec">
+        <div className="tw">
+          <div className="tp-co tp-rise">
+            <div className="tp-co-hd">
+              <p className="tp-eyebrow tp-num">COMPANY</p>
+              <h2 className="tp-h2">来るのは、こんな業者です</h2>
+              <Link href="/company" className="tp-btn tp-btn-o">
+                会社概要をみる
+              </Link>
             </div>
-          ))}
+            <div className="tp-co-body">
+              <dl className="tp-co-dl">
+                <div>
+                  <dt>対応エリア</dt>
+                  <dd>
+                    {`${AREA}。県外は片道${MAX_KM}kmまで日帰り。`}
+                    <br />
+                    大阪・東京方面は1泊2日で。
+                  </dd>
+                </div>
+                <div>
+                  <dt>受付</dt>
+                  <dd>{HOURS}</dd>
+                </div>
+                <div>
+                  <dt>許認可</dt>
+                  <dd>
+                    {`${LICENSES[0].label} ${LICENSES[0].value}`}
+                    <br />
+                    {`${LICENSES[1].label} ${KOBUTSU_ISSUER} `}
+                    <span className="nw">{KOBUTSU_NO}</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>運営</dt>
+                  <dd>{`${COMPANY.legal}（${LICENSES[2].label}）`}</dd>
+                </div>
+              </dl>
+              <p className="tp-co-note">{WASTE_NOTICE}</p>
+            </div>
+          </div>
         </div>
-      </Split>
+      </section>
 
-      {/* ⑤ 図版（シミュレーターへの導線）は 90_top_renewal で外した。上の「料金の目安」が代わり。
-          1つ抜けたぶん、⑥⑦⑧の tint を入れ替えて 白 → tint の交互を保っている */}
-
-      {/* ⑥ 考え方。/moving と同じ4項目（_reasons.ts） */}
-      <Split kicker="考 え 方" title="あとから困らないように">
-        <ReasonList items={MOVING_REASONS} />
-      </Split>
-
-      {/* ⑦ 会社。トップに来る人は「ちゃんとした業者か」を見に来るので、そこに答える */}
-      <Split kicker="会 社" title="お問い合わせの前に" tint>
-        <Spec label="対 応 エ リ ア と 受 付" value={`${AREA}　${HOURS}`}>
-          {`富山県富山市を拠点に、県内全域へ伺います。県外へのお引越しは片道${MAX_KM}kmまで日帰り、大阪・東京方面は1泊2日で承ります。`}
-        </Spec>
-
-        {/* 許認可の文言は lib/site.ts の LICENSES から組む。番号を書き写さない。
-            番号は .nw で束ねて、行末で「第」と数字に割れないようにしている。
-            下の一文（WASTE_NOTICE）は法務確認済み。変えないこと */}
-        <Spec
-          label="許 認 可"
-          value={
-            <>
-              {`${LICENSES[0].label} ${LICENSES[0].value}　／　${LICENSES[1].label} ${KOBUTSU_ISSUER} `}
-              <span className="nw">{KOBUTSU_NO}</span>
-            </>
-          }
-          small
-        >
-          {`${LICENSES[2].label}は${LICENSES[2].value}に加入しています。${WASTE_NOTICE}`}
-        </Spec>
-
-        <div className="go">
-          <Link className="tl" href="/company">
-            会社概要をみる
-          </Link>
+      {/* よくあるご質問。**id="faq" はヘッダーとフッターの「よくある質問」の飛び先。変えないこと。**
+          /moving にも FAQ はあるが、そちらへ寄せない。買取を見に来た人が
+          引越しの FAQ に着地するのは、リンク切れより悪い */}
+      <section className="tp tp-faq" id="faq">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">FAQ</p>
+            <h2 className="tp-h2">よくあるご質問</h2>
+          </div>
+          <FaqTop items={FAQ} />
         </div>
-      </Split>
+      </section>
 
-      {/* ⑧ よくあるご質問。**id="faq" はヘッダーとフッターの「よくある質問」の飛び先。**
-          14の時点でこの節が無く、`/#faq` が2か所からトップの先頭に着地していた。
-
-          /moving にも FAQ はあるが、そちらへ寄せない。**買取を見に来た人が
-          引越しのFAQに着地するのは、リンク切れより悪い。**着地はするので、
-          壊れていることに誰も気づかない。
-
-          金額はすべて定数から。③メニュー と同じ数字を2回出しているので、
-          **本文に書かないこと。**（21,000 ＝ CARRY_FROM、8,000 ＝ INDOOR_FEE、
-          43,500 ＝ TOUJI_FULL、5,000 ＝ DEPART、1.50 ＝ COEF.touji、75km ＝ ROUNDTRIP_MAX_KM、
-          4,000 ＝ INBUILDING_MOVE_FEE〈建物の中での移動・1点につき。2026-09-24 新設〉）
-
-          文字列は必ずテンプレートリテラルで1本にする。
-          JSX で `{yen(x)}です。` と割ると、React が境目に `<!-- -->` を入れる */}
-      <Split kicker="質 問" title="よくあるご質問" id="faq">
-        <Faq
-          items={[
-            {
-              q: "見積りはどうやって出ますか。",
-              a: `計算式を全部公開しています。出動料${yen(DEPART)}に、荷物の量と距離と建物の条件を足して、日程で掛けるだけです。お見積りシミュレーターで、ご自身の条件のまま金額が出せます。`,
-            },
-            {
-              q: "1点だけでもお願いできますか。",
-              a: `お受けします。富山市内・平日・作業員2名で${yen(CARRY_FROM)}です。同じお部屋の中で動かすだけなら${yen(INDOOR_FEE)}、同じ建物の中で階や部屋をまたぐ場合は出動料＋1点につき${yen(INBUILDING_MOVE_FEE)}です。`,
-            },
-            {
-              q: "当日でもお願いできますか。",
-              a: `空きがあればお受けします。当日のご依頼は日程係数が${COEF.touji.coef.toFixed(2)}になります。富山市内・ワンルーム〜1K一式・作業員2名で${yen(TOUJI_FULL)}からです。`,
-            },
-            {
-              q: "荷物が積みきれるか分かりません。",
-              a: `お見積りシミュレーターで品目を選ぶと、軽バンに積めるかどうかが出ます。積みきれない場合は、片道${ROUNDTRIP_MAX_KM}kmまでなら、同じ日に2回に分けて運ぶ往復プランをご案内します。`,
-            },
-            {
-              // 許可がないことを先に言う。富山市の戸別収集の番号は変えてはいけない文言
-              q: "不用品の処分もお願いできますか。",
-              a: "できません。当社は一般廃棄物収集運搬業の許可を受けていないためです。買取のご相談はお受けします。処分は富山市の戸別収集をご予約ください（076-428-4040）。",
-            },
-            {
-              q: "法人ですが、請求書払いはできますか。",
-              a: "可能です。月締めに対応しています。",
-            },
-          ]}
-        />
-      </Split>
-
-      {/* ⑨ CTA。既定の文言。id="cta" はヘッダーの「見積りを依頼」の飛び先 */}
-      <Cta />
+      {/* 最後の案内。**id="cta" はヘッダーの「見積りを依頼」の飛び先。**
+          下層ページの Cta（濃紺の帯）とは別に組んである。あちらの見た目と文言は変えていない */}
+      <section className="tp tp-last" id="cta">
+        <div className="tw tp-last-in">
+          <div className="tp-last-l">
+            <h2 className="tp-h2">まずは、写真を1枚。</h2>
+            <p>運びたい物、売りたい物を撮って送ってください。型番が写っていれば、その場で概算をお伝えします。</p>
+          </div>
+          <div className="tp-last-r">
+            <a className="tp-btn tp-btn-n" href={LINE_URL} target="_blank" rel="noopener noreferrer">
+              LINEで写真を送る
+            </a>
+            <a className="tp-btn tp-btn-nw" href={TEL_HREF}>
+              <span className="tp-num tp-last-tel">{TEL}</span>
+            </a>
+            <Link className="tp-btn tp-btn-nw sm" href="/contact">
+              見積りフォーム
+            </Link>
+            <p className="tp-last-hrs">{`受付 ${HOURS} ／ ${AREA}`}</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
