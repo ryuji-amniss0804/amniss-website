@@ -5,20 +5,31 @@ import { usePathname } from "next/navigation";
 import { COMPANY, HOURS, NAV, TEL } from "@/lib/site";
 
 /**
- * ヘッダー。sticky top:0。
+ * ヘッダー。紺の帯で sticky top:0。
+ * **トップ（/）だけ、ヒーローの写真の上に重ねる**（透明・白文字・position:absolute）。
+ * 見た目の切り替えは site.css の `header.site.on-top`。
  * 960px 以下ではナビと電話番号を隠す（下部の MobileBar が受ける）。
  * ハンバーガーメニューは置かない。開閉する箱を増やさない方針。
  */
+
+/** ロゴは「re'vive」（Barlow Condensed）と「富山」に分けて組む。文字は COMPANY.brand から取る */
+const [BRAND_LATIN, BRAND_PLACE] = (() => {
+  const v: string = COMPANY.brand;
+  const i = v.indexOf(" ");
+  if (i < 0) throw new Error(`COMPANY.brand に半角スペースがありません: ${v}`);
+  return [v.slice(0, i), v.slice(i + 1)];
+})();
+
 export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="site">
+    <header className={pathname === "/" ? "site on-top" : "site"}>
       <div className="w hd-in">
         <div className="logo">
           <Link href="/">
-            {COMPANY.brand}
-            <span>{COMPANY.latin}</span>
+            <b>{BRAND_LATIN}</b>
+            <span>{BRAND_PLACE}</span>
           </Link>
         </div>
 

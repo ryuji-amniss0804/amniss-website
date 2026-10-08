@@ -67,8 +67,8 @@ export type Dist = {
 
 export const DIST: Dist[] = [
   { km: 15, fee: 0, area: "富山市内" },
-  { km: 30, fee: 3000, area: "射水・滑川" },
-  { km: 50, fee: 6000, area: "高岡・氷見・黒部・南砺" },
+  { km: 30, fee: 3000, area: "射水・滑川・高岡" },
+  { km: 50, fee: 6000, area: "氷見・黒部・南砺" },
   { km: 75, fee: 12000, area: "金沢" },
   { km: 100, fee: 16000, area: "七尾・上越・飛騨高山" },
   { km: 150, fee: 28000, area: "長野・松本" },

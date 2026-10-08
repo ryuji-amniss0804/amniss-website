@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
+import { Barlow_Condensed, Noto_Sans_JP, Noto_Serif_JP, Zen_Kaku_Gothic_New } from "next/font/google";
 import "./site.css";
 import Header from "./_components/Header";
 import Footer from "./_components/Footer";
@@ -37,6 +37,27 @@ const notoSerif = Noto_Serif_JP({
 });
 
 /**
+ * 90_top_renewal で足した2書体。**使うのはトップ・ヘッダー・フッターだけ。**
+ * ほかのページの本文は Noto のまま（site.css で .tp / header.site / footer.site にだけ当てている）。
+ * 本文が Zen Kaku Gothic New、数字（金額・km）が Barlow Condensed。
+ */
+const zenKaku = Zen_Kaku_Gothic_New({
+  subsets: ["latin"],
+  weight: ["500", "700", "900"],
+  display: "swap",
+  variable: "--rv-font-zen",
+  preload: false,
+});
+
+const barlow = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  display: "swap",
+  variable: "--rv-font-num",
+  preload: false,
+});
+
+/**
  * 単身引越しの下限額。ワンルーム〜1K一式・富山市内・作業員2名・平日。
  * app/(site)/page.tsx の MOVING_FROM と同じ条件。**数字を書き写さないこと。**
  */
@@ -64,7 +85,7 @@ export const metadata: Metadata = {
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`rv-html ${notoSans.variable} ${notoSerif.variable}`}>
+    <html lang="ja" className={`rv-html ${notoSans.variable} ${notoSerif.variable} ${zenKaku.variable} ${barlow.variable}`}>
       <head>
         <JsonLd />
         <Ga4 />
