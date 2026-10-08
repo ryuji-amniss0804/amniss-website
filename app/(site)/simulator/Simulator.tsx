@@ -132,7 +132,7 @@ function InitFromUrl({ apply }: { apply: (init: UrlInit) => void }) {
 }
 
 /** 積みきれないとき／300km超のご提案 */
-type Plan = { tag?: string; title: string; body: ReactNode; evidence?: string };
+type Plan = { tag?: string; title?: string; body: ReactNode; evidence?: string };
 
 export default function Simulator() {
   const router = useRouter();
@@ -357,7 +357,7 @@ export default function Simulator() {
 
   if (l.items > 0 && !dist) {
     plans.push({
-      title: `片道${MAX_KM}kmを超えるため、日帰りができません`,
+      // 92b：見出しは外した。上の紺の面が「片道300kmを超えています」と言っているので、同じことを2回言わない
       // 92a：拘束時間（13時間）の説明は外した。/moving の「日帰りは、片道300kmまで」と同じ言い方にそろえる
       body: `日帰りは片道${MAX_KM}kmまで。${LONG_HAUL.map((h) => h.name.replace("方面", "")).join("・")}方面は1泊2日で、個別にお見積りします。`,
     });
@@ -766,9 +766,9 @@ export default function Simulator() {
         {plans.length ? (
           <div className="pp-plans">
             {plans.map((p) => (
-              <div className="pp-plan" key={p.title}>
+              <div className="pp-plan" key={p.title ?? "note"}>
                 {p.tag ? <span className="tag">{p.tag}</span> : null}
-                <h3>{p.title}</h3>
+                {p.title ? <h3>{p.title}</h3> : null}
                 <p>{p.body}</p>
                 {p.evidence ? <span className="tp-rs-e">{p.evidence}</span> : null}
               </div>
