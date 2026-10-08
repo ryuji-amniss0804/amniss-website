@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import Hero from "../_components/Hero";
-import Split from "../_components/Split";
+import PriceHero from "../_components/PriceHero";
 import Simulator from "./Simulator";
 
 /**
  * お見積りシミュレーター。
  *
- * 中身は D:\re'vive_toyama_marketing\price_simulator.html の移植（Simulator.tsx）。
+ * 【92_price_pages】トップ（90・91）と同じトーンに作り直した。
+ * 見た目・文言の正は参考モック（top_mock_20261008/Simulator.dc.html）。
  * 料金は lib/pricing.ts が唯一の出どころで、/moving の表と同じものを見ている。
  *
  * 計算そのものはページ内で完結させる。フォームへ移るのは、
  * **結果が出たあとに、その条件と金額を持っていくときだけ**（24_form §2）。
- * 「この内容で見積りを依頼する」で sessionStorage に置き、/contact が読む。
+ * 「この内容で見積りフォームへ」で sessionStorage に置き、/contact が読む。
  * 途中で /contact へ逃がすリンクは置かないこと。
  */
 
@@ -33,19 +33,18 @@ export const metadata: Metadata = {
 
 export default function SimulatorPage() {
   return (
-    <>
-      {/* 見出し・リードは price_simulator.html のヘッダーそのまま。
-          写真もボタンも置かない。すぐ下が入力なので、間に何も挟まないほうがいい */}
-      <Hero
-        size="md"
-        kicker="お 見 積 り シ ミ ュ レ ー タ ー"
-        title="運ぶ物を選ぶだけで、その場で引越し料金が出ます。"
-        lead="お電話も入力フォームも要りません。当社は料金の計算式を全部公開しているので、ご依頼の前にご自身で確認できます。ここで出た金額が、当日お支払いいただく金額です。作業後に増えることはありません。軽バン1台に積み切れない量になった場合も、その場でお伝えします。"
+    <div className="tp pp">
+      {/* ヒーロー。紺の地。写真もボタンも置かない。すぐ下が入力なので、間に何も挟まない */}
+      <PriceHero
+        small
+        kicker="お見積りシミュレーター"
+        title={["運ぶ物を選ぶだけで、", "金額が出ます。"]}
+        lead={["ここで出た金額が、当日のお支払いです。作業のあとに増えることはありません。"]}
       />
 
-      <Split kicker="お 見 積 り" title="運ぶ物を選んでください" first>
+      <div className="tw">
         <Simulator />
-      </Split>
-    </>
+      </div>
+    </div>
   );
 }

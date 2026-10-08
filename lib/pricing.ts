@@ -31,6 +31,17 @@ export const DISASSEMBLE_FEE = 3000;
 export const ROUNDTRIP_MAX_KM = 75;
 /** 階段。1フロアにつき */
 export const STAIRS_FEE = 2000;
+/**
+ * 階段の料金がかからない階の上限（車で運ぶ場合）。**2階までは出動料に込み。**
+ * 3階から、1フロアにつき STAIRS_FEE。数え方は下の stairFloors() ひとつだけ。
+ * 2026-10-08 本人の決定（cc_task/92 §1-1）。それまで「1フロアにつき」「上り下りするフロア数」と
+ * 書き方が3か所で食い違っていた。
+ * ⚠ 車を出さない「建物の中」（_fees.ts の inBuildingTotal）には使わない。
+ *    あちらは階の移動そのものが作業なので、エレベーターなしは1フロアから STAIRS_FEE。
+ */
+export const STAIRS_FREE_UPTO = 2;
+/** 階のセレクトに出すいちばん上の階 */
+export const STAIRS_MAX_FLOOR = 5;
 /** 時刻指定 */
 export const SLOT_FEE = 2000;
 /** 積み切れないときの往復プランで、作業料に掛ける割合 */
@@ -99,7 +110,7 @@ export const COEF: Record<CoefKey, { coef: number; label: string }> = {
 
 /** /simulator の選択肢。price_simulator.html の radio の文言そのまま */
 export const COEF_OPTIONS: { key: CoefKey; label: string; note?: string }[] = [
-  { key: "omakase", label: "日程おまかせ", note: "平日・当社が日を選ぶ" },
+  { key: "omakase", label: "日程おまかせ", note: "平日のうち、こちらで日を選びます" },
   { key: "heijitsu", label: "平日", note: "4日以上先" },
   { key: "d3", label: "平日・3日以内" },
   { key: "donichi", label: "土日祝" },
@@ -109,8 +120,8 @@ export const COEF_OPTIONS: { key: CoefKey; label: string; note?: string }[] = [
 
 /** /moving の日程表。係数は COEF から引く（数字をここに書かない） */
 export const SCHEDULE_TABLE: { key: CoefKey; name: string; desc?: string }[] = [
-  { key: "omakase", name: "日程おまかせ", desc: "平日のうち、当社が日を選びます" },
-  { key: "heijitsu", name: "平日・4日以上先", desc: "基準になる日程です" },
+  { key: "omakase", name: "日程おまかせ", desc: "平日のうち、こちらで日を選びます" },
+  { key: "heijitsu", name: "平日・4日以上先", desc: "基準の日程" },
   { key: "d3", name: "平日・3日以内" },
   { key: "donichi", name: "土日祝" },
   { key: "yoku", name: "翌日" },
@@ -257,7 +268,7 @@ export const ITEMWARN: [string, string][] = [
   ],
   [
     "ベッドフレーム",
-    "ベッドフレームは分解した状態での容積です。ご自身で分解される場合は追加料金はかかりません。当社でやる場合は、品目のすぐ下にある「分解・組み立ても依頼する」にチェックしてください。",
+    "ベッドフレームは分解した状態での容積です。ご自身で分解される場合は追加料金はかかりません。こちらで分解する場合は、品目のすぐ下にある「分解・組み立ても依頼する」にチェックしてください。",
   ],
   [
     "自転車（26〜27インチ）",
@@ -345,6 +356,22 @@ export function crewFor(counts: Counts): 1 | 2 {
   return HEAVY_ITEMS.some((it) => (counts[it.id] ?? 0) > 0) ? 2 : 1;
 }
 
+/**
+ * 階段の料金がかかるフロア数（車で運ぶ場合）。**数え方を書いてよいのはここだけ。**
+ *
+ * 運び出す側・運び込む側それぞれ「エレベーターなしで何階か」を渡す。エレベーターがあれば 0。
+ * STAIRS_FREE_UPTO（2階）までは込みで、それより上の階のぶんだけを数える。
+ *   2階→1階 … 0 ／ 3階→1階 … 1 ／ 4階→3階 … 2＋1＝3 ／ エレベーターあり → 0
+ */
+export function stairFloors(floorOut: number, floorIn: number): number {
+  return Math.max(0, floorOut - STAIRS_FREE_UPTO) + Math.max(0, floorIn - STAIRS_FREE_UPTO);
+}
+
+/** 階段の料金（車で運ぶ場合） */
+export function stairsFee(floorOut: number, floorIn: number): number {
+  return stairFloors(floorOut, floorIn) * STAIRS_FEE;
+}
+
 /** 片道300kmを超えると null（＝日帰りができない） */
 export function distOf(km: number): Dist | null {
   return DIST.find((d) => km <= d.km) ?? null;
@@ -393,7 +420,9 @@ export type QuoteInput = {
   crew: 1 | 2;
   km: number;
   dist: Dist;
-  floors: number;
+  /** 運び出す階・運び込む階（エレベーターなしの場合の階。エレベーターがあれば 0） */
+  floorOut: number;
+  floorIn: number;
   slot: boolean;
   counts: Counts;
   disassembles: Disassembles;
@@ -420,11 +449,12 @@ export function buildQuote(p: QuoteInput): Quote {
     { name: `距離 片道${p.km}km`, amount: p.dist.fee },
   ];
 
-  if (p.floors > 0) {
+  const floors = stairFloors(p.floorOut, p.floorIn);
+  if (floors > 0) {
     rows.push({
-      name: `階段 ${p.floors}フロア`,
-      note: `1フロアにつき${yen(STAIRS_FEE)}`,
-      amount: p.floors * STAIRS_FEE,
+      name: `階段 ${floors}フロア`,
+      note: `${STAIRS_FREE_UPTO + 1}階から・1フロアにつき${yen(STAIRS_FEE)}`,
+      amount: stairsFee(p.floorOut, p.floorIn),
     });
   }
   if (p.slot) rows.push({ name: "時刻指定", amount: SLOT_FEE });

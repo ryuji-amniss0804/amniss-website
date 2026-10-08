@@ -1,10 +1,11 @@
 "use client";
 
-import { Fragment, Suspense, useEffect, useState } from "react";
+import { Fragment, Suspense, useEffect, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import ReasonList, { type Reason } from "../_components/ReasonList";
+import { useCountUp } from "../_components/useCountUp";
 import { HANDOFF_KEY, type QuoteHandoff } from "@/lib/quote";
-import { LINE_URL, TEL, TEL_HREF } from "@/lib/site";
+import { LINE_URL, TEL_HREF } from "@/lib/site";
+import { PLACES, kmBetween, type PlaceId } from "@/lib/regions";
 import {
   CAP,
   CAT,
@@ -14,6 +15,10 @@ import {
   DIST,
   LONG_HAUL,
   ROUNDTRIP_MAX_KM,
+  SLOT_FEE,
+  STAIRS_FEE,
+  STAIRS_FREE_UPTO,
+  STAIRS_MAX_FLOOR,
   TIER,
   buildQuote,
   buyable,
@@ -25,6 +30,7 @@ import {
   load,
   pickedItems,
   roundtripExtra,
+  stairFloors,
   tierOf,
   yen,
   type CoefKey,
@@ -37,34 +43,56 @@ import {
 /**
  * お見積りシミュレーター。
  *
- * D:\re'vive_toyama_marketing\price_simulator.html の移植。
- * **計算・分岐・文言は本人の承認済み。作り直していない。**
- * 数字は lib/pricing.ts が唯一の出どころで、/moving の表と同じものを見ている。
+ * 【92_price_pages】見た目をトップ（90・91）のトーンに作り直した。
+ * 見た目・動き・文言の正は参考モック（top_mock_20261008/Simulator.dc.html）。
+ * 左に5つの手順、右に結果（PCは貼り付く。860px以下は下）。
  *
- * 元の CSS は持ち込まず、(site) のデザインに載せ替えてある。
- * `--accent` を使うのは積載バーの超過表示だけ（このページで1箇所）。
+ * ★**計算は変えていない。**変えたのは階段の数え方だけ（cc_task/92 §1-1）。
+ *   「上り下りするフロア数」を入れてもらう形をやめ、運び出す階・運び込む階を選んでもらう。
+ *   数え方は lib/pricing.ts の stairFloors() ひとつ。**ここに数字を書かないこと。**
+ * ★数字は lib/pricing.ts が唯一の出どころで、/moving の表と同じものを見ている。
+ * ★人数は選ばせない。荷物から決まる（crewFor）。
+ * ★積みきれない・300km超・何も選んでいないときの分岐と、往復プランの提案は前のまま。
+ *
+ * 元は D:\re'vive_toyama_marketing\price_simulator.html の移植。
  */
 
 /** 距離表の最後の区分。これを超えると日帰りができない */
 const MAX_KM = DIST[DIST.length - 1].km;
-/** 「あと段ボール（大）約◯箱」の1箱ぶん */
+/** 「あと段ボール大 約◯箱」の1箱ぶん */
 const BOX_L_M3 = itemOf("box-l")?.m3 ?? 0.06;
 /** 積み切れないときに基準にする区分（軽バン満載） */
 const FULL_TIER = TIER[TIER.length - 1];
+
+/** 階のセレクト。0 は「エレベーターあり」（階段の料金がかからない） */
+const FLOOR_OPTIONS: { v: number; t: string }[] = [
+  { v: 0, t: "エレベーターあり" },
+  ...Array.from({ length: STAIRS_MAX_FLOOR }, (_, i) => ({ v: i + 1, t: `${i + 1}階` })),
+];
+
+/** LINE に送る文章での階の書き方 */
+function floorText(v: number): string {
+  return v > 0 ? `${v}階（エレベーターなし）` : "エレベーターあり";
+}
 
 function toInt(v: string): number {
   return Math.max(0, parseInt(v || "0", 10) || 0);
 }
 
+function isPlace(v: string | null): v is PlaceId {
+  return v !== null && PLACES.some((p) => p.id === v);
+}
+
 /** トップの「料金の目安」から引き継ぐ初期値。無いもの・不正なものは undefined（＝今の既定値のまま） */
-type UrlInit = { km?: string; coefKey?: CoefKey; counts?: Counts };
+type UrlInit = { km?: string; coefKey?: CoefKey; counts?: Counts; from?: PlaceId; to?: PlaceId };
 
 /** 距離の入力欄の上限（下の <input max> と同じ） */
 const KM_INPUT_MAX = 500;
 
 /**
- * `/simulator?km=25&coef=donichi&items=fridge,washer-top` を読む（90_top_renewal §4-4）。
+ * `/simulator?km=25&coef=donichi&items=fridge,washer-top&from=takaoka&to=toyama` を読む（90_top_renewal §4-4）。
  * **足したのは初期値の入口だけ。計算・表示は変えていない。**
+ * from・to は 92 で足した（地域のセレクトをこちらにも置いたため）。無くても動く。
  *
  * useSearchParams を使う部品は、静的に書き出すページでは Suspense で包む必要があり、
  * 包んだ範囲はサーバーで描かれなくなる（node_modules/next/dist/docs/…/use-search-params.md）。
@@ -90,6 +118,11 @@ function InitFromUrl({ apply }: { apply: (init: UrlInit) => void }) {
       if (Object.keys(counts).length) init.counts = counts;
     }
 
+    const from = sp.get("from");
+    if (isPlace(from)) init.from = from;
+    const to = sp.get("to");
+    if (isPlace(to)) init.to = to;
+
     if (Object.keys(init).length) apply(init);
     // 開いたときに1回だけ読む。そのあとの入力を URL で上書きしない
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,6 +130,9 @@ function InitFromUrl({ apply }: { apply: (init: UrlInit) => void }) {
 
   return null;
 }
+
+/** 積みきれないとき／300km超のご提案 */
+type Plan = { tag?: string; title: string; body: ReactNode; evidence?: string };
 
 export default function Simulator() {
   const router = useRouter();
@@ -111,8 +147,12 @@ export default function Simulator() {
   });
   const counts = picked.counts;
   const dis = picked.dis;
+  const [from, setFrom] = useState<PlaceId>("toyama");
+  const [to, setTo] = useState<PlaceId>("toyama");
   const [kmInput, setKmInput] = useState("10");
-  const [floorInput, setFloorInput] = useState("0");
+  /** 運び出す階・運び込む階。0 はエレベーターあり */
+  const [floorOut, setFloorOut] = useState(0);
+  const [floorIn, setFloorIn] = useState(0);
   const [slot, setSlot] = useState(false);
   const [coefKey, setCoefKey] = useState<CoefKey>("heijitsu");
   const [copied, setCopied] = useState<"" | "ok" | "ng">("");
@@ -121,10 +161,12 @@ export default function Simulator() {
     if (init.km !== undefined) setKmInput(init.km);
     if (init.coefKey !== undefined) setCoefKey(init.coefKey);
     if (init.counts !== undefined) setPicked({ counts: init.counts, dis: {} });
+    if (init.from !== undefined) setFrom(init.from);
+    if (init.to !== undefined) setTo(init.to);
   }
 
   const km = toInt(kmInput);
-  const floors = toInt(floorInput);
+  const floors = stairFloors(floorOut, floorIn);
   const l = load(counts);
   /** 人数は選ばせない。荷物から決まる（lib/pricing.ts の crewFor） */
   const crew = crewFor(counts);
@@ -149,6 +191,17 @@ export default function Simulator() {
     setCopied("");
   }
 
+  /** 地域を選ぶと km の欄に入る。県外（表にない行き先）のときは km をそのままにして、直接入れてもらう */
+  function pickPlace(which: "from" | "to", v: PlaceId) {
+    const a = which === "from" ? v : from;
+    const b = which === "to" ? v : to;
+    if (which === "from") setFrom(v);
+    else setTo(v);
+    const k = kmBetween(a, b);
+    if (k !== null) setKmInput(String(k));
+    setCopied("");
+  }
+
   /** 明細を1本組み立てる。往復プランのときだけ extra が付く */
   function quote(t: Tier, extraAmount?: number): Quote | null {
     if (!dist) return null;
@@ -158,7 +211,8 @@ export default function Simulator() {
       crew,
       km,
       dist,
-      floors,
+      floorOut,
+      floorIn,
       slot,
       counts,
       disassembles: dis,
@@ -183,26 +237,22 @@ export default function Simulator() {
       : null;
   const pick = buyable(counts);
 
-  /* ---- 結果の見出しと金額 ---- */
-  let cardLabel = "お 支 払 い 額";
-  let cardValue = "—";
-  let cardUnit = false;
-  let cardNote = "税込・作業後のお支払い";
-
+  /* ---- 結果。金額が出ないときは、代わりの見出しと説明 ---- */
+  let msg: [string, string] | null = null;
   if (l.items === 0) {
-    // 初期表示のまま
+    msg = ["運ぶ物を選んでください", "＋を押すと、ここに金額が出ます。"];
   } else if (!dist) {
-    cardLabel = "個 別 お 見 積 り";
-    cardValue = "1泊2日";
-    cardNote = "";
-  } else if (normal) {
-    cardValue = fmt(normal.total);
-    cardUnit = true;
-  } else {
-    cardLabel = "積 み 切 れ ま せ ん";
-    cardValue = "2つの方法";
-    cardNote = "下のどちらかでご提案します";
+    msg = [`片道${MAX_KM}kmを超えています`, "1泊2日での個別のお見積りになります。"];
+  } else if (!normal) {
+    msg = [
+      "1台に積みきれない量です",
+      roundtrip
+        ? `片道${ROUNDTRIP_MAX_KM}kmまでなら、同じ日に2往復で運べます。この条件での往復は${yen(roundtrip.total)}です。`
+        : "荷物を減らすか、売れる物を買取に回すご相談になります。",
+    ];
   }
+  const total = normal ? normal.total : null;
+  const shown = useCountUp(total, 0);
 
   /* ---- LINE に貼るテキスト ---- */
   function estimateText(): string {
@@ -222,10 +272,11 @@ export default function Simulator() {
       `・距離：片道 ${km}km`,
       `・日程：${COEF[coefKey].label}`,
     ];
-    const building: string[] = [];
+    // 階は、料金がかからないときも書く（何階かが分かれば、当日の段取りが決まる）
+    const building = [`運び出す ${floorText(floorOut)}`, `運び込む ${floorText(floorIn)}`];
     if (floors > 0) building.push(`階段 ${floors}フロア`);
     if (slot) building.push("時刻指定");
-    if (building.length) lines.push(`・建物：${building.join(" / ")}`);
+    lines.push(`・建物：${building.join(" / ")}`);
     const dnames = picked.filter((p) => dis[p.item.id]).map((p) => p.item.short ?? p.item.name);
     if (dnames.length) lines.push(`・分解・組み立て：${dnames.join(" / ")}`);
     lines.push(`・概算：${estimateText()}`);
@@ -256,6 +307,7 @@ export default function Simulator() {
       crew,
       km,
       dist: dist ? { km: dist.km, area: dist.area } : null,
+      // 料金がかかるフロア数（stairFloors）。明細の「階段 ◯フロア」と同じ数
       floors,
       slot,
       disassembles: items.filter((p) => dis[p.item.id]).map((p) => p.item.short ?? p.item.name),
@@ -300,12 +352,11 @@ export default function Simulator() {
     }
   }
 
-  /* ---- 積み切れないときの2案 ---- */
-  const plans: Reason[] = [];
+  /* ---- 積み切れないときの2案／300km超 ---- */
+  const plans: Plan[] = [];
 
   if (l.items > 0 && !dist) {
     plans.push({
-      n: "",
       title: `片道${MAX_KM}kmを超えるため、日帰りができません`,
       body: `国が定めるトラック運転者の1日の拘束時間は原則13時間です。積込・搬入・法定の休憩を引くと、運転に使えるのは片道4時間強、距離にして約${MAX_KM}kmが上限になります。${LONG_HAUL.map(
         (h) => `${h.place}で${yen(h.from)}〜`,
@@ -316,14 +367,14 @@ export default function Simulator() {
   } else if (l.items > 0 && !normal) {
     if (roundtrip) {
       plans.push({
-        n: "方法1",
+        tag: "方法1",
         title: "往復プラン",
         body: `同じ日に2回に分けて運びます。片道${km}kmなら現実的な範囲です。出動料は1回分のままで、2回目の積み下ろしと走行のぶんだけ加算します。`,
         evidence: `${yen(roundtrip.total)}　この条件での往復`,
       });
     } else {
       plans.push({
-        n: "方法1",
+        tag: "方法1",
         title: "荷物を減らす",
         body: `片道${km}kmでは、同じ日に2往復するのは現実的ではありません。運ぶ物を${(
           l.m3 - CAP
@@ -333,7 +384,7 @@ export default function Simulator() {
 
     if (pick.buy.length) {
       plans.push({
-        n: "方法2",
+        tag: "方法2",
         title: "値のつく物を、その場で買い取る",
         body: (
           <>
@@ -349,7 +400,6 @@ export default function Simulator() {
 
     if (pick.no.length) {
       plans.push({
-        n: "",
         title: "買い取れない物があります",
         body: (
           <>
@@ -363,297 +413,372 @@ export default function Simulator() {
     }
   }
 
+  const stairsHint = `${STAIRS_FREE_UPTO}階までは料金に込み。${STAIRS_FREE_UPTO + 1}階から1フロアにつき${yen(STAIRS_FEE)}です。`;
+  const dayNote = COEF_OPTIONS.find((o) => o.key === coefKey)?.note;
+
   return (
-    <div className="sim">
+    <div className="pp-est">
       <Suspense fallback={null}>
         <InitFromUrl apply={applyUrlInit} />
       </Suspense>
 
-      {/* ---- 運ぶ物 ---- */}
-      <fieldset className="sim-fs">
-        <legend className="sim-leg">運 ぶ 物</legend>
+      <div className="pp-est-l">
+        {/* ---- 1 運ぶ物 ---- */}
+        <fieldset className="tp-step">
+          <legend>
+            <span className="tp-leg">
+              <span className="tp-step-n tp-num">1</span>
+              <span className="tp-step-t">運ぶ物</span>
+            </span>
+          </legend>
 
-        {CAT.map((g) => (
-          <div className="sim-grp" key={g.id}>
-            <div className="sim-gh">{g.name}</div>
-            {g.items.map((it) => {
-              const n = counts[it.id] ?? 0;
-              return (
-                <Fragment key={it.id}>
-                  <div className={n > 0 ? "sim-row on" : "sim-row"}>
-                    <div className="sim-nm">
-                      {it.name}
-                      <small>{it.size}</small>
+          {CAT.map((g) => (
+            <div className="pp-grp" key={g.id}>
+              {/* 品目の見出しは字間を空けた形（「大 型 家 具」）で定義してある。ここでは詰めて出す */}
+              <div className="pp-grp-h">{g.name.replace(/ /g, "")}</div>
+              {g.items.map((it) => {
+                const n = counts[it.id] ?? 0;
+                return (
+                  <Fragment key={it.id}>
+                    <div className={n > 0 ? "pp-row on" : "pp-row"}>
+                      <div className="pp-row-n">
+                        {it.name}
+                        <small>{it.size}</small>
+                      </div>
+                      <span className="pp-row-v tp-num">{`${it.m3.toFixed(2)}m³`}</span>
+                      <div className="pp-stp">
+                        <button type="button" onClick={() => bump(it.id, -1)} aria-label={`${it.name} を1つ減らす`}>
+                          −
+                        </button>
+                        <span className="tp-num">{n}</span>
+                        <button
+                          type="button"
+                          className="plus"
+                          onClick={() => bump(it.id, 1)}
+                          aria-label={`${it.name} を1つ増やす`}
+                        >
+                          ＋
+                        </button>
+                      </div>
                     </div>
-                    <div className="sim-v">{it.m3.toFixed(2)}m³</div>
-                    <div className="sim-st">
-                      <button type="button" onClick={() => bump(it.id, -1)} aria-label={`${it.name} を1つ減らす`}>
-                        −
-                      </button>
-                      <span className="sim-n">{n}</span>
-                      <button type="button" onClick={() => bump(it.id, 1)} aria-label={`${it.name} を1つ増やす`}>
-                        ＋
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* 分解チェックは、その品目の数が1以上のときだけ出す */}
-                  {it.disassemble && n > 0 ? (
-                    <label className="sim-dis">
-                      <input
-                        type="checkbox"
-                        checked={dis[it.id] ?? false}
-                        onChange={(e) => toggleDis(it.id, e.target.checked)}
-                      />
-                      <span>
-                        分解・組み立ても依頼する<em>1点につき {yen(DISASSEMBLE_FEE)}</em>
-                      </span>
-                    </label>
-                  ) : null}
-                </Fragment>
-              );
-            })}
+                    {/* 分解チェックは、その品目の数が1以上のときだけ出す */}
+                    {it.disassemble && n > 0 ? (
+                      <label className="pp-dis">
+                        <input
+                          type="checkbox"
+                          checked={dis[it.id] ?? false}
+                          onChange={(e) => toggleDis(it.id, e.target.checked)}
+                        />
+                        <span>
+                          分解・組み立ても依頼する<em>{`1点につき ${yen(DISASSEMBLE_FEE)}`}</em>
+                        </span>
+                      </label>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </div>
+          ))}
+
+          {/* 荷台のバー。品目リストの下に貼り付いてくる。CAP を超えたら赤 */}
+          <div className="pp-load" aria-live="polite">
+            <div className="pp-load-t">
+              <span>軽バンの荷台</span>
+              <span className="tp-num">{l.over ? `積みきれません ${l.pct}%` : `${l.pct}%`}</span>
+            </div>
+            <div className="tp-bar">
+              <i className={l.over ? "over" : undefined} style={{ width: `${Math.min(100, l.pct)}%` }} />
+            </div>
+            <p className="tp-note">
+              {l.items === 0
+                ? "＋を押して、運ぶ物を選んでください。"
+                : l.over
+                  ? `${l.m3.toFixed(2)}m³ ／ 積める目安 ${CAP.toFixed(1)}m³（${(l.m3 - CAP).toFixed(2)}m³ 超過）`
+                  : `${l.m3.toFixed(2)}m³ ／ 積める目安 ${CAP.toFixed(1)}m³　あと段ボール大 約${Math.floor(
+                      (CAP - l.m3) / BOX_L_M3,
+                    )}箱`}
+            </p>
           </div>
-        ))}
 
-        <p className="sim-hint">
-          よく運ぶ物だけを並べています。ここに無い物は、LINEで写真を送っていただければお答えします。
-          <br />
-          <b>容積は、それぞれの標準的な寸法（幅×奥行×高さ）から計算しています。</b>
-          品目名の下に元の寸法を書いてあるので、お手持ちの物と比べて確認できます。段ボールは大手引越し業者が配っているサイズに合わせています（大＝3辺合計120cm、小＝100cm）。これより大きい箱をお使いの場合は、多めに数えてください。実際に伺って増減があった場合も、作業前に金額を確定してから始めます。
-        </p>
-      </fieldset>
+          {warnings.map((w) => (
+            <p className="pp-warn" key={w}>
+              {w}
+            </p>
+          ))}
+        </fieldset>
 
-      {/* ---- 積載バー。罫線1本と塗りだけ。--accent を使うのはここだけ ---- */}
-      <div className={l.over ? "sim-load over" : "sim-load"} aria-live="polite">
-        <div className="sim-lt">
-          <span>積 載 率</span>
-          <b>{l.pct}%</b>
-        </div>
-        <div className={l.over ? "sim-bar over" : "sim-bar"}>
-          <i style={{ width: `${Math.min(100, l.pct)}%` }} />
-        </div>
-        <div className="sim-ls">
-          {l.items === 0 ? (
-            "運ぶ物を選んでください。"
-          ) : l.over ? (
-            <>
-              <b>軽バン1台には積み切れません。</b>
-              {`${l.m3.toFixed(2)}m³ ／ 積める目安 ${CAP.toFixed(1)}m³（${(l.m3 - CAP).toFixed(
-                2,
-              )}m³ 超過）`}
-            </>
-          ) : (
-            `${l.m3.toFixed(2)}m³ ／ 積める目安 ${CAP.toFixed(1)}m³　あと段ボール（大）約${Math.floor(
-              (CAP - l.m3) / BOX_L_M3,
-            )}箱ぶん積めます。`
-          )}
-        </div>
-        {warnings.map((w) => (
-          <p className="sim-warn" key={w}>
-            {w}
-          </p>
-        ))}
-      </div>
+        {/* ---- 2 作業員（選べない。荷物から決まる） ---- */}
+        <fieldset className="tp-step">
+          <legend>
+            <span className="tp-leg">
+              <span className="tp-step-n tp-num">2</span>
+              <span className="tp-step-t">作業員</span>
+            </span>
+          </legend>
+          <div className="pp-crew" aria-live="polite">
+            <b className="tp-num">{`${crew}名`}</b>
+            <span>
+              {crew === 2
+                ? "大型の家具・家電があるので、2名で伺います。"
+                : "大型の家具・家電がないので、1名で伺います。"}
+            </span>
+          </div>
+          <p className="tp-note">人数は荷物で決まります。選ぶ必要はありません。</p>
+        </fieldset>
 
-      {/* ---- 作業人数（選べない。荷物から決まる） ---- */}
-      <fieldset className="sim-fs">
-        <legend className="sim-leg">作 業 人 数</legend>
-        <p className="sim-hint">
-          <b>{crew}名</b>
-          {crew === 2
-            ? "　大型の家具・家電が入っているため、安全のため2名で伺います。"
-            : "　大型の家具・家電がないため、1名で伺います。"}
-          <br />
-          人数はお選びいただくものではなく、荷物で決まります。
-          冷蔵庫・洗濯機・ベッドフレーム・食器棚・タンス・ソファ・マットレス（セミダブル）が
-          ひとつでも入ると2名になります。
-          <br />
-          2名ぶんの作業料はこの金額に入っています。当日に人を増やして追加請求することはありません。
-          お客様に積み下ろしをお手伝いいただくこともありません。
-        </p>
-      </fieldset>
-
-      {/* ---- 移動距離 ---- */}
-      <fieldset className="sim-fs">
-        <legend className="sim-leg">移 動 距 離（片 道）</legend>
-        <div className="sim-num">
-          <input
-            id="sim-km"
-            type="number"
-            inputMode="numeric"
-            value={kmInput}
-            min={0}
-            max={500}
-            step={5}
-            onChange={(e) => {
-              setKmInput(e.target.value);
-              setCopied("");
-            }}
-          />
-          <label htmlFor="sim-km">km</label>
-        </div>
-        <p className="sim-hint">
-          {dist
-            ? `片道〜${dist.km}km の区分です。`
-            : `片道${MAX_KM}kmを超えています。1泊2日での個別お見積りになります。`}
-        </p>
-      </fieldset>
-
-      {/* ---- 建物の条件 ---- */}
-      <fieldset className="sim-fs">
-        <legend className="sim-leg">建 物 の 条 件</legend>
-        <div className="sim-num">
-          <label htmlFor="sim-floors">階段で上り下りするフロア数</label>
-          <input
-            id="sim-floors"
-            type="number"
-            inputMode="numeric"
-            value={floorInput}
-            min={0}
-            max={6}
-            step={1}
-            onChange={(e) => {
-              setFloorInput(e.target.value);
-              setCopied("");
-            }}
-          />
-          <span>フロア</span>
-        </div>
-        <div className="sim-chk">
-          <label>
+        {/* ---- 3 どこから、どこへ？ ---- */}
+        <fieldset className="tp-step">
+          <legend>
+            <span className="tp-leg">
+              <span className="tp-step-n tp-num">3</span>
+              <span className="tp-step-t">どこから、どこへ？</span>
+            </span>
+          </legend>
+          <div className="tp-ft">
+            <label>
+              <span>いまの住まい</span>
+              <select className="tp-sel" value={from} onChange={(e) => pickPlace("from", e.target.value as PlaceId)}>
+                {PLACES.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="tp-arw" aria-hidden="true">
+              <svg width="40" height="20" viewBox="0 0 40 20" fill="none" stroke="currentColor" strokeWidth="3">
+                <path d="M2 10h32M26 3l8 7-8 7" />
+              </svg>
+            </div>
+            <label>
+              <span>引越し先</span>
+              <select className="tp-sel" value={to} onChange={(e) => pickPlace("to", e.target.value as PlaceId)}>
+                {PLACES.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="pp-km">
+            <label htmlFor="sim-km">片道</label>
             <input
-              type="checkbox"
-              checked={slot}
+              id="sim-km"
+              className="tp-num"
+              type="number"
+              inputMode="numeric"
+              value={kmInput}
+              min={0}
+              max={KM_INPUT_MAX}
+              step={5}
               onChange={(e) => {
-                setSlot(e.target.checked);
+                setKmInput(e.target.value);
                 setCopied("");
               }}
             />
-            <span>
-              時刻を指定する<em>◯時ちょうどに伺う</em>
+            <span>km</span>
+            <span className="tp-note">
+              {dist
+                ? dist.fee > 0
+                  ? `距離 ${yen(dist.fee)}`
+                  : `市内扱い・${yen(dist.fee)}`
+                : `片道${MAX_KM}kmを超えています`}
             </span>
-          </label>
-        </div>
-        <p className="sim-hint">
-          エレベーターがある場合、1階どうしの場合は0フロアです。2階までの階段作業は出動料に含まれています。
-          <br />
-          家具の分解・組み立ては、上の品目リストで1点ずつお選びいただけます。
-        </p>
-      </fieldset>
+          </div>
+          <p className="tp-note">県外は、片道の距離を入れてください。</p>
+        </fieldset>
 
-      {/* ---- 日程 ---- */}
-      <fieldset className="sim-fs">
-        <legend className="sim-leg">ご 希 望 の 日 程</legend>
-        <div className="sim-opts">
-          {COEF_OPTIONS.map((o) => (
-            <label key={o.key}>
-              <input
-                type="radio"
-                name="coef"
-                checked={coefKey === o.key}
-                onChange={() => {
+        {/* ---- 4 建物 ---- */}
+        <fieldset className="tp-step">
+          <legend>
+            <span className="tp-leg">
+              <span className="tp-step-n tp-num">4</span>
+              <span className="tp-step-t">建物（エレベーターなしの場合）</span>
+            </span>
+          </legend>
+          <div className="tp-ft pp-f2">
+            <label>
+              <span>運び出す階</span>
+              <select
+                className="tp-sel"
+                value={floorOut}
+                onChange={(e) => {
+                  setFloorOut(toInt(e.target.value));
+                  setCopied("");
+                }}
+              >
+                {FLOOR_OPTIONS.map((f) => (
+                  <option key={f.v} value={f.v}>
+                    {f.t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>運び込む階</span>
+              <select
+                className="tp-sel"
+                value={floorIn}
+                onChange={(e) => {
+                  setFloorIn(toInt(e.target.value));
+                  setCopied("");
+                }}
+              >
+                {FLOOR_OPTIONS.map((f) => (
+                  <option key={f.v} value={f.v}>
+                    {f.t}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <p className="tp-note">{stairsHint}</p>
+          <div className="tp-chips">
+            <button
+              type="button"
+              className={slot ? "tp-chip on" : "tp-chip"}
+              aria-pressed={slot}
+              onClick={() => {
+                setSlot((v) => !v);
+                setCopied("");
+              }}
+            >
+              時刻を指定する
+              <small>{`＋${yen(SLOT_FEE)}`}</small>
+            </button>
+          </div>
+        </fieldset>
+
+        {/* ---- 5 日程 ---- */}
+        <fieldset className="tp-step">
+          <legend>
+            <span className="tp-leg">
+              <span className="tp-step-n tp-num">5</span>
+              <span className="tp-step-t">日程</span>
+            </span>
+          </legend>
+          <div className="tp-chips">
+            {COEF_OPTIONS.map((o) => (
+              <button
+                type="button"
+                key={o.key}
+                className={coefKey === o.key ? "tp-chip on" : "tp-chip"}
+                aria-pressed={coefKey === o.key}
+                onClick={() => {
                   setCoefKey(o.key);
                   setCopied("");
                 }}
-              />
-              <span>
+              >
                 {o.label}
-                <small>{o.note ?? "\u00a0"}</small>
-              </span>
-            </label>
-          ))}
-        </div>
-        <p className="sim-hint">
-          複数に当てはまる場合（土日かつ翌日など）は、<b>高いほうだけ</b>
-          を適用します。重ねがけはしません。
-        </p>
-      </fieldset>
+                <small>{`×${COEF[o.key].coef.toFixed(2)}`}</small>
+              </button>
+            ))}
+          </div>
+          <p className="tp-note">{dayNote ?? "いくつか当てはまるときは、高いほうだけ。重ねがけはしません。"}</p>
+        </fieldset>
 
-      {/* ---- 明細と合計。Spec と同じ枠 ---- */}
-      <div className="spec sim-result" aria-live="polite">
-        <div className="k">{cardLabel}</div>
-        <div className="v mincho sim-total">
-          {cardValue}
-          {cardUnit ? <small>円</small> : null}
+        {/* ---- 但し書き。モックには無いが、金額にかかわる決まりなので小さく残してある ---- */}
+        <div className="pp-sim-notes">
+          <p className="pp-fine">
+            この画面の金額は目安です。正式なお見積りは、現地または写真を拝見してから確定します。確定したあとに金額が増えることはありません。
+          </p>
+          <p className="pp-fine">
+            高速道路を使う場合は、その分を事前のお見積りでお伝えします。有料駐車場しかない場合のパーキング代のみ、実費をご負担いただいています。それ以外に、当日お支払いいただく費用はありません。買取のご依頼を同時にいただいた場合、買取金額をこのお支払い額から差し引きます。
+          </p>
+          <details className="pp-more">
+            <summary>容積の数え方</summary>
+            <p className="pp-fine">
+              よく運ぶ物だけを並べています。ここに無い物は、LINEで写真を送っていただければお答えします。容積は、それぞれの標準的な寸法（幅×奥行×高さ）から計算しています。品目名の下に元の寸法を書いてあるので、お手持ちの物と比べて確認できます。段ボールは大手引越し業者が配っているサイズに合わせています（大＝3辺合計120cm、小＝100cm）。これより大きい箱をお使いの場合は、多めに数えてください。実際に伺って増減があった場合も、作業前に金額を確定してから始めます。
+            </p>
+          </details>
         </div>
-        {cardNote ? <div className="sim-taxnote">{cardNote}</div> : null}
+      </div>
 
-        {normal ? (
-          <table className="sim-bd">
-            <tbody>
-              {normal.rows.map((r, i) => (
-                <tr key={`${r.name}-${i}`}>
-                  <td>
-                    {r.name}
-                    {r.note ? <small>{r.note}</small> : null}
-                  </td>
-                  <td>{yen(r.amount)}</td>
-                </tr>
-              ))}
-              <tr className="sub">
-                <td>基本料金</td>
-                <td>{yen(normal.base)}</td>
-              </tr>
-              <tr>
-                <td>
-                  {normal.coefLabel}
-                  <small>日程による係数</small>
-                </td>
-                <td>×{normal.coef.toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
+      {/* ---- 結果。数え上げの途中の数字は読み上げさせない（aria-hidden）。
+          読み上げるのは着地した金額のほう（.tp-vh）だけ。
+          ご提案（plans）が出ているときは貼り付けない（結果が画面より長くなり、下が読めなくなる） ---- */}
+      <aside className={plans.length ? "pp-est-r free" : "pp-est-r"} aria-live="polite">
+        <div className="tp-card">
+          <p className="tp-card-k">お見積り</p>
+          {normal ? (
+            <>
+              <div className="tp-card-top">
+                <p className="tp-price">
+                  <span className="tp-num v" aria-hidden="true">
+                    {fmt(shown)}
+                  </span>
+                  <span className="tp-vh">{fmt(normal.total)}</span>
+                  <span className="u">円</span>
+                </p>
+                <p className="tp-card-sum">税込・作業のあとにお支払い</p>
+              </div>
+              <div className="tp-rows">
+                {normal.rows.map((r, i) => (
+                  <div key={`${r.name}-${i}`}>
+                    <span>{r.name}</span>
+                    <b className="tp-num">{fmt(r.amount)}</b>
+                  </div>
+                ))}
+                <div>
+                  <span>{`日程 ${normal.coefLabel}`}</span>
+                  <b className="tp-num">{`×${normal.coef.toFixed(2)}`}</b>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="tp-card-top">
+              <p className="tp-msg-t">{msg ? msg[0] : ""}</p>
+              <p className="tp-msg-s">{msg ? msg[1] : ""}</p>
+            </div>
+          )}
+
+          {/* 送る。LINE のボタンは、条件を写してから LINE を開く（前は「コピー」と「LINEで送る」の2つだった）。
+              リンクなので、JS がなくても LINE は開く。運ぶ物を選ぶ前は写さない */}
+          <div className="tp-card-acts">
+            <a
+              className="tp-btn tp-btn-y"
+              href={LINE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (l.items > 0) void copy();
+              }}
+            >
+              この内容をLINEで送る
+            </a>
+            <a className="tp-btn tp-btn-o" href={TEL_HREF}>
+              電話で相談する
+            </a>
+            <p className="tp-card-note" role="status">
+              {copied === "ok"
+                ? "内容をコピーしました。LINEのトークに貼り付けて送ってください。"
+                : copied === "ng"
+                  ? "コピーできませんでした。LINEのトークで条件をお知らせください。"
+                  : "押すと、この内容をコピーしてLINEを開きます。トークに貼り付けて送ってください。"}
+            </p>
+            {/* 24_form §2 の引き継ぎ。入力した条件と金額をそのまま /contact へ持っていく */}
+            <button type="button" className="pp-to-form" onClick={requestQuote} disabled={l.items === 0}>
+              この内容で見積りフォームへ
+            </button>
+          </div>
+        </div>
+
+        {/* ---- 積み切れないとき／300km超のご提案 ---- */}
+        {plans.length ? (
+          <div className="pp-plans">
+            {plans.map((p) => (
+              <div className="pp-plan" key={p.title}>
+                {p.tag ? <span className="tag">{p.tag}</span> : null}
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+                {p.evidence ? <span className="tp-rs-e">{p.evidence}</span> : null}
+              </div>
+            ))}
+          </div>
         ) : null}
-      </div>
-
-      {/* ---- 積み切れないとき／300km超のご提案。箱で囲まない ---- */}
-      {plans.length ? (
-        <div className="sim-plans">
-          <ReasonList items={plans} />
-        </div>
-      ) : null}
-
-      {/* ---- 送信。
-          24_form §2 でフォームへの導線が入った。ここで入力した条件と金額を
-          そのまま /contact へ引き継ぐので、同じことをもう一度書かせない。 */}
-      <div className="sim-send">
-        <button
-          type="button"
-          className="btn btn-fill"
-          onClick={requestQuote}
-          disabled={l.items === 0}
-        >
-          この内容で見積りを依頼する
-        </button>
-        <button type="button" className="btn" onClick={copy} disabled={l.items === 0}>
-          {copied === "ok"
-            ? "コピーしました"
-            : copied === "ng"
-              ? "コピーできませんでした"
-              : "この内容をコピー"}
-        </button>
-        <a className="btn" href={LINE_URL} target="_blank" rel="noopener noreferrer">
-          LINEで送る
-        </a>
-        <a className="btn" href={TEL_HREF}>
-          {TEL}
-        </a>
-      </div>
-
-      <p className="sim-note">
-        この画面の金額は目安です。正式なお見積りは、現地または写真を拝見してから確定します。確定したあとに金額が増えることはありません。
-      </p>
-
-      {/* price_simulator.html のフッターにあった但し書き。
-          廃棄物の1行はサイト全体のフッターに入っているので、ここでは重ねない */}
-      <p className="sim-note sub">
-        高速道路を使う場合は、その分を事前のお見積りでお伝えします。
-        <br />
-        有料駐車場しかない場合のパーキング代のみ、実費をご負担いただいています。それ以外に、当日お支払いいただく費用はありません。
-        <br />
-        買取のご依頼を同時にいただいた場合、買取金額をこのお支払い額から差し引きます。
-      </p>
+      </aside>
     </div>
   );
 }
