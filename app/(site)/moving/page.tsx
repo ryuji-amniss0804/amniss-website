@@ -1,16 +1,14 @@
+import { Fragment } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Hero from "../_components/Hero";
+import PriceHero from "../_components/PriceHero";
 import LicenseStrip from "../_components/LicenseStrip";
-import Split from "../_components/Split";
-import PriceTable from "../_components/PriceTable";
-import Spec from "../_components/Spec";
-import ReasonList from "../_components/ReasonList";
-import Faq from "../_components/Faq";
-import Cta from "../_components/Cta";
-import Figure, { CARGO_CAPTION } from "../_components/Figure";
+import PriceAccordion, { type AccordionTable } from "../_components/PriceAccordion";
+import FaqTop from "../_components/FaqTop";
+import LastCta from "../_components/LastCta";
+import Figure from "../_components/Figure";
 import { MOVING_REASONS } from "../_reasons";
-import { TEL, TEL_HREF } from "@/lib/site";
+import { CARGO_SIZE } from "../_cargo";
 import {
   CAP,
   COEF,
@@ -24,7 +22,9 @@ import {
   SCHEDULE_TABLE,
   SLOT_FEE,
   STAIRS_FEE,
+  STAIRS_FREE_UPTO,
   TIER,
+  fmt,
   itemOf,
   plainTotal,
   yen,
@@ -34,31 +34,39 @@ import {
 /**
  * 単身引越し。
  *
+ * 【92_price_pages】トップ（90・91）と同じトーンに作り直した。
+ * 見た目・動き・文言の正は参考モック（top_mock_20261008/Moving.dc.html）。
+ * **料金を先に「しくみ」（5つの箱）で見せてから、細部（4つの表）へ**、という順。
+ * 文章は「説明」ではなく、ページに載せる短い言葉にしてある。**長く書き戻さないこと。**
+ * ほかのページと共有している部品（Hero・Split・PriceTable・Faq・Cta）はここでは使っていない。
+ * あちらの見た目を変えないために、pp-* と tp-* のクラスで組んである（site.css）。
+ *
  * 【料金の出どころ】**lib/pricing.ts**。
- * このページの表（荷物の量・距離・建物の条件・日程・代表品目・実際の金額）は
- * 全部そこから生成している。**数字をこのファイルに書き足さないこと。**
+ * このページの数字（5つの箱・4つの表・代表品目・実際の金額・FAQ）は全部そこから生成している。
+ * **数字をこのファイルに書き足さないこと。**
  * /simulator と同じ出どころなので、片方だけ古くなることがない。
  * 元データは D:\re'vive_toyama_marketing\moving_final.md（2026/8/4 確定）。
- * mockup_v2.html の料金表は旧パック料金のままなので、そちらから数字を写さないこと。
  * 「らくらく2時間パック15,000円」「単身引越しパック25,000円」「大盛35,000円」は廃止済み。
+ *
+ * 【階段】2階までは出動料に込み。3階から1フロアにつき STAIRS_FEE（2026-10-08 決定）。
+ * 数え方は lib/pricing.ts の stairFloors() ひとつ。ここでは STAIRS_FREE_UPTO から文言を組む。
  *
  * 【本文に数字を埋め込まないこと】
  * `{CAP}m³を…` と書くと、React が text node の境目に `<!-- -->` を入れるため
- * ビルド後のHTMLで文字列が分断される。文字列の属性（note / value / q など）は
- * テンプレートリテラルで丸ごと1つにしてから渡している。
+ * ビルド後のHTMLで文字列が分断される。文字列はテンプレートリテラルで丸ごと1つにしてから出す。
  *
  * 【変えてはいけない文言】
  *  - 富山市の戸別収集の電話番号 076-428-4040
- *  - 「当社は一般廃棄物収集運搬業の許可がないため、お引き取りできません。」
- *  - 日程係数の「複数に当てはまる場合は、高いほうだけを適用します。重ねがけはしません。」
+ *  - 「廃棄物を回収する許可がないため、お引き取りはできません。」（2026-10-08 に言い換えた。cc_task/92 §1-2）
+ *  - 日程の「いくつか当てはまるときは、高いほうだけ。重ねがけはしません。」
  *
  * 「不用品回収」「不用品処分」「引き取り」「処分します」をサービスとして書かない。
  * 「格安」「業界最安」「絶対」「100%」「積み放題」も書かない。
  */
 
 /**
- * ワンルーム〜1K一式・富山市内・作業員2名・平日。「実際の金額」の4行目と同じ条件。
- * title / description / Hero のリードに出す下限額。**数字を書き写さないこと。**
+ * ワンルーム〜1K一式・富山市内・作業員2名・平日。「実際の金額」の4枚目と同じ条件。
+ * title / description / ヒーローに出す下限額。**数字を書き写さないこと。**
  */
 const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
 
@@ -85,262 +93,392 @@ function item(id: string) {
   return it;
 }
 
-/** ② 作業料（荷物の量 × 人員）。TIER から */
-/** 大型があれば2名。2名が既定なので、2名を主にして1名を注に回す */
+/** 日帰りの上限。距離表のいちばん遠い行 */
+const MAX_KM = DIST[DIST.length - 1].km;
+/** 日程の係数の表記（×0.85） */
+const coefText = (k: CoefKey) => `×${COEF[k].coef.toFixed(2)}`;
+/** 階段の料金がかかり始める階 */
+const STAIRS_FROM = STAIRS_FREE_UPTO + 1;
+
+/**
+ * 「日帰りは、片道300kmまで」の一言に出す地名。**距離表（DIST）に載っている所だけを書く。**
+ * 表から行が消えたのに「日帰りで」と書いたままになるのを、ビルドで止める（トップと同じ考え方）。
+ */
+const DAYTRIP_PLACES = ["長野", "名古屋", "京都"];
+for (const place of DAYTRIP_PLACES) {
+  if (!DIST.some((d) => d.area.split("・").includes(place))) {
+    throw new Error(`「${place}」が距離表（DIST）の area にありません。/moving の「日帰りは…」の一言を直してください`);
+  }
+}
+
+/* ============ 料金：5つの箱 ============ */
+
+/**
+ * 金額は数字と単位に分けている（単位だけ小さくするため。site.css の .pp-fx .v small）。
+ * 建物の条件の「0」は、条件が何もないときの金額（定数ではない）。
+ */
+const FORMULA: { op?: string; name: string; value: string; unit: string; desc: string; hot?: boolean }[] = [
+  { name: "出動料", value: fmt(DEPART), unit: "円", desc: "どの依頼にも共通" },
+  { op: "＋", name: "荷物の量", value: fmt(TIER[0].work[1]), unit: "円〜", desc: `${TIER.length}段・作業員2名の場合` },
+  { op: "＋", name: "距離", value: fmt(DIST[0].fee), unit: "円〜", desc: `${DIST[0].area}は${yen(DIST[0].fee)}` },
+  { op: "＋", name: "建物の条件", value: "0", unit: "円〜", desc: `${STAIRS_FROM}階からの階段など` },
+  { op: "×", name: "日程", value: coefText("omakase"), unit: "〜", desc: "おまかせが一番お得", hot: true },
+];
+
+/** 「出動料に込み：」の札 */
+const INCLUDED = ["軽バン1台", "毛布・ラップ・ベルト", `${STAIRS_FREE_UPTO}階までの階段`, "搬入後の設置"];
+
+/* ============ 料金：4つの表 ============ */
+
+/** 荷物の量（作業料）。TIER から。大型があれば2名。2名が既定なので、2名を主にして1名を注に回す */
 const VOLUME_ROWS = TIER.map((t) => ({
   name: t.name,
-  desc: `〜${t.cap.toFixed(1)}m³　大型がなければ作業員1名で${yen(t.work[0])}`,
-  price: yen(t.work[1]),
+  desc: `〜${t.cap.toFixed(1)}m³（1名なら${yen(t.work[0])}）`,
+  price: fmt(t.work[1]),
 }));
 
-/** ③ 距離料。片道。高速代は含まない（高速を使う場合は事前のお見積りに含めて提示）。
+/** 距離料。片道。高速代は含まない（高速を使う場合は事前のお見積りに含めて提示）。
     DIST ＋ 300km超の LONG_HAUL */
 const DISTANCE_ROWS = [
-  ...DIST.map((d) => ({ name: `〜${d.km}km`, desc: d.area, price: yen(d.fee) })),
-  ...LONG_HAUL.map((l) => ({ name: l.name, desc: "1泊2日", price: `${yen(l.from)}〜` })),
+  ...DIST.map((d) => ({ name: `〜${d.km}km`, desc: d.area, price: fmt(d.fee) })),
+  ...LONG_HAUL.map((l) => ({ name: l.name, desc: "1泊2日", price: `${fmt(l.from)}〜` })),
 ];
 
-/** ④ 条件加算。金額は定数から。行の説明だけがこのページの文言 */
+/** 建物の条件。金額は定数から。行の説明だけがこのページの文言 */
 const CONDITION_ROWS = [
-  { name: "階段", desc: "エレベーターなし・1フロアにつき", price: yen(STAIRS_FEE) },
-  { name: "時刻指定", desc: "◯時ちょうどのご指定", price: yen(SLOT_FEE) },
-  { name: "家具の分解・組み立て", desc: "ベッドフレームなど", price: yen(DISASSEMBLE_FEE) },
-  { name: "有料駐車場代", desc: "コインパーキングしかない場合", price: "実費" },
+  { name: "階段", desc: `${STAIRS_FROM}階から・エレベーターなし・1フロアにつき`, price: fmt(STAIRS_FEE) },
+  { name: "時刻指定", desc: "◯時ちょうどに伺う", price: fmt(SLOT_FEE) },
+  { name: "家具の分解・組み立て", desc: "ベッドフレームなど・1点につき", price: fmt(DISASSEMBLE_FEE) },
+  { name: "有料駐車場", desc: "コインパーキングしかない場合", price: "実費" },
 ];
 
-/** ⑤ 日程係数。複数該当は高いほうだけ */
+/** 日程係数。複数該当は高いほうだけ */
 const SCHEDULE_ROWS = SCHEDULE_TABLE.map((s) => ({
   name: s.name,
   desc: s.desc,
-  price: `×${COEF[s.key].coef.toFixed(2)}`,
+  price: coefText(s.key),
 }));
+
+/** 係数のいちばん小さいものと大きいもの（「×0.85〜×1.50」） */
+const COEF_KEYS = SCHEDULE_TABLE.map((s) => s.key).sort((a, b) => COEF[a].coef - COEF[b].coef);
+const COEF_RANGE = `${coefText(COEF_KEYS[0])}〜${coefText(COEF_KEYS[COEF_KEYS.length - 1])}`;
+
+const TABLES: AccordionTable[] = [
+  {
+    name: "荷物の量",
+    sub: `${TIER.length}段`,
+    rows: VOLUME_ROWS,
+    note: `大型の家具・家電がなければ、作業員1名の金額になります。${CAP.toFixed(1)}m³を超える場合は、2往復のご相談に。`,
+  },
+  {
+    name: "距離（片道）",
+    sub: `${DIST[0].area}は${yen(DIST[0].fee)}`,
+    rows: DISTANCE_ROWS,
+    note: "高速道路を使う場合は、その分も事前のお見積りに入れます。",
+  },
+  {
+    name: "建物の条件",
+    sub: `${STAIRS_FREE_UPTO}階までは込み`,
+    rows: CONDITION_ROWS,
+    note: "エレベーターがあれば、何階でも階段の料金はかかりません。",
+  },
+  {
+    name: "日程",
+    sub: COEF_RANGE,
+    rows: SCHEDULE_ROWS,
+    note: "いくつか当てはまるときは、高いほうだけ。重ねがけはしません。",
+  },
+];
+
+/* ============ 積める量 ============ */
+
+/** 大きな数字で出す4つ。寸法は _cargo.ts、積める量は CAP */
+const CARGO_SPECS = [
+  { label: "幅", value: String(CARGO_SIZE.w), unit: "cm" },
+  { label: "高さ", value: String(CARGO_SIZE.h), unit: "cm" },
+  { label: "奥行", value: String(CARGO_SIZE.d), unit: "cm" },
+  { label: "積める量", value: CAP.toFixed(1), unit: "m³" },
+];
 
 /**
  * 代表品目の容積。全29品目は載せない（/simulator が受ける）。
  * どの8品目を出すかは lib/pricing.ts の MOVING_ITEMS。寸法・容積も同じ品目定義から。
+ * 寸法の欄は数字だけ（品目定義の size は、全角スペースのあとに一言が続くものがある）。
  */
 const ITEM_VOLUME_ROWS = MOVING_ITEMS.map((pick) => {
   const it = item(pick.id);
-  return { name: pick.name ?? it.name, desc: it.size, price: `${it.m3.toFixed(2)}m³` };
+  return {
+    name: pick.name ?? it.short ?? it.name,
+    desc: it.size.split("　")[0],
+    price: `${it.m3.toFixed(2)}m³`,
+  };
 });
 
+/* ============ 実際の金額 ============ */
+
 /**
- * ⑦ 実際の金額。moving_final.md の「4. 実際の金額（検算）」の8行。
- * **金額は書かずに、条件から計算している。**検算表に手で書いた数字を置くと、
+ * moving_final.md の「4. 実際の金額（検算）」の8行。どれも作業員2名・階段なし。
+ * **金額は書かずに、条件から計算している。**手で書いた数字を置くと、
  * 上の表を直したときにここだけ古くなる。
  * 「1K一式」は 1.9〜2.8m³ ＝ 軽バン満載の区分。
  */
 const EXAMPLE_CASES: {
   name: string;
-  cond: string;
-  /** 強調する条件（日程）。desc の末尾に <b> で付く */
-  strong?: string;
+  /** 日程。カードの2行目に出す */
+  day: string;
+  /** 黄色の札にする（当日・日程おまかせ） */
+  hot?: boolean;
   tier: number;
   km: number;
-  crew: 1 | 2;
   coef: CoefKey;
 }[] = [
-  { name: "冷蔵庫1点・富山市内", cond: "作業員2名・平日", tier: 0, km: 12, crew: 2, coef: "heijitsu" },
-  { name: "冷蔵庫1点・富山市内", cond: "作業員2名・", strong: "当日", tier: 0, km: 12, crew: 2, coef: "touji" },
-  { name: "1K一式・富山市内", cond: "作業員2名・", strong: "日程おまかせ", tier: 2, km: 12, crew: 2, coef: "omakase" },
-  { name: "1K一式・富山市内", cond: "作業員2名・平日", tier: 2, km: 12, crew: 2, coef: "heijitsu" },
-  { name: "1K一式・富山市内", cond: "作業員2名・土日祝", tier: 2, km: 12, crew: 2, coef: "donichi" },
+  { name: "冷蔵庫1点・富山市内", day: "平日", tier: 0, km: 12, coef: "heijitsu" },
+  { name: "冷蔵庫1点・富山市内", day: "当日", hot: true, tier: 0, km: 12, coef: "touji" },
+  { name: "1K一式・富山市内", day: "日程おまかせ", hot: true, tier: 2, km: 12, coef: "omakase" },
+  { name: "1K一式・富山市内", day: "平日", tier: 2, km: 12, coef: "heijitsu" },
+  { name: "1K一式・富山市内", day: "土日祝", tier: 2, km: 12, coef: "donichi" },
   // 高岡は実際の道のり（約25km）どおり、30kmまでの段。2026-10-08 本人の決定で 40km から直した。
   // lib/regions.ts の 富山市↔高岡市 と同じ値。トップの「料金の目安」と同じ金額になる
-  { name: "1K一式・高岡（25km）", cond: "作業員2名・平日", tier: 2, km: 25, crew: 2, coef: "heijitsu" },
-  { name: "1K一式・金沢（60km）", cond: "作業員2名・土日祝", tier: 2, km: 60, crew: 2, coef: "donichi" },
-  { name: "1K一式・名古屋（250km）", cond: "作業員2名・平日", tier: 2, km: 250, crew: 2, coef: "heijitsu" },
+  { name: "1K一式・高岡（25km）", day: "平日", tier: 2, km: 25, coef: "heijitsu" },
+  { name: "1K一式・金沢（60km）", day: "土日祝", tier: 2, km: 60, coef: "donichi" },
+  { name: "1K一式・名古屋（250km）", day: "平日", tier: 2, km: 250, coef: "heijitsu" },
 ];
 
-const EXAMPLE_ROWS = EXAMPLE_CASES.map((c) => ({
-  name: c.name,
-  desc: c.strong ? (
-    <>
-      {c.cond}
-      <b>{c.strong}</b>
-    </>
-  ) : (
-    c.cond
-  ),
-  price: yen(plainTotal({ tier: TIER[c.tier], crew: c.crew, km: c.km, coefKey: c.coef })),
+const EXAMPLES = EXAMPLE_CASES.map((c) => ({
+  ...c,
+  price: fmt(plainTotal({ tier: TIER[c.tier], crew: 2, km: c.km, coefKey: c.coef })),
 }));
+
+/* ============ よくあるご質問 ============ */
+
+/** 金額・距離・係数はすべて定数から。答えは必ずテンプレートリテラルで1本にする */
+const FAQ = [
+  {
+    q: "当日でもお願いできますか？",
+    a: `空いていれば伺います。日程の係数は${coefText("touji")}です。まずは電話かLINEでご相談ください。`,
+  },
+  {
+    q: "荷物が積みきれない場合は？",
+    a: `片道${ROUNDTRIP_MAX_KM}kmまでなら、同じ日に2往復で運べます。それより遠い場合は、荷物を減らすか、買取に回すご相談になります。`,
+  },
+  {
+    q: "お手伝いは必要ですか？",
+    a: "いりません。大型の家具・家電があれば、はじめから2名で伺います。",
+  },
+  {
+    q: "400L以上の冷蔵庫は運べますか？",
+    a: `運べません。荷台の高さが${CARGO_SIZE.h}cmまでのためです。ピアノ・金庫、2トントラックが要る量もお受けできません。`,
+  },
+];
 
 export default function MovingPage() {
   return (
-    <>
-      {/* ① ヒーロー。文字を重ねない。
-          **写真ではなく荷室の断面図（14_top）。**実車の写真は「軽バンだ」としか言えず、
-          このページで先に知りたいのは「自分の荷物が入るか」なので、寸法のほうを出す。
-          ナンバープレートの写り込みの件も、写真をやめたことで一緒に消えている。
-          見出しはお客さんの言葉、リードの一言目でこちらが名乗る、という組み立て。
-          ダッシュは全角2倍ダーシ（——）。ハイフンやマイナス記号にしない。
-          リードは JSX で折らずに文字列1本で渡す。行末で折ると半角スペースが1つ入る */}
-      <Hero
-        size="md"
-        kicker="単 身 引 越 し ／ 富 山 県 全 域"
-        title="荷物、そんなに多くないんですけど。"
-        lead={`——という規模のお引越しだけ、やっています。ワンルームから1Kくらいを、軽バン1台と作業員2名で。富山市内・平日で${yen(MOVING_FROM)}から。予定が空いていれば、今日でも明日でも伺います。`}
+    <div className="tp pp">
+      {/* ① ヒーロー。紺の地。見出しはお客さんの言葉、リードでこちらが名乗る。
+          右は荷台の断面図。実車の写真は「軽バンだ」としか言えず、
+          このページで先に知りたいのは「自分の荷物が入るか」なので、寸法のほうを出す */}
+      <PriceHero
+        kicker="単身引越し ／ 富山県全域"
+        title={["荷物、そんなに", "多くないんですけど。"]}
+        lead={["その規模のお引越しだけ、やっています。", "ワンルーム〜1Kを、軽バン1台で。"]}
         actions={
           <>
-            <Link className="btn btn-fill" href="/contact">
-              写真を送って見積りを依頼
+            <Link href="/simulator" className="tp-btn tp-btn-y">
+              自分の金額をみる
             </Link>
-            <a className="btn" href={TEL_HREF}>
-              {TEL}
-            </a>
+            <div className="pp-hero-from">
+              <span>富山市内・平日</span>
+              <b className="tp-num">
+                {fmt(MOVING_FROM)}
+                <small>円〜</small>
+              </b>
+            </div>
           </>
         }
-        figure={<Figure name="cargo" caption={CARGO_CAPTION} />}
+        figure={<Figure name="cargo" caption="ワンルーム〜1K一式で、このくらい" />}
       />
 
-      {/* ② 許認可 */}
-      <LicenseStrip />
+      {/* ② 許認可の帯。91 のバッジ */}
+      <LicenseStrip variant="badge" />
 
-      {/* ③④ 金額の出し方。計算式 → 出動料 → 4つの表 */}
-      <Split kicker="考 え 方" title="いくらかかるのか、先に分かります" first>
-        <Spec label="計 算 式" value="（ 出動料 ＋ 荷物の量 ＋ 距離 ＋ 建物の条件 ）× 日程" small>
-          {/* 1つづきの文なので <br /> で割らず、文字列を1本にして渡す */}
-          {"すべて税込で、100円未満は切り捨てます。お見積りは作業を始める前に確定します。作業後に金額が増えることはありません。"}
-        </Spec>
+      {/* ③ 料金。5つの箱（しくみ）→ 込みの札 → 計算式の一文 → 4つの表（細部） */}
+      <section className="pp-sec">
+        <div className="tw">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">PRICE</p>
+            <h2 className="tp-h2">
+              金額は、<span className="tp-mark pp-fill">先に決まります</span>
+            </h2>
+            <p className="tp-sec-lead">税込。作業のあとに増えることはありません。</p>
+          </div>
 
-        {/* ラベルに金額を入れると、5,000円がページでいちばん小さい字（11.5px・灰色）に
-            なってしまう。ラベル＝短い名前／本文＝いちばん大事な事実ひとつ／補足＝説明、
-            という Spec 本来の形に戻した。文言は1文字も足していない */}
-        <Spec label="出 動 料" value={yen(DEPART)}>
-          {/* JSX の行末で折ると、そこに半角スペースが1つ入る。
-              1つづきの文なので、文字列を1本にして渡す */}
-          {"全案件に共通してかかります。軽バン1台／毛布・養生材・ラップ／ラッシングベルト／2階までの階段作業／搬入後の設置。ここまで含めた金額です。"}
-        </Spec>
+          <div className="pp-formula tp-rise">
+            {FORMULA.map((f) => (
+              <Fragment key={f.name}>
+                {f.op ? (
+                  <span className="pp-fx-op tp-num" aria-hidden="true">
+                    {f.op}
+                  </span>
+                ) : null}
+                <div className={f.hot ? "pp-fx y" : "pp-fx"}>
+                  <span className="k">{f.name}</span>
+                  <span className="v tp-num">
+                    {f.value}
+                    <small>{f.unit}</small>
+                  </span>
+                  <span className="d">{f.desc}</span>
+                </div>
+              </Fragment>
+            ))}
+          </div>
 
-        {/* 表の見出しは thead に置いてある。表の外にもう1段見出しを足すと、
-            罫線だけで組んだ表の上に太い行が増えて、表が箱に見え始める */}
-        <div className="pt">
-          <PriceTable
-            head={["荷物の量", "金額"]}
-            rows={VOLUME_ROWS}
-            note={`${CAP.toFixed(1)}m³を超える場合は、往復プランか、荷物を減らすご相談になります。`}
-          />
+          <ul className="pp-inc">
+            <li className="h">出動料に込み：</li>
+            {INCLUDED.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+
+          {/* 計算式の一文。消さずに小さく残す（cc_task/92 §3-2） */}
+          <p className="pp-fine">
+            （出動料 ＋ 荷物の量 ＋ 距離 ＋ 建物の条件）× 日程。すべて税込で、100円未満は切り捨てます。お見積りは作業を始める前に確定します。
+          </p>
+
+          <PriceAccordion items={TABLES} />
         </div>
+      </section>
 
-        <div className="pt">
-          <PriceTable
-            head={["距離（片道）", "金額"]}
-            rows={DISTANCE_ROWS}
-            note="高速道路を使う場合は、その分を事前のお見積りでお伝えします。当日の追加請求はありません。"
-          />
+      {/* ④ 積める量。ベージュの地 */}
+      <section className="pp-sec beige">
+        <div className="tw">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">CARGO</p>
+            <h2 className="tp-h2">これ、積めますか？</h2>
+          </div>
+          <div className="pp-cargo">
+            <div className="pp-cargo-l">
+              <dl className="pp-bigspec">
+                {CARGO_SPECS.map((c) => (
+                  <div key={c.label}>
+                    <dt>{c.label}</dt>
+                    <dd className="tp-num">
+                      {c.value}
+                      <small>{c.unit}</small>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="tp-sec-lead">{`冷蔵庫は高さ${CARGO_SIZE.h}cmまで。洗濯機は縦型もドラム式も積めます。`}</p>
+              <div className="pp-note-box tp-rise">
+                <h3>積みきれないときは、2往復</h3>
+                <p>{`片道${ROUNDTRIP_MAX_KM}kmまでなら、同じ日に2回に分けて運べます。出動料はそのまま、作業料の${Math.round(
+                  ROUNDTRIP_WORK_RATE * 100,
+                )}%と距離料を足した金額です。`}</p>
+                <p>{`${ROUNDTRIP_MAX_KM}kmより遠い場合は、荷物を減らすか、売れる物を買取に回すご相談になります。`}</p>
+              </div>
+              {/* ★電話番号と、許可がない旨（cc_task/92 §1-2 の言い換え）は一字一句このまま */}
+              <p className="pp-fine">
+                買い取れない物（マットレス・布団・ソファ・カラーボックスなど）は、富山市の戸別収集をご予約ください（
+                <span className="nw">076-428-4040</span>
+                ）。廃棄物を回収する許可がないため、お引き取りはできません。
+              </p>
+            </div>
+            <div className="pp-cargo-r">
+              {/* 代表品目だけ。全29品目は /simulator が受ける */}
+              <table className="pp-tbl box">
+                <tbody>
+                  {ITEM_VOLUME_ROWS.map((r) => (
+                    <tr key={r.name}>
+                      <th scope="row">{r.name}</th>
+                      <td className="d">{r.desc}</td>
+                      <td className="p tp-num">{r.price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Link href="/simulator" className="tp-btn tp-btn-n">
+                全部の品目で計算する
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="pt">
-          <PriceTable head={["建物の条件", "金額"]} rows={CONDITION_ROWS} />
+      {/* ⑤ 実際の金額。カード4列。「当日」「日程おまかせ」は黄色の札 */}
+      <section className="pp-sec">
+        <div className="tw">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">EXAMPLES</p>
+            <h2 className="tp-h2">だいたい、こんな金額です</h2>
+            <p className="tp-sec-lead">作業員2名・階段なしの場合。</p>
+          </div>
+          <div className="pp-cases">
+            {EXAMPLES.map((c) => (
+              <div className="pp-case tp-rise" key={`${c.name}-${c.day}`}>
+                <span className="t">{c.name}</span>
+                <span className="d">{c.hot ? <b>{c.day}</b> : c.day}</span>
+                <span className="p tp-num">
+                  {c.price}
+                  <small>円</small>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="pt">
-          <PriceTable
-            head={["日程", "係数"]}
-            rows={SCHEDULE_ROWS}
-            note={
-              <>
-                <b>複数に当てはまる場合は、高いほうだけを適用します。</b>
-                重ねがけはしません。
-              </>
-            }
-          />
+      {/* ⑥ 4つの約束＋日帰りの上限。4項目は ../_reasons.ts（トップと同じもの。書き写さない）。
+          見た目もトップと同じ（tp-rs）。「改善基準告示…8.5時間…」の説明は 92 で外した */}
+      <section className="pp-sec flush">
+        <div className="tw">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">POLICY</p>
+            <h2 className="tp-h2">
+              当日、困らないための
+              <br />
+              {`${MOVING_REASONS.length}つの約束`}
+            </h2>
+          </div>
+          <ol className="tp-rs-list">
+            {MOVING_REASONS.map((r, i) => (
+              <li className="tp-rs tp-rise" key={r.title}>
+                <span className="tp-rs-n tp-num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div className="tp-rs-b">
+                  <h3>{r.title}</h3>
+                  <p>{r.body}</p>
+                  {r.evidence ? <span className="tp-rs-e">{r.evidence}</span> : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="pp-note-box row tp-rise">
+            <span className="big tp-num">
+              {MAX_KM}
+              <small>km</small>
+            </span>
+            <div>
+              <h3>{`日帰りは、片道${MAX_KM}kmまで`}</h3>
+              <p>{`${DAYTRIP_PLACES.join("・")}まで、日帰りで伺います。${LONG_HAUL.map((l) => l.name.replace("方面", "")).join("・")}方面は1泊2日で。`}</p>
+            </div>
+          </div>
         </div>
-      </Split>
+      </section>
 
-      {/* ⑤⑥ 積める量と、積みきれない場合 */}
-      <Split kicker="積 め る 量" title="これ、積めますか？" tint>
-        {/* 2.8 は CAP から。JSX の本文に {CAP} を混ぜると text node が割れて
-            HTML に <!-- --> が入るので、文字列を1つに組んでから渡す */}
-        <Spec label="積 め る サ イ ズ" value="幅140cm × 高さ142cm × 奥行190cm ／ 最大積載350kg">
-          {`スズキ・エブリイ（ハイルーフ）のカタログ表記です。 隙間ができるぶんを引いて、実際に積める量は ${CAP.toFixed(
-            1,
-          )}m³ を目安にしています。 冷蔵庫は高さ142cmまで、洗濯機は縦型・ドラム式とも積めます。`}
-        </Spec>
-
-        {/* 代表品目だけ。全29品目は /simulator が受ける */}
-        <div className="pt">
-          <PriceTable
-            head={["品目（寸法 cm）", "容積"]}
-            rows={ITEM_VOLUME_ROWS}
-            note={
-              <>
-                全品目を選んで自動で計算できます →{" "}
-                <Link className="tl" href="/simulator">
-                  お見積りシミュレーター
-                </Link>
-              </>
-            }
-          />
+      {/* ⑦ よくあるご質問。トップと同じ形（FaqTop）。id="faq" は前のまま */}
+      <section className="tp-faq" id="faq">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">FAQ</p>
+            <h2 className="tp-h2">よくあるご質問</h2>
+          </div>
+          <FaqTop items={FAQ} />
         </div>
+      </section>
 
-        {/* ⑥ 電話番号と但し書きは一字一句このまま */}
-        <Spec
-          label="積 み き れ な い 場 合"
-          value={`片道${ROUNDTRIP_MAX_KM}kmまでは、往復プランをご提案します。出動料は1回分のまま、作業料${Math.round(
-            ROUNDTRIP_WORK_RATE * 100,
-          )}%と距離料を加算します。`}
-          small
-        >
-          75kmを超える場合は往復が現実的ではないので、
-          荷物を減らすか、買い取れる物を買取に回すご相談になります。
-          買い取れない物（マットレス・布団・ソファ・カラーボックスなど）は、
-          富山市の戸別収集をご予約ください（076-428-4040）。
-          当社は一般廃棄物収集運搬業の許可がないため、お引き取りできません。
-        </Spec>
-      </Split>
-
-      {/* ⑦ 実際の金額。
-          養生の写真（youjou-01）はここにあったが、14_top でサイトから外してブログへ回した。
-          「養生と保険まで込み」は下の⑧の三番目（ReasonList）が文章で受けている */}
-      <Split kicker="実 際 の 金 額" title="だいたい、こんな金額です">
-        <PriceTable head={["ケース", "お支払額"]} rows={EXAMPLE_ROWS} />
-      </Split>
-
-      {/* ⑧⑨ 考え方と、日帰りの上限 */}
-      <Split kicker="考 え 方" title="あとから困らないように" tint>
-        {/* 4項目は ../_reasons.ts。トップ（/）と同じものを出すので、
-            どちらかに書き写さない。文言はそのまま */}
-        <ReasonList items={MOVING_REASONS} />
-
-        {/* ⑨ 四番目「お断りは先に」の続き。距離の上限がどこから来ているか */}
-        <Spec
-          label="日 帰 り は 片 道 300km ま で"
-          value="国土交通省の改善基準告示により、1日の拘束時間は原則13時間です。"
-          small
-        >
-          積込1.5時間・搬入1.5時間・休憩1時間を引くと、運転できるのは8.5時間。
-          高速道路の平均速度から、片道およそ300kmが限界になります。
-          大阪・東京へのお引越しは1泊2日で承ります。
-        </Spec>
-      </Split>
-
-      {/* ⑩ よくある質問 */}
-      <Split kicker="質 問" title="よくあるご質問" id="faq">
-        <Faq
-          items={[
-            {
-              q: "当日でもお願いできますか？",
-              a: `空いていれば伺います。当日は日程係数が${COEF.touji.coef.toFixed(1)}倍になります。まずはお電話かLINEでご相談ください。`,
-            },
-            {
-              q: `荷物が${CAP.toFixed(1)}m³に入りきらない場合は？`,
-              a: `片道${ROUNDTRIP_MAX_KM}kmまでなら往復プランをご提案します。それ以上の距離では、荷物を減らすか、買い取れる物を買取に回すご相談になります。`,
-            },
-            {
-              q: "お手伝いは必要ですか？",
-              a: "必要ありません。冷蔵庫・洗濯機・ベッド・食器棚・タンス・ソファなど大型がひとつでもあるご依頼は、安全のため作業員2名で伺います。人数はお客様に選んでいただくものではなく、荷物で決まります。2名ぶんの作業料はお見積りの時点で入っていますので、当日に人を増やして追加請求することはありません。",
-            },
-            {
-              q: "400L以上の冷蔵庫は運べますか？",
-              a: "運べません。荷室の高さが142cmまでのためです。2トントラックが必要な物量、ピアノ、金庫も対応できません。",
-            },
-          ]}
-        />
-      </Split>
-
-      {/* ⑪ */}
-      <Cta />
-    </>
+      {/* ⑧ 最後の案内。トップと同じ黄色の帯 */}
+      <LastCta title="まずは、写真を1枚。" lead="運びたい物を撮って送ってください。その場で概算をお伝えします。" />
+    </div>
   );
 }

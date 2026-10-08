@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useCountUp } from "./useCountUp";
 import { INBUILDING_MOVE_FEE, INDOOR_FEE } from "../_fees";
 import { LINE_URL } from "@/lib/site";
 import { PLACES, kmBetween, type PlaceId } from "@/lib/regions";
@@ -100,33 +101,6 @@ function coefText(k: CoefKey): string {
   return `×${COEF[k].coef.toFixed(2)}`;
 }
 
-/**
- * 金額を 0.5秒ほどで数え上げる／下げる。
- * `prefers-reduced-motion: reduce` のときは動かさず、次のフレームで着地させる。
- */
-function useCountUp(target: number | null, initial: number): number {
-  const [shown, setShown] = useState(initial);
-  const shownRef = useRef(initial);
-
-  useEffect(() => {
-    if (target === null) return;
-    const from = shownRef.current;
-    if (from === target) return;
-    const dur = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 520;
-    const start = performance.now();
-    let raf = requestAnimationFrame(function tick(now: number) {
-      const p = dur === 0 ? 1 : Math.min(1, (now - start) / dur);
-      const v = Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3)));
-      shownRef.current = v;
-      setShown(v);
-      if (p < 1) raf = requestAnimationFrame(tick);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [target]);
-
-  return shown;
-}
-
 export default function QuickEstimate() {
   const [mode, setMode] = useState<Mode>("full");
   const [picked, setPicked] = useState<Record<string, boolean>>({ fridge: true });
@@ -219,6 +193,8 @@ export default function QuickEstimate() {
   if (!noStep) {
     if (km !== null) simParams.push(`km=${km}`);
     simParams.push(`coef=${day}`);
+    // 92_price_pages：シミュレーターにも地域のセレクトが付いたので、選んだ地域も渡す
+    simParams.push(`from=${from}`, `to=${to}`);
     if (mode === "pick" && l.items > 0) {
       simParams.push(`items=${PICK_ITEMS.filter((it) => picked[it.id]).map((it) => it.id).join(",")}`);
     }

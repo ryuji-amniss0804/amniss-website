@@ -8,6 +8,8 @@ import type { ReactNode } from "react";
  * どちらも困る。画像として置かず、DOM に展開する。
  *
  * 色は site.css の `.figv` 側に持たせてある（`fg-` 始まりのクラス）。
+ * 92_price_pages：/moving のヒーローでは配色を差し替えている（site.css の `.pp-hero-f`）。
+ * 冷蔵庫（fg-a）と洗濯機（fg-b）を塗り分けるためのクラスを足した。既定の見た目には効かない。
  * SVG の中に色を直書きしないこと。トークン（--ink / --ink-4 / --paper-2）を
  * 変えたときに図版だけ取り残される。
  *
@@ -37,7 +39,7 @@ function Cargo() {
       <rect className="fg-bx" x="40" y="46" width="400" height="299" />
 
       {/* 冷蔵庫 60×140 */}
-      <rect className="fg-it" x="40" y="51" width="126" height="294" />
+      <rect className="fg-it fg-a" x="40" y="51" width="126" height="294" />
       <text className="fg-t" x="103" y="196" textAnchor="middle">
         冷蔵庫
       </text>
@@ -46,7 +48,7 @@ function Cargo() {
       </text>
 
       {/* 洗濯機 60×100 */}
-      <rect className="fg-it" x="166" y="135" width="126" height="210" />
+      <rect className="fg-it fg-b" x="166" y="135" width="126" height="210" />
       <text className="fg-t" x="229" y="234" textAnchor="middle">
         洗濯機
       </text>
@@ -87,8 +89,8 @@ const FIGURES: Record<string, () => ReactNode> = {
 export type FigureName = keyof typeof FIGURES;
 
 /**
- * 荷室の断面図のキャプション。**`/moving` のヒーローとトップの⑤で共通。**
- * 2つのページで別々に書くと、片方だけ古くなる。
+ * 荷室の断面図の長いキャプション。いまは /preview の見本だけが使っている
+ * （/moving のヒーローは 92_price_pages で短い一言に変えた）。
  */
 export const CARGO_CAPTION =
   "軽バン（スズキ・エブリイ ハイルーフ）の荷室を実寸の比率で描いています。図の中身は冷蔵庫・洗濯機・段ボール大8箱で、ちょうど1Kぶんです。";
