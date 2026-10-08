@@ -39,7 +39,7 @@ export default function SimulatorPage() {
         small
         kicker="お見積りシミュレーター"
         title={["運ぶ物を選ぶだけで、", "金額が出ます。"]}
-        lead={["ここで出た金額が、当日のお支払いです。作業のあとに増えることはありません。"]}
+        lead={["選ぶだけで、その場で目安が出ます。金額は作業の前に確定し、あとから増えることはありません。"]}
       />
 
       <div className="tw">
