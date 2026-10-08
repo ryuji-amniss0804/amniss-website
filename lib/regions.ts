@@ -12,7 +12,8 @@
  */
 
 export const REGIONS = [
-  { id: "toyama", name: "富山市" },
+  // 舟橋村は富山市と同じ地域として扱う（10km・富山市内扱い）。2026-10-08 本人の決定
+  { id: "toyama", name: "富山市・舟橋村" },
   { id: "imizu", name: "射水市" },
   { id: "namerikawa", name: "滑川市・上市町・立山町" },
   { id: "takaoka", name: "高岡市" },

@@ -57,7 +57,10 @@ export const images = {
   // ─── トップのヒーロー（画面幅いっぱい・上に紺を重ねて文字を乗せる） ───
   /*
    * 90_top_renewal で差し替えた（Unsplash・Unsplash License・クレジット不要）。
-   * それまでの1枚（呉羽山からの立山連峰と軽バン・3000×1286）は git の履歴にある。
+   * **ファイル名を hero-top-2026.jpg に変えてある。**同じ名前で上書きすると、
+   * 画像の変換結果のキャッシュ（URL で引く）から前の写真が出るため。
+   * それまでの1枚（呉羽山からの立山連峰と軽バン・3000×1286）は
+   * public/images/hero-top.jpg に残してある。いまはどこからも使っていない。
    *
    * **この写真は文字の背景として使う。**紺（rgba(20,32,43,.62)）の重ねは
    * site.css の .tp-hero-shade が持っている。treatment は "plain" のまま
@@ -66,7 +69,7 @@ export const images = {
    * objectPosition は人物と段ボールが右寄りにあるため。狭い幅で切れるのを防ぐ。
    */
   heroTop: {
-    src: "/images/hero-top.jpg",
+    src: "/images/hero-top-2026.jpg",
     alt: "リビングで段ボールを運ぶ人",
     width: 2200,
     height: 1238,

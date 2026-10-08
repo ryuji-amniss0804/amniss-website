@@ -9,6 +9,8 @@ type Props = {
   children?: ReactNode;
   /** value の文字サイズを落とす（計算式など長いもの用） */
   small?: boolean;
+  /** ページ内リンクの飛び先にするとき */
+  id?: string;
 };
 
 /**
@@ -16,9 +18,9 @@ type Props = {
  * このデザインで「囲む」ことを許しているのはここだけ。
  * 影・角丸・背景色は付けない。
  */
-export default function Spec({ label, value, children, small }: Props) {
+export default function Spec({ label, value, children, small, id }: Props) {
   return (
-    <div className="spec">
+    <div className="spec" id={id}>
       <div className="k">{label}</div>
       <div className="v mincho" style={small ? { fontSize: "17px", marginTop: "12px" } : undefined}>
         {value}

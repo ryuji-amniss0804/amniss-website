@@ -212,7 +212,9 @@ export default function QuickEstimate() {
   /* ---- /simulator へ引き継ぐ条件 ----
      「まるごと」「小物だけ」は品目を渡さない。シミュレーターには一式という選び方がなく、
      こちらで品目を決めて渡すと、選んでいない物が入った状態で開くことになるため。
-     距離と日程だけを渡す。車を使わない／1LDK以上は、引き継ぐ条件がないのでそのまま開く。 */
+     距離と日程だけを渡す。1LDK以上は、引き継ぐ条件がないのでそのまま開く。
+     車を使わないときは、シミュレーターに該当する作業がないので /unpan の料金の節へ送る
+     （飛び先の id は unpan/page.tsx の ①のSpec に付けてある）。 */
   const simParams: string[] = [];
   if (!noStep) {
     if (km !== null) simParams.push(`km=${km}`);
@@ -222,6 +224,7 @@ export default function QuickEstimate() {
     }
   }
   const simHref = simParams.length ? `/simulator?${simParams.join("&")}` : "/simulator";
+  const detailHref = indoor ? "/unpan#tatemononai" : simHref;
 
   const pct = Math.min(100, l.pct);
   const kmLabel =
@@ -412,8 +415,8 @@ export default function QuickEstimate() {
                 </div>
               )}
               <div className="tp-card-acts">
-                <Link href={simHref} className="tp-btn tp-btn-y">
-                  この条件で詳しく見積もる
+                <Link href={detailHref} className="tp-btn tp-btn-y">
+                  {indoor ? "建物の中の作業の料金をみる" : "この条件で詳しく見積もる"}
                 </Link>
                 <a href={LINE_URL} className="tp-btn tp-btn-o" target="_blank" rel="noopener noreferrer">
                   LINEで写真を送って相談

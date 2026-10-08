@@ -1622,6 +1622,9 @@ body.rv,
   .rv header.site.on-top .w { padding-left: 16px; padding-right: 16px; }
 }
 
+/* /unpan#tatemononai（トップの「料金の目安」からの飛び先）。貼り付くヘッダー（75px）に隠れないように */
+.rv .spec[id] { scroll-margin-top: 96px; }
+
 /* ---- トップの新しい節の土台 ---- */
 .rv .tp {
   font-family: var(--rv-ff-zen);
