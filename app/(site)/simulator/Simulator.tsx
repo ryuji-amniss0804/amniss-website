@@ -61,6 +61,8 @@ import {
 const MAX_KM = DIST[DIST.length - 1].km;
 /** 「あと段ボール大 約◯箱」の1箱ぶん */
 const BOX_L_M3 = itemOf("box-l")?.m3 ?? 0.06;
+/** 結果の欄の id。スマホの帯（pp-load-m）の飛び先 */
+const RESULT_ID = "sim-result";
 /** 積み切れないときに基準にする区分（軽バン満載） */
 const FULL_TIER = TIER[TIER.length - 1];
 
@@ -253,6 +255,8 @@ export default function Simulator() {
   }
   const total = normal ? normal.total : null;
   const shown = useCountUp(total, 0);
+  /** スマホの帯で、金額の代わりに出す短い一言（分岐は上の msg と同じ順） */
+  const barMsg = l.items === 0 ? "品目を選んでください" : !dist ? "個別にお見積り" : "積みきれません";
 
   /* ---- LINE に貼るテキスト ---- */
   function estimateText(): string {
@@ -478,12 +482,41 @@ export default function Simulator() {
             </div>
           ))}
 
-          {/* 荷台のバー。品目リストの下に貼り付いてくる。CAP を超えたら赤 */}
-          <div className="pp-load" aria-live="polite">
+          {/* 荷台のバー。品目リストの下に貼り付いてくる。CAP を超えたら赤。
+              ★aria-live は付けない。読み上げるのは下の結果の欄（#sim-result）だけ。
+                ここにも付けると、＋を押すたびに同じ金額を2回読む */}
+          <div className="pp-load">
+            {/* PC（861px以上）の見出し。スマホでは下の pp-load-m に替わる */}
             <div className="pp-load-t">
               <span>軽バンの荷台</span>
               <span className="tp-num">{l.over ? `積みきれません ${l.pct}%` : `${l.pct}%`}</span>
             </div>
+            {/* スマホ（860px以下）だけ。結果の欄が品目リストのずっと下にあるので、選びながら金額が見えるようにする。
+                金額は結果の欄と同じ変数（normal.total・shown）。押すと結果の欄へ動く */}
+            <a className="pp-load-m" href={`#${RESULT_ID}`}>
+              <span className="a">
+                {"荷台 "}
+                <b className="tp-num">{`${l.pct}%`}</b>
+              </span>
+              <span className="sep" aria-hidden="true">
+                ｜
+              </span>
+              {normal ? (
+                <span className="b">
+                  {"目安 "}
+                  <b className="tp-num" aria-hidden="true">
+                    {fmt(shown)}
+                  </b>
+                  <span className="tp-vh">{fmt(normal.total)}</span>円
+                </span>
+              ) : (
+                <span className="b msg">{barMsg}</span>
+              )}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                <path d="M2 5l5 5 5-5" />
+              </svg>
+              <span className="tp-vh">結果へ</span>
+            </a>
             <div className="tp-bar">
               <i className={l.over ? "over" : undefined} style={{ width: `${Math.min(100, l.pct)}%` }} />
             </div>
@@ -696,7 +729,7 @@ export default function Simulator() {
       {/* ---- 結果。数え上げの途中の数字は読み上げさせない（aria-hidden）。
           読み上げるのは着地した金額のほう（.tp-vh）だけ。
           ご提案（plans）が出ているときは貼り付けない（結果が画面より長くなり、下が読めなくなる） ---- */}
-      <aside className={plans.length ? "pp-est-r free" : "pp-est-r"} aria-live="polite">
+      <aside className={plans.length ? "pp-est-r free" : "pp-est-r"} id={RESULT_ID} aria-live="polite">
         <div className="tp-card">
           <p className="tp-card-k">お見積り</p>
           {normal ? (

@@ -2853,12 +2853,37 @@ body.rv,
 .rv .pp-plan p { font-size: 14px; line-height: 1.9; color: var(--rv-sub); }
 .rv .pp-plan p b { color: var(--rv-navy); }
 @media (max-width: 960px) {
-  /* スマホの固定バー（.mbar・60px）の上に貼り付ける */
-  .rv .pp-load { bottom: 60px; }
+  /* スマホの固定バー（.mbar）の上に貼り付ける。
+     ⚠ バーの高さは 73px（上下の padding 8＋8、中のボタン 56、上の線 1）。body の padding-bottom の 60px ではない。
+        92 では 60px にしていて、帯の下の13pxがバーの裏に隠れていた（92c で実測して直した）。
+        .mbar の高さを変えたら、ここも変えること */
+  .rv .pp-load { bottom: 73px; }
 }
+/* スマホの帯（92c）。「荷台 43% ｜ 目安 25,000円」。押すと結果の欄へ動く。PC では出さない */
+.rv .pp-load-m { display: none; }
 @media (max-width: 860px) {
   .rv .pp-est { padding: 48px 0 80px; }
-  .rv .pp-est-r { position: static; }
+  /* 帯から飛んできたとき、貼り付くヘッダー（75px）に隠れないように */
+  .rv .pp-est-r { position: static; scroll-margin-top: 91px; }
+  .rv .pp-load-t { display: none; }
+  .rv .pp-load-m {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 0;
+    font-weight: 900;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--rv-navy);
+  }
+  .rv .pp-load-m:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 2px; border-radius: 8px; }
+  .rv .pp-load-m b { font-size: 24px; font-weight: 800; }
+  .rv .pp-load-m .sep { color: var(--rv-line); font-weight: 500; }
+  .rv .pp-load-m .b { margin-left: auto; text-align: right; }
+  .rv .pp-load-m .b.msg { font-size: 15px; }
+  .rv .pp-load-m svg { flex: none; align-self: center; }
+  .rv .pp-load { gap: 4px; padding-top: 6px; }
 }
 @media (max-width: 480px) {
   .rv .pp-row { flex-wrap: wrap; row-gap: 6px; }
