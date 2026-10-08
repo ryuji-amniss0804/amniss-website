@@ -1496,3 +1496,508 @@ body.rv,
   .rv .qf-send .btn { width: 100%; }
   .rv .qf-done-acts .btn { flex: 1; }
 }
+
+/* ====================================================================
+   90_top_renewal（2026-10-08）トップのリニューアル 1回目
+   見た目・動きの正は cc_task/90 の参考モック（top_mock_20261008/Main.dc.html）。
+
+   ここから下は **足しただけ**。上の既存の宣言は1つも消していない。
+   効く範囲は3つだけ：
+     ① header.site / footer.site … 全ページ共通（紺の帯）
+     ② .top … トップの <main> の中身全体（既存の節の色を差し替える）
+     ③ .tp / tp-* … トップの新しい4節（ヒーロー・流れる帯・料金の目安・料金のしくみ）
+   **ほかのページの <main> の中には何も効かない。**
+   ==================================================================== */
+
+/* ---- 色（共通の土台）。既存の --ink などは残してある ---- */
+.rv {
+  --rv-navy: #14202B;          /* 文字・濃い面 */
+  --rv-navy-2: #0E171F;        /* フッター */
+  --rv-paper: #FAF8F3;         /* 地 */
+  --rv-yellow: #FFC21A;        /* 主役。塗りと線だけ。★白地の上の文字には使わない */
+  --rv-yellow-d: #E0A400;      /* 押した状態 */
+  --rv-yellow-shadow: #A87A00; /* ボタンの下の影 */
+  --rv-green: #2F6F5E;         /* チェック・小見出し */
+  --rv-doc: #00A37A;           /* re'vive_doc のカードだけ */
+  --rv-sub: #4A5561;           /* 補助の文字（地の上） */
+  --rv-sub-on-navy: #C9CFD6;   /* 補助の文字（紺の上） */
+  --rv-line: #D9D3C7;          /* ボタンの枠 */
+  /* 書体の組。本文は Zen Kaku Gothic New、数字は Barlow Condensed */
+  --rv-ff-zen: var(--rv-font-zen), "Noto Sans CJK JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  --rv-ff-num: var(--rv-font-num), var(--rv-font-zen), "Noto Sans CJK JP", sans-serif;
+}
+
+/* ---- ヘッダー：紺の帯。トップだけヒーローの上に重ねる ----
+   高さは変えていない（.hd-in 74px ＋ border-bottom 1px ＝ 75px）。
+   変えると、トップ以外の全ページで本文の位置が動く。 */
+.rv header.site {
+  background: var(--rv-navy);
+  border-bottom-color: var(--rv-navy);
+  color: var(--rv-paper);
+  font-family: var(--rv-ff-zen);
+}
+.rv header.site.on-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: transparent;
+  border-bottom-color: transparent;
+}
+.rv header.site .logo { font-family: var(--rv-ff-zen); line-height: 1; }
+.rv header.site .logo a { display: flex; align-items: baseline; gap: 8px; }
+.rv header.site .logo b {
+  font-family: var(--rv-ff-num);
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+}
+.rv header.site .logo span {
+  display: inline;
+  font-family: var(--rv-ff-zen);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: inherit;
+  margin-top: 0;
+}
+.rv header.site nav.main { font-weight: 700; }
+.rv header.site nav.main a:hover,
+.rv header.site nav.main a.cur { border-color: var(--rv-yellow); }
+.rv header.site .hd-tel b {
+  font-family: var(--rv-ff-num);
+  font-feature-settings: "tnum";
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.rv header.site .hd-tel span { color: var(--rv-sub-on-navy); }
+/* 黄色の丸いボタン。寸法（padding・字の大きさ）は上の .hd-cta のまま。
+   狭い幅で2行に割れない計算がそこにあるので、幅を変えないこと */
+.rv header.site .hd-cta {
+  background: var(--rv-yellow);
+  border-color: var(--rv-yellow);
+  color: var(--rv-navy);
+  border-radius: 999px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.rv header.site .hd-cta:hover {
+  background: var(--rv-yellow-d);
+  border-color: var(--rv-yellow-d);
+  color: var(--rv-navy);
+}
+
+/* ---- フッター：紺（--rv-navy-2）の地。中身は既存のまま ---- */
+.rv footer.site {
+  background: var(--rv-navy-2);
+  border-top-color: var(--rv-navy-2);
+  color: var(--rv-sub-on-navy);
+  font-family: var(--rv-ff-zen);
+}
+.rv footer.site .lg { font-family: var(--rv-ff-zen); font-weight: 700; color: var(--rv-paper); }
+.rv footer.site h4 { color: var(--rv-paper); font-weight: 700; }
+.rv footer.site li a:hover { border-bottom-color: var(--rv-paper); }
+.rv footer.site .fnote { border-top-color: rgba(250, 248, 243, 0.18); color: var(--rv-sub-on-navy); }
+
+/* ---- トップ：既存の節（②〜⑨）の色だけを新しい変数に合わせる ----
+   変数を差し替えているだけなので、節の中身・余白・書体は main のまま。
+   --paper-2（tint の節・許認可の帯）は、地が #FAF8F3 になって見分けがつかなくなるので白にした。 */
+.rv .top {
+  --ink: var(--rv-navy);
+  --ink-3: var(--rv-sub);
+  --paper: var(--rv-paper);
+  --paper-2: #fff;
+  --rule: var(--rv-line);
+  --rule-2: var(--rv-line);
+  --w: 1200px;
+  background: var(--rv-paper);
+  color: var(--rv-navy);
+}
+/* 既存の節の左右を、新しい節（.tw）と同じ位置にそろえる。
+   ⚠ padding のショートハンドで書かないこと。.w と併記している側の上下まで 0 になる */
+.rv .top .w { padding-left: 32px; padding-right: 32px; }
+.rv header.site.on-top .w { max-width: 1200px; padding-left: 32px; padding-right: 32px; }
+@media (max-width: 860px) {
+  .rv .top .w,
+  .rv header.site.on-top .w { padding-left: 16px; padding-right: 16px; }
+}
+
+/* /unpan#tatemononai（トップの「料金の目安」からの飛び先）。貼り付くヘッダー（75px）に隠れないように */
+.rv .spec[id] { scroll-margin-top: 96px; }
+
+/* ---- トップの新しい節の土台 ---- */
+.rv .tp {
+  font-family: var(--rv-ff-zen);
+  font-feature-settings: "palt";
+  letter-spacing: 0;
+  line-height: 1.6;
+  color: var(--rv-navy);
+  /* ボタンの中の span にも効かせる（上の .rv p / h1 の指定は p と見出しにしか当たらない） */
+  word-break: auto-phrase;
+  line-break: strict;
+}
+.rv .tp-num { font-family: var(--rv-ff-num); font-feature-settings: "tnum"; }
+.rv .tw { max-width: 1200px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+@media (max-width: 860px) {
+  .rv .tw { padding-left: 16px; padding-right: 16px; }
+}
+/* 読み上げにだけ出す */
+.rv .tp-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 動き */
+@keyframes tp-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes tp-zoom { from { transform: scale(1.14); } to { transform: scale(1); } }
+@keyframes tp-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes tp-drive { 0% { left: -90px; } 100% { left: calc(100% + 20px); } }
+@keyframes tp-bump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes tp-marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes tp-pop { 0% { transform: scale(0.96); } 60% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@keyframes tp-pulse {
+  0% { box-shadow: 0 5px 0 var(--rv-yellow-shadow), 0 0 0 0 rgba(255, 194, 26, 0.55); }
+  100% { box-shadow: 0 5px 0 var(--rv-yellow-shadow), 0 0 0 18px rgba(255, 194, 26, 0); }
+}
+.rv .tp-a1 { animation: tp-up 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+.rv .tp-a2 { animation: tp-up 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.35s both; }
+.rv .tp-a3 { animation: tp-up 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.55s both; }
+.rv .tp-a4 { animation: tp-up 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.75s both; }
+
+/* 黄色のしるし。既定は文字の下に太い線（地の上の見出し用） */
+.rv .tp-mark { position: relative; display: inline-block; z-index: 0; }
+.rv .tp-mark::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0.06em;
+  height: 0.34em;
+  background: var(--rv-yellow);
+  z-index: -1;
+  transform-origin: left;
+  animation: tp-draw 0.8s cubic-bezier(0.7, 0, 0.2, 1) 1s both;
+}
+
+/* ボタン */
+.rv .tp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 28px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 17px;
+  line-height: 1.3;
+  text-align: center;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s;
+}
+.rv .tp-btn:focus-visible { outline: 3px solid var(--rv-paper); outline-offset: 3px; }
+.rv .tp-btn-y { background: var(--rv-yellow); color: var(--rv-navy); box-shadow: 0 5px 0 var(--rv-yellow-shadow); }
+.rv .tp-btn-y:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--rv-yellow-shadow); }
+.rv .tp-btn-y:active { background: var(--rv-yellow-d); transform: translateY(2px); box-shadow: 0 3px 0 var(--rv-yellow-shadow); }
+.rv .tp-btn-o { border: 2px solid var(--rv-paper); color: var(--rv-paper); min-height: 50px; font-size: 15px; }
+.rv .tp-btn-o:hover { background: var(--rv-paper); color: var(--rv-navy); }
+.rv .tp-btn-lg { font-size: 18px; min-height: 60px; padding: 0 34px; }
+.rv .tp-pulse { animation: tp-pulse 1.8s ease-out infinite; }
+
+/* ---- ① ヒーロー ---- */
+.rv .tp-hero {
+  position: relative;
+  min-height: 720px;
+  overflow: hidden;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  display: flex;
+  align-items: flex-end;
+}
+.rv .tp-hero-img { position: absolute; inset: 0; animation: tp-zoom 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+/* 写真の上に紺を全面に重ねる。この濃さで文字が読める。薄くしないこと */
+.rv .tp-hero-shade { position: absolute; inset: 0; background: rgba(20, 32, 43, 0.62); }
+.rv .tp-hero-in {
+  position: relative;
+  width: 100%;
+  padding-top: 150px;
+  padding-bottom: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.rv .tp-hero-k { font-weight: 700; font-size: 15px; letter-spacing: 0.24em; color: var(--rv-yellow); }
+.rv .tp-hero .tp-hero-h {
+  font-family: var(--rv-ff-zen);
+  font-weight: 900;
+  font-size: 68px;
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+}
+/* ★「金額がわかる。」は黄色の塗りを文字の高さいっぱいに敷き、その上に紺の文字。
+   下だけの線にしないこと（暗い写真の上で紺の文字が読めなくなる。本人の指摘） */
+.rv .tp-hero-h .tp-mark { color: var(--rv-navy); padding: 0.02em 0.16em 0.06em; margin-left: -0.06em; }
+.rv .tp-hero-h .tp-mark::after { left: 0; right: 0; top: 0; bottom: 0; height: auto; border-radius: 6px; }
+.rv .tp-hero-lead { font-size: 18px; line-height: 1.9; max-width: 34em; color: #E9E5DC; }
+.rv .tp-hero-acts { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.rv .tp-hero-from { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.rv .tp-hero-from span { font-size: 14px; color: #E9E5DC; }
+.rv .tp-hero-from b { font-size: 40px; font-weight: 800; line-height: 1.1; color: var(--rv-yellow); }
+.rv .tp-hero-from small { font-size: 20px; font-family: var(--rv-ff-zen); font-weight: 700; }
+/* 軽バン。動きを止めたときは左端に停まった形で見える（left の既定値） */
+.rv .tp-road { position: relative; height: 40px; overflow: hidden; }
+.rv .tp-road::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  border-bottom: 3px dashed rgba(255, 255, 255, 0.35);
+}
+.rv .tp-van { position: absolute; left: 24px; bottom: 10px; width: 72px; animation: tp-drive 9s linear infinite; }
+.rv .tp-van svg { display: block; animation: tp-bump 0.4s ease-in-out infinite; }
+@media (max-width: 860px) {
+  .rv .tp-hero .tp-hero-h { font-size: 42px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-hero .tp-hero-h { font-size: 36px; }
+  .rv .tp-hero-lead { font-size: 16px; }
+}
+
+/* ---- 流れる帯 ---- */
+.rv .tp-marq {
+  background: var(--rv-yellow);
+  color: var(--rv-navy);
+  overflow: hidden;
+  border-top: 3px solid var(--rv-navy);
+  border-bottom: 3px solid var(--rv-navy);
+}
+.rv .tp-marq-in {
+  display: flex;
+  width: max-content;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  animation: tp-marq 32s linear infinite;
+}
+/* 間は gap ではなく右の余白で空ける。gap だと -50% が半コマずれて、頭に戻るときに跳ねる */
+.rv .tp-marq-in span { display: flex; white-space: nowrap; }
+.rv .tp-marq-in b,
+.rv .tp-marq-in i { font-weight: inherit; font-style: normal; margin-right: 48px; }
+
+/* ---- 節の見出し（料金の目安・料金のしくみ 共通） ---- */
+.rv .tp-sec-in { display: flex; flex-direction: column; gap: 48px; }
+.rv .tp-sec-hd { display: flex; flex-direction: column; gap: 14px; }
+.rv .tp-eyebrow { font-weight: 700; font-size: 18px; letter-spacing: 0.2em; color: var(--rv-green); }
+.rv .tp .tp-h2 { font-family: var(--rv-ff-zen); font-weight: 900; font-size: 44px; line-height: 1.3; letter-spacing: 0; }
+.rv .tp-sec-lead { font-size: 16px; line-height: 1.9; color: var(--rv-sub); }
+@media (max-width: 860px) {
+  .rv .tp .tp-h2 { font-size: 34px; }
+}
+@media (max-width: 480px) {
+  .rv .tp .tp-h2 { font-size: 30px; }
+}
+
+/* ---- 料金の目安 ---- */
+.rv .tp-est { padding: 96px 0 104px; background: var(--rv-paper); }
+.rv .tp-est-grid { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.rv .tp-est-l { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 40px; }
+.rv .tp-est-r { flex: 1 1 360px; min-width: 0; position: sticky; top: 24px; }
+.rv .tp-step { border: 0; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.rv .tp-step legend { margin-bottom: 16px; }
+.rv .tp-leg { display: flex; align-items: center; gap: 14px; }
+.rv .tp-step-n {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--rv-navy);
+  color: var(--rv-yellow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+.rv .tp-step-t { font-weight: 900; font-size: 24px; line-height: 1.35; }
+/* 車を使わない／1LDK以上のとき。fieldset の disabled と組で使う */
+.rv .tp-step.dis { opacity: 0.38; pointer-events: none; filter: grayscale(1); }
+.rv .tp-g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rv .tp-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.rv .tp-note { font-size: 13px; line-height: 1.6; color: var(--rv-sub); }
+
+/* 選ぶボタン（大） */
+.rv .tp-opt {
+  appearance: none;
+  border: 2px solid var(--rv-line);
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  min-height: 56px;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rv .tp-opt:hover { border-color: var(--rv-navy); transform: translateY(-2px); box-shadow: 0 6px 0 var(--rv-navy); }
+.rv .tp-opt:focus-visible,
+.rv .tp-chip:focus-visible,
+.rv .tp-sel:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 2px; }
+.rv .tp-opt.on { background: var(--rv-yellow); border-color: var(--rv-navy); box-shadow: 0 6px 0 var(--rv-navy); transform: translateY(-2px); }
+.rv .tp-opt .t { font-weight: 900; font-size: 17px; line-height: 1.35; }
+.rv .tp-opt .s { font-size: 13px; color: var(--rv-sub); line-height: 1.5; }
+.rv .tp-opt.on .s { color: var(--rv-navy); }
+/* 選ぶボタン（小） */
+.rv .tp-chip {
+  appearance: none;
+  border: 2px solid var(--rv-line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  min-height: 46px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.rv .tp-chip:hover { border-color: var(--rv-navy); }
+.rv .tp-chip.on { background: var(--rv-navy); color: var(--rv-yellow); border-color: var(--rv-navy); }
+.rv .tp-chip .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #C9C2B4; }
+.rv .tp-chip.on .dot { background: var(--rv-yellow); }
+
+/* 品目を選ぶ箱 */
+.rv .tp-pick {
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: tp-pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.rv .tp-pick-t { font-weight: 900; font-size: 16px; }
+.rv .tp-pick-t small { font-weight: 500; font-size: 13px; color: var(--rv-sub); }
+.rv .tp-load { display: flex; flex-direction: column; gap: 6px; }
+.rv .tp-bar { height: 12px; border-radius: 99px; background: #EDE8DE; overflow: hidden; border: 2px solid var(--rv-navy); }
+.rv .tp-bar i { display: block; height: 100%; background: var(--rv-yellow); transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.rv .tp-bar i.over { background: #C2410C; }
+
+/* どこから、どこへ */
+.rv .tp-ft { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); gap: 12px; align-items: center; }
+.rv .tp-ft label { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rv .tp-ft label span { font-size: 13px; font-weight: 700; color: var(--rv-sub); }
+.rv .tp-arw { display: flex; justify-content: center; padding-top: 20px; color: var(--rv-navy); }
+.rv .tp-sel {
+  appearance: none;
+  width: 100%;
+  border: 2px solid var(--rv-line);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2314202B' stroke-width='2.4'%3E%3Cpath d='M2 5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center;
+  border-radius: 14px;
+  padding: 14px 40px 14px 16px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--rv-navy);
+  min-height: 56px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+/* 結果 */
+.rv .tp-card {
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 24px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: 0 10px 0 var(--rv-yellow);
+}
+.rv .tp-card-k { font-weight: 700; font-size: 14px; letter-spacing: 0.16em; color: var(--rv-yellow); }
+.rv .tp-card-top { display: flex; flex-direction: column; gap: 6px; }
+.rv .tp-price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; position: relative; }
+.rv .tp-price .v { font-size: 76px; font-weight: 800; line-height: 1; color: var(--rv-yellow); }
+.rv .tp-price .u { font-size: 22px; font-weight: 900; }
+.rv .tp-card-sum { font-size: 14px; color: var(--rv-sub-on-navy); }
+.rv .tp-rows { border-top: 1px solid rgba(250, 248, 243, 0.18); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.rv .tp-rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
+.rv .tp-rows span { color: var(--rv-sub-on-navy); }
+.rv .tp-rows b { font-size: 18px; font-weight: 700; white-space: nowrap; }
+.rv .tp-msg-t { font-size: 24px; font-weight: 900; line-height: 1.5; }
+.rv .tp-msg-s { font-size: 14px; line-height: 1.8; color: var(--rv-sub-on-navy); margin-top: 4px; }
+.rv .tp-card-acts { display: flex; flex-direction: column; gap: 14px; }
+.rv .tp-card-acts .tp-btn { width: 100%; }
+.rv .tp-card-note { font-size: 12px; line-height: 1.7; color: var(--rv-sub-on-navy); }
+
+@media (max-width: 860px) {
+  .rv .tp-est { padding: 72px 0 80px; }
+  .rv .tp-g3 { grid-template-columns: minmax(0, 1fr); }
+  .rv .tp-est-r { position: static; }
+}
+@media (max-width: 480px) {
+  .rv .tp-ft { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .rv .tp-arw { padding-top: 0; transform: rotate(90deg); }
+  .rv .tp-step-t { font-size: 21px; }
+  .rv .tp-card { padding: 28px 20px; }
+  .rv .tp-price .v { font-size: 64px; }
+}
+
+/* ---- 料金のしくみ ---- */
+.rv .tp-how { background: var(--rv-navy); color: var(--rv-paper); padding: 96px 0; }
+.rv .tp-how .tp-eyebrow { color: var(--rv-yellow); }
+.rv .tp-how .tp-h2 { font-size: 40px; line-height: 1.35; color: var(--rv-paper); }
+.rv .tp-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.rv .tp-flow > div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 4px solid var(--rv-yellow);
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.rv .tp-flow .v { font-size: 44px; font-weight: 800; line-height: 1.3; color: var(--rv-yellow); }
+.rv .tp-flow b { font-weight: 900; font-size: 18px; }
+.rv .tp-flow p { font-size: 14px; line-height: 1.8; color: var(--rv-sub-on-navy); }
+@media (max-width: 860px) {
+  .rv .tp-how { padding: 72px 0; }
+  .rv .tp-how .tp-h2 { font-size: 32px; }
+  .rv .tp-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .rv .tp-flow .v { font-size: 36px; }
+}
+@media (max-width: 480px) {
+  .rv .tp-how .tp-h2 { font-size: 28px; }
+  .rv .tp-flow > div { padding-left: 14px; padding-right: 10px; }
+  .rv .tp-flow .v { font-size: 30px; }
+}
+
+/* ---- 動きを止める設定のとき：トップの新しい節の動きをすべて止める ----
+   金額の数え上げ（JS）は QuickEstimate.tsx の側で同じ設定を見て止めている。 */
+@media (prefers-reduced-motion: reduce) {
+  .rv .tp,
+  .rv .tp *,
+  .rv .tp *::before,
+  .rv .tp *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -8,10 +8,10 @@ import Spec from "./_components/Spec";
 import ReasonList from "./_components/ReasonList";
 import Cta from "./_components/Cta";
 import Faq from "./_components/Faq";
-import Figure, { CARGO_CAPTION } from "./_components/Figure";
+import QuickEstimate from "./_components/QuickEstimate";
 import { MOVING_REASONS } from "./_reasons";
 import { INDOOR_FEE, INBUILDING_MOVE_FEE, SPOT_FEE } from "./_fees";
-import { AREA, HOURS, LICENSES, TEL, TEL_HREF, WASTE_NOTICE } from "@/lib/site";
+import { AREA, HOURS, LICENSES, WASTE_NOTICE } from "@/lib/site";
 // ③の出張診断の金額。**ここに数字を書き写さないこと**（/pc /pc/price と同じ出どころ）。
 // lib/pc.ts はデータだけで CSS もコンポーネントも持たないので、(site) から読んでよい。
 // yen は lib/pricing にも同名の別物（あちらは「円」まで付ける）があるので必ず別名で入れる。
@@ -34,6 +34,11 @@ import {
  * 旧 (corporate)/page.tsx を捨てて、こちらに作り直したもの（14_top 段階3-4）。
  * (site) 側に来たので、Tailwind ではなく site.css、
  * ヘッダー・フッター・モバイルバーも (site) のものになる。
+ *
+ * 【90_top_renewal】上の4つ（ヒーロー・流れる帯・料金の目安・料金のしくみ）を新しく組んだ。
+ * 見た目・動き・文言の正は参考モック（top_mock_20261008/Main.dc.html）。
+ * ②以降は中身も文言もそのままで、**色だけ**を新しい変数に合わせてある
+ * （site.css の `.rv .top` が --ink などを差し替えている。ほかのページには効かない）。
  *
  * 【料金の出どころ】**lib/pricing.ts**。
  * 引ける数字は引く。**このファイルに金額を書き足さないこと。**
@@ -170,35 +175,84 @@ const NUMBERS = [
   },
 ];
 
+/** 流れる帯 */
+const MARQUEE = [
+  "富山県全域",
+  "軽バン1台",
+  "作業員の人数は荷物で決まります",
+  "金額は先に公開",
+  "出張買取も同時に",
+];
+
+/** 料金のしくみ。大きな字・見出し・説明 */
+const HOW = [
+  {
+    big: fmt(DEPART),
+    title: "出動料",
+    body: "軽バン1台・養生・搬入後の設置。どの依頼にも共通です。",
+  },
+  {
+    big: "＋ 荷物",
+    title: "量と人数",
+    body: `荷台に占める量で${TIER.length}段。冷蔵庫など大型が1点でもあれば作業員2名です。`,
+  },
+  {
+    big: "＋ 距離",
+    title: "片道の距離",
+    body: `富山市内は${DIST[0].fee}円。遠くなるほど段で上がります。`,
+  },
+  {
+    big: "× 日程",
+    title: "日にちの決め方",
+    body: `おまかせ×${COEF.omakase.coef.toFixed(2)}から当日×${COEF.touji.coef.toFixed(
+      2,
+    )}まで。日にちに余裕があるほど安くなります。`,
+  },
+];
+
 export default function TopPage() {
   return (
-    <>
-      {/* ① ヒーロー。**写真 → 濃紺パネルにテキスト**（17_hero で作り直した。
-          どの幅でも同じ順で、写真の上に文字は乗らない）。
-          見出しは2行で組む。<br /> で折らないと「軽バン1台ぶんの、引越しと買取。」が
-          幅によって3行になったり1行になったりして、行数が安定しない。
-          リードは JSX で折らずに文字列1本で渡す（行末で折ると半角スペースが入る） */}
-      <HeroTop
-        kicker="富 山 県 全 域 ／ 軽 貨 物"
-        title={
-          <>
-            軽バン1台ぶんの、
-            <br />
-            引越しと買取。
-          </>
-        }
-        lead="ワンルームから1Kくらいのお引越し、家具1点の運搬、出張買取。軽バン1台でできる範囲だけを、代表が直接伺ってやっています。最短で当日。"
-        actions={
-          <>
-            <Link className="btn btn-w" href="/contact">
-              写真を送って見積りを依頼
-            </Link>
-            <a className="btn btn-line" href={TEL_HREF}>
-              {TEL}
-            </a>
-          </>
-        }
-      />
+    <div className="top">
+      {/* ① ヒーロー。写真の上に紺を重ねて文字を置く（90_top_renewal で作り直した）。
+          金額は MOVING_FROM から渡す。**直書きしない** */}
+      <HeroTop from={fmt(MOVING_FROM)} />
+
+      {/* 流れる帯。飾りなので読み上げない。同じ並びを2回置いて、半分ずれたところで頭に戻す */}
+      <div className="tp tp-marq" aria-hidden="true">
+        <div className="tp-marq-in">
+          {[0, 1].map((n) =>
+            MARQUEE.map((t) => (
+              <span key={`${n}-${t}`}>
+                <b>{t}</b>
+                <i>／</i>
+              </span>
+            )),
+          )}
+        </div>
+      </div>
+
+      {/* 料金の目安。⑤図版（シミュレーターへの導線）の代わり。
+          **シミュレーター本体は埋めない（トップが重くなる）。**これは軽い別部品 */}
+      <QuickEstimate />
+
+      {/* 料金のしくみ。数字は DEPART と COEF から。本文に書かない */}
+      <section className="tp tp-how" id="how">
+        <div className="tw tp-sec-in">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">HOW IT WORKS</p>
+            <h2 className="tp-h2">金額は、この4つの足し算と掛け算だけ</h2>
+          </div>
+          <div className="tp-flow">
+            {HOW.map((h) => (
+              <div key={h.title}>
+                <span className="tp-num v">{h.big}</span>
+                <b>{h.title}</b>
+                <p>{h.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ② 許認可 */}
       <LicenseStrip />
@@ -272,24 +326,16 @@ export default function TopPage() {
         </div>
       </Split>
 
-      {/* ⑤ 図版。シミュレーター本体は埋めない（トップが重くなる）。導線だけ */}
-      <Split kicker="お 見 積 り" title="これ、積めますか？">
-        <Figure name="cargo" caption={CARGO_CAPTION} />
-        <p className="pnote">運ぶ物を選ぶと、積めるかどうかと金額がその場で出ます。</p>
-        <div className="go">
-          <Link className="btn" href="/simulator">
-            お見積りシミュレーター
-          </Link>
-        </div>
-      </Split>
+      {/* ⑤ 図版（シミュレーターへの導線）は 90_top_renewal で外した。上の「料金の目安」が代わり。
+          1つ抜けたぶん、⑥⑦⑧の tint を入れ替えて 白 → tint の交互を保っている */}
 
       {/* ⑥ 考え方。/moving と同じ4項目（_reasons.ts） */}
-      <Split kicker="考 え 方" title="あとから困らないように" tint>
+      <Split kicker="考 え 方" title="あとから困らないように">
         <ReasonList items={MOVING_REASONS} />
       </Split>
 
       {/* ⑦ 会社。トップに来る人は「ちゃんとした業者か」を見に来るので、そこに答える */}
-      <Split kicker="会 社" title="お問い合わせの前に">
+      <Split kicker="会 社" title="お問い合わせの前に" tint>
         <Spec label="対 応 エ リ ア と 受 付" value={`${AREA}　${HOURS}`}>
           {`富山県富山市を拠点に、県内全域へ伺います。県外へのお引越しは片道${MAX_KM}kmまで日帰り、大阪・東京方面は1泊2日で承ります。`}
         </Spec>
@@ -331,7 +377,7 @@ export default function TopPage() {
 
           文字列は必ずテンプレートリテラルで1本にする。
           JSX で `{yen(x)}です。` と割ると、React が境目に `<!-- -->` を入れる */}
-      <Split kicker="質 問" title="よくあるご質問" id="faq" tint>
+      <Split kicker="質 問" title="よくあるご質問" id="faq">
         <Faq
           items={[
             {
@@ -365,6 +411,6 @@ export default function TopPage() {
 
       {/* ⑨ CTA。既定の文言。id="cta" はヘッダーの「見積りを依頼」の飛び先 */}
       <Cta />
-    </>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Fragment, Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ReasonList, { type Reason } from "../_components/ReasonList";
 import { HANDOFF_KEY, type QuoteHandoff } from "@/lib/quote";
 import { LINE_URL, TEL, TEL_HREF } from "@/lib/site";
@@ -56,6 +56,48 @@ function toInt(v: string): number {
   return Math.max(0, parseInt(v || "0", 10) || 0);
 }
 
+/** トップの「料金の目安」から引き継ぐ初期値。無いもの・不正なものは undefined（＝今の既定値のまま） */
+type UrlInit = { km?: string; coefKey?: CoefKey; counts?: Counts };
+
+/** 距離の入力欄の上限（下の <input max> と同じ） */
+const KM_INPUT_MAX = 500;
+
+/**
+ * `/simulator?km=25&coef=donichi&items=fridge,washer-top` を読む（90_top_renewal §4-4）。
+ * **足したのは初期値の入口だけ。計算・表示は変えていない。**
+ *
+ * useSearchParams を使う部品は、静的に書き出すページでは Suspense で包む必要があり、
+ * 包んだ範囲はサーバーで描かれなくなる（node_modules/next/dist/docs/…/use-search-params.md）。
+ * **シミュレーター本体を包むと、書き出される HTML から中身が消える。**
+ * なので、URL を読むだけの何も描かない部品に分けて、それだけを包んでいる。
+ */
+function InitFromUrl({ apply }: { apply: (init: UrlInit) => void }) {
+  const sp = useSearchParams();
+
+  useEffect(() => {
+    const init: UrlInit = {};
+
+    const km = sp.get("km");
+    if (km !== null && /^\d{1,3}$/.test(km) && Number(km) <= KM_INPUT_MAX) init.km = String(Number(km));
+
+    const coef = sp.get("coef");
+    if (coef !== null && Object.hasOwn(COEF, coef)) init.coefKey = coef as CoefKey;
+
+    const items = sp.get("items");
+    if (items) {
+      const counts: Counts = {};
+      for (const id of items.split(",")) if (itemOf(id)) counts[id] = 1;
+      if (Object.keys(counts).length) init.counts = counts;
+    }
+
+    if (Object.keys(init).length) apply(init);
+    // 開いたときに1回だけ読む。そのあとの入力を URL で上書きしない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+}
+
 export default function Simulator() {
   const router = useRouter();
   /**
@@ -74,6 +116,12 @@ export default function Simulator() {
   const [slot, setSlot] = useState(false);
   const [coefKey, setCoefKey] = useState<CoefKey>("heijitsu");
   const [copied, setCopied] = useState<"" | "ok" | "ng">("");
+
+  function applyUrlInit(init: UrlInit) {
+    if (init.km !== undefined) setKmInput(init.km);
+    if (init.coefKey !== undefined) setCoefKey(init.coefKey);
+    if (init.counts !== undefined) setPicked({ counts: init.counts, dis: {} });
+  }
 
   const km = toInt(kmInput);
   const floors = toInt(floorInput);
@@ -317,6 +365,10 @@ export default function Simulator() {
 
   return (
     <div className="sim">
+      <Suspense fallback={null}>
+        <InitFromUrl apply={applyUrlInit} />
+      </Suspense>
+
       {/* ---- 運ぶ物 ---- */}
       <fieldset className="sim-fs">
         <legend className="sim-leg">運 ぶ 物</legend>

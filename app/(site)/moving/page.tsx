@@ -145,7 +145,9 @@ const EXAMPLE_CASES: {
   { name: "1K一式・富山市内", cond: "作業員2名・", strong: "日程おまかせ", tier: 2, km: 12, crew: 2, coef: "omakase" },
   { name: "1K一式・富山市内", cond: "作業員2名・平日", tier: 2, km: 12, crew: 2, coef: "heijitsu" },
   { name: "1K一式・富山市内", cond: "作業員2名・土日祝", tier: 2, km: 12, crew: 2, coef: "donichi" },
-  { name: "1K一式・高岡（40km）", cond: "作業員2名・平日", tier: 2, km: 40, crew: 2, coef: "heijitsu" },
+  // 高岡は実際の道のり（約25km）どおり、30kmまでの段。2026-10-08 本人の決定で 40km から直した。
+  // lib/regions.ts の 富山市↔高岡市 と同じ値。トップの「料金の目安」と同じ金額になる
+  { name: "1K一式・高岡（25km）", cond: "作業員2名・平日", tier: 2, km: 25, crew: 2, coef: "heijitsu" },
   { name: "1K一式・金沢（60km）", cond: "作業員2名・土日祝", tier: 2, km: 60, crew: 2, coef: "donichi" },
   { name: "1K一式・名古屋（250km）", cond: "作業員2名・平日", tier: 2, km: 250, crew: 2, coef: "heijitsu" },
 ];
