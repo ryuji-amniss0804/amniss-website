@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { RESTOCK_EMAIL, RESTOCK_KINDS, buildRestockMails } from "@/lib/pc-restock";
+import { RESTOCK_EMAIL, RESTOCK_KINDS, buildRestockMails, restockFrom } from "@/lib/pc-restock";
 import { verifyPass } from "@/lib/quote-server";
 
 /**
@@ -9,7 +9,8 @@ import { verifyPass } from "@/lib/quote-server";
  * - 人には見えない欄（ハニーポット）が埋まっていたら、何も送らずに 200 を返す
  * - 通行証（`/api/quote/pass`。Turnstile を1回通した証）が無ければ受け付けない。
  *   **送信回数を絞っているのはこれ。** `/api/pc/inquiry` と同じしくみで、新しい環境変数は要らない
- * - 送信元は `RESEND_FROM`、宛先は `/api/pc/inquiry` と同じ受信箱
+ * - 送信元のアドレスは `RESEND_FROM`（表示名だけ `re'vive_doc` に差し替える。`restockFrom()`）、
+ *   宛先は `/api/pc/inquiry` と同じ受信箱
  *
  * 送るのは2通（中身は `lib/pc-restock.ts`。副作用なし）。
  *   1. 受信箱へ：誰が・何を・いつ希望したか
@@ -91,7 +92,8 @@ export async function POST(req: NextRequest) {
     console.error("[pc/restock] RESEND_API_KEY / QUOTE_TO_EMAIL が設定されていません");
     return NextResponse.json({ error: "メールの設定が完了していません" }, { status: 500 });
   }
-  const from = process.env.RESEND_FROM || DEFAULT_FROM;
+  // アドレスは RESEND_FROM のまま、表示名だけ re'vive_doc にする（2通とも）
+  const from = restockFrom(process.env.RESEND_FROM || DEFAULT_FROM);
 
   const mails = buildRestockMails({ email, kind, now: new Date() });
 
