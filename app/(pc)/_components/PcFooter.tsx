@@ -20,10 +20,11 @@ function ready(href: string): boolean {
  *   **そちらは1バイトも変更しない。**
  *
  * 会社名・電話番号・許認可の文言は `lib/site.ts` から引く。同じ値を2か所に置かない。
- * とくに許認可番号は Google ビジネスプロフィールと一字一句そろえる必要がある。
+ * とくに許認可番号は Google ビジネスプロフィールとそろえる必要がある。
  *
  * 固定バーは 640px 以下でだけ出る（`pc.css` の `.fixbar`）。
- * バーの高さぶんは `body.pc` の padding-bottom:64px で逃がしてある。
+ * バーの高さは `pc.css` の `--doc-bar-h` の1か所で決めていて、ページ下の余白
+ * （`body.pc` の padding-bottom）と、トップの症状の帯の位置が同じ変数を見る（94。本体の 93 と同じ形）。
  * 受けるのは電話と相談フォームの2本。LINE はバーには出さない。
  * ボタンは flex で横幅を分け合うので、3本目を足すとそれぞれが細くなり、
  * どれを押せばよいかも薄まる（トップのCTAを1本に絞るのと同じ判断）。
@@ -36,11 +37,13 @@ export default function PcFooter() {
   return (
     <>
       <footer className="ft">
-        <div className="w">
+        <div className="w ft-in">
           <div>
-            <div className="brand">
-              re&apos;vive<em>_doc</em>
-              <span>PC REPAIR / TOYAMA</span>
+            <div className="logo">
+              <b>
+                re&apos;vive<em>_doc</em>
+              </b>
+              <span>パソコン修理・富山</span>
             </div>
             <p className="about">
               {AREA}に伺う出張型のパソコン修理・診断。
@@ -81,9 +84,11 @@ export default function PcFooter() {
           </div>
         </div>
 
-        <div className="bot">
-          {LICENSE_LINE}
-          <br />© {COMPANY.legal}
+        <div className="w">
+          <div className="bot">
+            {LICENSE_LINE}
+            <br />© {COMPANY.legal}
+          </div>
         </div>
       </footer>
 
