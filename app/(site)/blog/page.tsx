@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Hero from "../_components/Hero";
+import PageHero from "../_components/PageHero";
 import { getAllPosts } from "@/lib/posts";
 import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
@@ -23,6 +23,13 @@ import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
  * 記事がこの一覧から消える。**見た目と文言は1字も変えていない**
  * （`getAllPosts()` は同じ `BlogPostMeta[]` を日付の降順で返すので、
  *  ここでの並べ替えが要らなくなっただけ）。
+ *
+ * 【93_other_pages】トップと同じトーンに作り直した。見た目の正は参考モック
+ * （top_mock_20261008/Others.dc.html の3つ目）。
+ *  - 見出しを「お役立ち情報」に（フッターの呼び名に合わせた）。リードも cc_task/93 §1-4 のとおり。
+ *  - 記事はカード（3列・860px以下1列）。上の色の帯は、記事ごとに黄色・深緑を交互。
+ *    帯の中の文字は記事のカテゴリ。**日付・見出し・抜粋は記事のものをそのまま出している。**
+ *  - 記事の本文（content/blog/*.md）は触っていない。
  */
 
 export const metadata: Metadata = {
@@ -48,59 +55,48 @@ export default function BlogIndex() {
   const BLOG_POSTS = getAllPosts();
 
   return (
-    <>
-      <Hero
-        size="md"
-        kicker="記 事"
-        title="AmNiss 公式ブログ"
-        lead="富山のお客様へ届ける、引越し・お片付け・不用品の買取に関する役立つ情報をお届けします。"
-      />
+    <div className="tp pp op">
+      <PageHero kicker="COLUMN" title="お役立ち情報" lead="引越し・片付け・買取の、知っておくと得する話。" />
 
-      <section className="sec first">
-        <div className="w">
+      <section className="op-sec">
+        <div className="tw">
           {BLOG_POSTS.length === 0 ? (
-            <>
-              {/* 【43】記事0件のときの導線。フォーム・LINE・電話の3本を出す。
-                  元の3文目「写真を送っていただくだけで見積もりが可能です。」は消してある。
-                  「写真を送って」が1つ目のボタンの文字に入っていて意味が落ちないのと、
-                  この1文だけ「見積もり」でサイトの標準（見積り）とずれていたため。 */}
-              <p className="lead" style={{ marginTop: 0 }}>
-                現在、公開中の記事はありません。<br />
+            <div className="op-empty">
+              {/* 【43】記事0件のときの導線。フォーム・LINE・電話の3本を出す。文は前のまま */}
+              <p>
+                現在、公開中の記事はありません。
+                <br />
                 引越しや買取でお困りのことがあれば、記事をお待ちいただかなくてもご相談いただけます。
               </p>
-              {/* ヒーローの `.acts` と同じ組み方（960px 以下で縦積み・幅いっぱい）。
-                  `.acts` の指定は .hero / .ht-txt / .cta の中でしか効かないので、
-                  site.css に `.sec .acts` を足してある */}
-              <div className="acts">
-                <Link className="btn btn-fill" href="/contact">
+              <div className="op-acts">
+                <Link className="tp-btn tp-btn-n" href="/contact">
                   写真を送って見積りを依頼
                 </Link>
-                <a className="btn" href={LINE_URL} target="_blank" rel="noopener noreferrer">
+                <a className="tp-btn tp-btn-nw" href={LINE_URL} target="_blank" rel="noopener noreferrer">
                   LINEで無料相談
                 </a>
               </div>
-              {/* 電話。全角空白は文字列リテラルで書く（JSX が改行の空白を消すため。指示 34 §2）。
-                  白地の面で電話を出しているのは /contact の `.tl` なので、その形に合わせた
-                  （`.cta` の大きい電話は濃紺の帯専用の CSS で、白地では効かない） */}
-              <p className="lead">
+              {/* 電話。ラベルと番号がくっつかないよう、全角空白は文字列リテラルで書く（指示 34 §2） */}
+              <p>
                 {"お電話　"}
-                <a className="tl" href={TEL_HREF}>
+                <a className="tp-num op-tel" href={TEL_HREF}>
                   {TEL}
                 </a>
-                　（受付 {HOURS}）
+                {`　（受付 ${HOURS}）`}
               </p>
-            </>
+            </div>
           ) : (
-            <div className="plist">
-              {BLOG_POSTS.map((post) => (
+            <div className="op-posts">
+              {BLOG_POSTS.map((post, i) => (
                 <article key={post.slug}>
-                  <Link href={`/blog/${post.slug}`}>
-                    <div className="d">
-                      <time>{post.date}</time>
+                  <Link className="op-post" href={`/blog/${post.slug}`}>
+                    {/* 上の色の帯。黄色・深緑を交互。中の文字はカテゴリ */}
+                    <div className={i % 2 === 1 ? "op-post-band g" : "op-post-band"}>
                       <span>{post.category}</span>
                     </div>
-                    <div>
-                      <h2 className="mincho">{post.title}</h2>
+                    <div className="op-post-b">
+                      <time className="tp-num">{post.date}</time>
+                      <h2>{post.title}</h2>
                       <p>{post.excerpt}</p>
                     </div>
                   </Link>
@@ -110,6 +106,6 @@ export default function BlogIndex() {
           )}
         </div>
       </section>
-    </>
+    </div>
   );
 }

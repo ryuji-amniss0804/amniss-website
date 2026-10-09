@@ -28,6 +28,12 @@
   --rule-2: #ebe7e1;
   --accent: #a8331c;  /* 使うのは1ページに1〜2箇所だけ */
   --w: 1060px;
+  /* スマホの固定バー（.mbar。電話する／LINEで相談）の高さ。**ここ1か所で決める。**
+     上の線 1 ＋ 上下の余白 8＋8 ＋ 中のボタン 56 ＝ 73px。
+     これを使っているのは3か所：.mbar 自身の高さ／ページ下の余白（body.rv）／
+     シミュレーターの帯の位置（.pp-load）。93 でまとめた。それまではページ下の余白が 60px で、
+     全ページのフッターのいちばん下 13px がバーの裏に隠れていた */
+  --rv-mbar-h: 73px;
 }
 
 /* ---- リセット（.rv 配下だけ）---- */
@@ -58,9 +64,10 @@ body.rv,
 }
 
 /* モバイル固定バーの高さぶん。バーが出る幅でだけ空ける
-   （元ファイルは常時 60px 空けていたが、PCでは無駄な余白になるため） */
+   （元ファイルは常時 60px 空けていたが、PCでは無駄な余白になるため）。
+   高さは --rv-mbar-h（上のトークン）。ここに数字を書かない */
 @media (max-width: 960px) {
-  body.rv { padding-bottom: 60px; }
+  body.rv { padding-bottom: var(--rv-mbar-h); }
 }
 
 /* height:auto は next/image 用。width だけを CSS で変えると
@@ -1270,6 +1277,8 @@ body.rv,
   display: none;
   padding: 8px 12px;
   gap: 8px;
+  /* 高さは変数から。中身（線 1 ＋ 余白 16 ＋ ボタン 56）と同じ値なので、見た目は変わらない */
+  height: var(--rv-mbar-h);
 }
 .rv .mbar a {
   flex: 1;
@@ -1283,7 +1292,7 @@ body.rv,
    **バーの高さは変えない。** .mbar a は padding 13px + line-height 2（＝枠込み56px）で、
    この高さは隣のLINEが決める。.p はそこへ flex で伸ばされるので、2行ぶん
    （18.9＋15.5＝約34px）が収まるところまで自分の padding を詰めておけば、
-   body.rv の padding-bottom:60px もそのままで済む。
+   バーの高さ（--rv-mbar-h）もそのままで済む。
    小さいほうの字は新しい段を作らず、補足文の 11.5px に相乗りしている。 */
 .rv .mbar a.p {
   background: var(--ink);
@@ -2854,10 +2863,9 @@ body.rv,
 .rv .pp-plan p b { color: var(--rv-navy); }
 @media (max-width: 960px) {
   /* スマホの固定バー（.mbar）の上に貼り付ける。
-     ⚠ バーの高さは 73px（上下の padding 8＋8、中のボタン 56、上の線 1）。body の padding-bottom の 60px ではない。
-        92 では 60px にしていて、帯の下の13pxがバーの裏に隠れていた（92c で実測して直した）。
-        .mbar の高さを変えたら、ここも変えること */
-  .rv .pp-load { bottom: 73px; }
+     バーの高さは --rv-mbar-h（いちばん上のトークン）。ページ下の余白と同じ変数を使う。
+     92 では 60px と書いていて、帯の下の13pxがバーの裏に隠れていた（92c で実測して直し、93 で変数にした） */
+  .rv .pp-load { bottom: var(--rv-mbar-h); }
 }
 /* スマホの帯（92c）。「荷台 43% ｜ 目安 25,000円」。押すと結果の欄へ動く。PC では出さない */
 .rv .pp-load-m { display: none; }
@@ -2893,3 +2901,560 @@ body.rv,
   .rv .pp-crew b { font-size: 38px; }
   .rv .pp-est .tp-card { padding: 26px 20px; }
 }
+
+/* ==================================================================
+   93_other_pages：残りのページ（/houjin・/kaitori・/company・/contact・/blog・記事・/tokushoho・/privacy）
+   見た目の正は参考モック（top_mock_20261008/Houjin・Kaitori・Others.dc.html）。
+   ★ここも **足しただけ**。クラスはすべて op- で始まる（.op の中でしか効かない）。
+     どのページも <main> の中身を <div class="tp pp op"> で包み、トップの tp-* と料金のページの pp-* を
+     そのまま使っている（ヒーロー・許認可の帯・見出し・ボタン・表・カード4列・4つの約束・FAQ・最後の案内）。
+     トップと料金の3ページ（.op を付けていないページ）には1行も効かない。
+   ★動きを止める設定（上の prefers-reduced-motion）は .tp の中すべてに効くので、ここの動きも止まる。
+   ★スマホの固定バーの高さ（--rv-mbar-h）は、いちばん上のトークンにある。
+   ================================================================== */
+
+/* 地が明るい所では、ボタンのフォーカスの枠を深緑に */
+.rv .op-sec .tp-btn:focus-visible { outline-color: var(--rv-green); }
+/* 本文の中のリンク（旧 .tl）。新しい色と太さに合わせる */
+.rv .op .tl { font-size: inherit; font-weight: 700; border-bottom-color: var(--rv-navy); }
+.rv .op .tl:hover { color: var(--rv-green); border-bottom-color: var(--rv-green); }
+.rv .op-gap-lg { margin-top: 40px; }
+.rv .op-self-start { align-self: flex-start; }
+/* 節の中の2つ目の見出し（/houjin のお受けできないこと）と、記事末の見出し */
+.rv .tp .tp-h2.op-h2-sm { font-size: 32px; }
+.rv .op-trust + .tp-h2.op-h2-sm { margin: 72px 0 28px; }
+@media (max-width: 480px) {
+  .rv .tp .tp-h2.op-h2-sm { font-size: 26px; }
+  .rv .op-trust + .tp-h2.op-h2-sm { margin-top: 56px; }
+}
+
+/* ---- 大きいヒーロー（PriceHero）に足すもの：電話番号のボタン・黄色の札 ---- */
+.rv .op-btn-tel { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
+/* 枠線のボタンを、隣の黄色のボタンと同じ高さに */
+.rv .tp-btn-o.op-btn-o { min-height: 56px; font-size: 16px; }
+.rv .op-hero-stats { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; }
+.rv .op-hero-stats li {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--rv-yellow);
+  color: var(--rv-navy);
+  font-weight: 900;
+  font-size: 15px;
+  line-height: 1.4;
+}
+@media (max-width: 480px) {
+  .rv .op-hero-stats { gap: 8px; }
+  .rv .op-hero-stats li { padding: 8px 14px; font-size: 14px; }
+  /* ボタンは幅いっぱいに積む */
+  .rv .op .pp-hero-acts .tp-btn { width: 100%; }
+}
+
+/* ---- 小さいページ用のヒーロー（PageHero.tsx）：紺の地・英字の小見出し＋見出し1行 ---- */
+.rv .op-phero { background: var(--rv-navy); color: var(--rv-paper); padding: 64px 0 72px; }
+.rv .op-phero-k { margin-bottom: 12px; font-weight: 700; font-size: 14px; letter-spacing: 0.24em; color: var(--rv-yellow); }
+.rv .op .op-phero h1 { font-family: var(--rv-ff-zen); font-weight: 900; font-size: 48px; line-height: 1.3; letter-spacing: 0; }
+.rv .op-phero-lead { margin-top: 14px; font-size: 16px; font-weight: 500; line-height: 1.9; color: #E9E5DC; }
+@media (max-width: 860px) {
+  .rv .op-phero { padding: 48px 0 56px; }
+  .rv .op .op-phero h1 { font-size: 36px; }
+}
+@media (max-width: 480px) {
+  .rv .op .op-phero h1 { font-size: 30px; }
+  .rv .op-phero-lead { font-size: 15px; }
+}
+/* 記事ページ：見出しが長いので一回り小さく。上にパンくず、小見出しの右に日付 */
+.rv .op .op-phero.art h1 { font-size: 40px; line-height: 1.4; }
+.rv .op-phero-k time { margin-left: 16px; font-size: 16px; font-weight: 600; letter-spacing: 0.06em; color: #E9E5DC; }
+.rv .op-bc { margin-bottom: 24px; font-size: 12px; line-height: 1.8; color: var(--rv-sub-on-navy); }
+.rv .op-bc a { text-decoration: underline; text-underline-offset: 3px; }
+.rv .op-bc a:hover { color: var(--rv-paper); }
+.rv .op-bc span { margin: 0 8px; }
+@media (max-width: 860px) {
+  .rv .op .op-phero.art h1 { font-size: 30px; }
+}
+@media (max-width: 480px) {
+  .rv .op .op-phero.art h1 { font-size: 26px; }
+}
+
+/* ---- 節の土台（小さいページ。料金のページの .pp-sec より上下が少し狭い） ---- */
+.rv .op-sec { padding: 88px 0; background: var(--rv-paper); }
+.rv .op-sec.beige { background: #F1EDE4; }
+.rv .op-stack { display: flex; flex-direction: column; gap: 56px; }
+/* 法定表示は 880px、記事は 824px まで（1行が長くなりすぎないように） */
+.rv .tw.op-legal { max-width: 880px; }
+.rv .tw.op-narrow { max-width: 824px; }
+.rv .op-acts { display: flex; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 860px) {
+  .rv .op-sec { padding: 64px 0; }
+  .rv .op-stack { gap: 40px; }
+}
+@media (max-width: 480px) {
+  .rv .op-acts .tp-btn { width: 100%; }
+}
+
+/* ---- /houjin 料金：3つの箱 ---- */
+.rv .op-big3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rv .op-bx {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px 24px;
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 var(--rv-navy);
+}
+.rv .op-bx.y { background: var(--rv-yellow); }
+.rv .op-bx .k { font-weight: 900; font-size: 15px; }
+.rv .op-bx .v { font-size: 52px; font-weight: 800; line-height: 1; }
+.rv .op-bx .v small { font-size: 18px; margin-left: 2px; }
+.rv .op-bx .d { font-size: 13px; color: var(--rv-sub); }
+.rv .op-bx.y .d { color: var(--rv-navy); }
+@media (max-width: 860px) {
+  .rv .op-big3 { grid-template-columns: minmax(0, 1fr); }
+}
+/* 料金の表。見出しの列を少し狭く（真ん中の列に地名が入るため） */
+.rv .pp-tbl.box.op-tbl3 th,
+.rv .pp-tbl.box.op-tbl3 td:first-child { width: 32%; }
+@media (max-width: 480px) {
+  .rv .pp-tbl.box.op-tbl3 th,
+  .rv .pp-tbl.box.op-tbl3 td:first-child { width: auto; }
+  /* 文節で折る指定のままだと「コインパーキングしかない」が1語になり、表が枠より広がる（390px で 14px）。
+     狭い幅では、必要なときはどこでも折り返してよいことにする */
+  .rv .pp-tbl.box.op-tbl3 th,
+  .rv .pp-tbl.box.op-tbl3 td.d { overflow-wrap: anywhere; }
+}
+.rv .op .pp-tbl-note a { color: var(--rv-navy); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.rv .op .pp-tbl-note a:hover { color: var(--rv-green); }
+
+/* ---- /houjin お受けしている内容：丸い札 ---- */
+.rv .op-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; }
+.rv .op-chips li {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+  padding: 12px 20px;
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.rv .op-chips i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--rv-yellow); border: 2px solid var(--rv-navy); }
+.rv .op-chips small { font-weight: 700; font-size: 12px; color: var(--rv-green); }
+@media (max-width: 480px) {
+  .rv .op-chips li { padding: 10px 16px; border-radius: 20px; font-size: 15px; }
+}
+
+/* ---- /houjin お取引の前に：紺のカード4枚 ---- */
+.rv .op-trust { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rv .op-trust li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 20px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 18px;
+}
+.rv .op-trust b { font-size: 17px; font-weight: 900; line-height: 1.5; }
+.rv .op-trust span { font-size: 13px; color: var(--rv-sub-on-navy); }
+@media (max-width: 860px) {
+  .rv .op-trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .rv .op-trust { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- /houjin お受けできないこと：紺の行に黄色の× ---- */
+.rv .op-deny { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.rv .op-deny li {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 18px;
+}
+.rv .op-deny .x {
+  flex: 0 0 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--rv-yellow);
+  color: var(--rv-navy);
+}
+.rv .op-deny li > div { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; }
+.rv .op-deny b { font-size: 16px; font-weight: 900; line-height: 1.6; }
+.rv .op-deny li > div span { font-size: 14px; color: var(--rv-sub-on-navy); }
+@media (max-width: 480px) {
+  .rv .op-deny li { padding: 18px 16px; gap: 12px; }
+}
+
+/* ---- /kaitori 買い取れる物：カード3列。先頭の3枚（.top）は黄色 ---- */
+.rv .op-buy { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.rv .op-buy li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 18px;
+  box-shadow: 0 4px 0 var(--rv-navy);
+}
+.rv .op-buy li.top { background: var(--rv-yellow); }
+.rv .op-buy b { font-size: 17px; font-weight: 900; line-height: 1.5; }
+.rv .op-buy span { font-size: 13px; color: var(--rv-sub); }
+.rv .op-buy li.top span { color: var(--rv-navy); }
+@media (max-width: 860px) {
+  .rv .op-buy { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .rv .op-buy { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- /kaitori お受けできない物：紺の箱に2列 ---- */
+.rv .op-no { margin-top: 40px; padding: 32px; background: var(--rv-navy); color: var(--rv-paper); border-radius: 22px; }
+.rv .op-no h3 { margin-bottom: 16px; font-size: 22px; font-weight: 900; line-height: 1.5; }
+.rv .op-no ul { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 28px; }
+.rv .op-no li { display: flex; gap: 10px; font-size: 15px; line-height: 1.6; }
+.rv .op-no li::before { content: "×"; flex: none; color: var(--rv-yellow); font-weight: 900; }
+.rv .op-no li small { display: block; font-size: 12px; color: var(--rv-sub-on-navy); }
+@media (max-width: 860px) {
+  .rv .op-no ul { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .rv .op-no { padding: 24px 20px; }
+}
+
+/* ---- /kaitori 流れ：4枚のカード（01〜04）と、本人確認書類の淡い緑の箱 ---- */
+.rv .op-flow { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rv .op-flow li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 20px;
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 18px;
+}
+.rv .op-flow .n { font-size: 44px; font-weight: 800; line-height: 1; color: var(--rv-yellow-shadow); }
+.rv .op-flow b { font-size: 18px; font-weight: 900; line-height: 1.5; }
+.rv .op-flow b + span { font-size: 14px; line-height: 1.7; color: var(--rv-sub); }
+.rv .op-idbox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  margin-top: 32px;
+  padding: 24px 28px;
+  background: #E7F0EC;
+  border-radius: 18px;
+}
+.rv .op-idbox b { font-size: 18px; font-weight: 900; line-height: 1.5; }
+.rv .op-idbox p { flex: 1 1 320px; min-width: 0; font-size: 14px; line-height: 1.8; color: var(--rv-green); }
+@media (max-width: 860px) {
+  .rv .op-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .rv .op-flow { grid-template-columns: minmax(0, 1fr); }
+  .rv .op-idbox { padding: 20px; }
+}
+
+/* ---- /company 代表：左に写真（角丸・下に黄色の影）、右に名前と3行 ---- */
+.rv .op-rep { display: flex; flex-wrap: wrap; gap: 40px; align-items: center; }
+.rv .op-rep-ph {
+  flex: 0 0 240px;
+  height: 300px;
+  overflow: hidden;
+  background: #E1DACB;
+  border: 2px solid var(--rv-navy);
+  border-radius: 24px;
+  box-shadow: 0 8px 0 var(--rv-yellow);
+}
+.rv .op-rep-ph img { width: 100%; height: 100%; object-fit: cover; }
+.rv .op-rep-t { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.rv .op .op-rep-n {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  font-family: var(--rv-ff-zen);
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+.rv .op-rep-n b { font-size: 34px; font-weight: 900; }
+.rv .op-rep-n span { font-size: 18px; font-weight: 600; letter-spacing: 0.12em; color: var(--rv-sub); }
+.rv .op-rep-msg { font-size: 18px; font-weight: 700; line-height: 2; }
+@media (max-width: 860px) {
+  .rv .op-rep { gap: 28px; }
+}
+@media (max-width: 480px) {
+  .rv .op-rep-n b { font-size: 30px; }
+  .rv .op-rep-msg { font-size: 16px; }
+}
+
+/* ---- 白い枠の表（/company・/tokushoho・/privacy）。ラベルは深緑 ----
+   行は <dl> の中の <div>（dt ＋ dd）か、/privacy の <section>（h2.op-dl-k ＋ div.op-dl-v）。
+   旧い .dl（罫線だけの定義表）の中で使っていた段のクラス（span.h・span.nt・span.gap）は、そのまま受ける。
+   法定表示の文面を1文字も動かさないために、ページ側のデータには触っていない。 */
+.rv .op-dl { background: #fff; border: 2px solid var(--rv-navy); border-radius: 22px; overflow: hidden; }
+.rv .op-dl > div,
+.rv .op-dl > section {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 20px;
+  padding: 18px 24px;
+  border-top: 1px solid #E1DACB;
+  /* 目次の札から飛んできたとき、貼り付くヘッダー（75px）に隠れないように */
+  scroll-margin-top: 91px;
+}
+.rv .op-legal .op-dl > div,
+.rv .op-legal .op-dl > section { grid-template-columns: 220px minmax(0, 1fr); }
+.rv .op-dl > div:first-child,
+.rv .op-dl > section:first-child { border-top: 0; }
+.rv .op-dl dt,
+.rv .op .op-dl-k { font-family: var(--rv-ff-zen); font-weight: 900; font-size: 14px; line-height: 1.8; letter-spacing: 0; color: var(--rv-green); }
+.rv .op-dl dd,
+.rv .op-dl-v { min-width: 0; font-size: 15px; line-height: 1.8; }
+.rv .op-dl dd > span { display: block; margin-top: 6px; }
+.rv .op-dl dd > span:first-child { margin-top: 0; }
+.rv .op-dl dd > span.h { font-weight: 900; margin-top: 22px; }
+.rv .op-dl dd > span.h:first-child { margin-top: 0; }
+.rv .op-dl dd > span.nt { font-size: 13px; color: var(--rv-sub); }
+.rv .op-dl dd > span.gap { margin-top: 16px; }
+/* /privacy：1条の中の段落と小見出し */
+.rv .op-dl-v > * + * { margin-top: 14px; }
+.rv .op .op-dl-v h3 { margin-top: 28px; font-size: 16px; font-weight: 900; line-height: 1.6; }
+.rv .op .op-dl-v h3:first-child { margin-top: 0; }
+@media (max-width: 860px) {
+  .rv .op-dl > div,
+  .rv .op-dl > section,
+  .rv .op-legal .op-dl > div,
+  .rv .op-legal .op-dl > section { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 16px 18px; }
+}
+/* 目次の札（/privacy） */
+.rv .op-toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.rv .op-toc a {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid var(--rv-line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.rv .op-toc a:hover { border-color: var(--rv-navy); }
+.rv .op-toc a:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 2px; }
+/* 表の下の署名（運営者名・日付） */
+.rv .op-sign { margin-top: 28px; font-size: 13px; line-height: 1.8; color: var(--rv-sub); text-align: right; }
+
+/* ---- /contact：左にフォーム（白い枠）、右に紺のカード2枚 ---- */
+.rv .op-ct { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.rv .op-form {
+  flex: 999 1 560px;
+  min-width: 0;
+  padding: 32px;
+  background: #fff;
+  border: 2px solid var(--rv-navy);
+  border-radius: 22px;
+}
+.rv .op-form-lead { font-size: 16px; font-weight: 700; line-height: 1.9; }
+.rv .op-side { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.rv .op-sc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 22px;
+}
+.rv .op .op-sc h2 { font-family: var(--rv-ff-zen); font-size: 18px; font-weight: 900; line-height: 1.5; letter-spacing: 0; }
+.rv .op-sc p { font-size: 14px; line-height: 1.7; color: var(--rv-sub-on-navy); }
+.rv .op-sc-tel { font-size: 30px; font-weight: 800; line-height: 1.2; color: var(--rv-yellow); }
+.rv .op-sc-tel:focus-visible { outline: 3px solid var(--rv-paper); outline-offset: 3px; border-radius: 6px; }
+.rv .op-sc .tp-btn { min-height: 48px; }
+.rv .op-side-n { font-size: 14px; line-height: 1.9; color: var(--rv-sub); }
+@media (max-width: 860px) {
+  .rv .op-form { padding: 22px 18px; }
+}
+@media (max-width: 400px) {
+  /* Turnstile の四角は 300px 固定。360px の画面で枠の中に収まる所まで、左右を詰める
+     （360 − 画面の左右 16×2 − 枠線 2×2 − 12×2 ＝ 300px） */
+  .rv .op-form { padding: 22px 12px; }
+}
+
+/* フォーム（QuoteForm.tsx）の見た目。**項目・入力チェック・送信の動きは変えていない。**
+   クラスは 24_form のまま（qf-*）。ここは色・角丸・書体を、この枠の中でだけ上書きしている。
+   枠の外（.op-form の外）で QuoteForm を使えば、元の罫線だけの見た目に戻る */
+.rv .op-form .qf { margin-top: 0; max-width: none; }
+.rv .op-form .qf-f { margin-top: 22px; }
+.rv .op-form .qf-f > label { font-size: 14px; font-weight: 900; letter-spacing: 0; }
+/* 必須の印は黄色の札。「任意」（.opt）は淡い緑 */
+.rv .op-form .qf-f > label em {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--rv-yellow);
+  color: var(--rv-navy);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+.rv .op-form .qf-f > label em.opt { background: #E7F0EC; color: var(--rv-green); }
+.rv .op-form .qf-f input[type="text"],
+.rv .op-form .qf-f textarea {
+  margin-top: 6px;
+  min-height: 52px;
+  padding: 12px 14px;
+  background: var(--rv-paper);
+  border: 2px solid var(--rv-line);
+  border-radius: 12px;
+  color: var(--rv-navy);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.rv .op-form .qf-f input[type="text"]::placeholder,
+.rv .op-form .qf-f textarea::placeholder { color: #8A929B; }
+.rv .op-form .qf-f input[type="text"]:focus,
+.rv .op-form .qf-f textarea:focus { border-color: var(--rv-navy); box-shadow: 0 0 0 3px rgba(255, 194, 26, 0.55); }
+.rv .op-form .qf-f input[aria-invalid="true"],
+.rv .op-form .qf-f textarea[aria-invalid="true"] { border-color: var(--accent); }
+.rv .op-form .qf-h { font-size: 13px; line-height: 1.8; color: var(--rv-sub); }
+.rv .op-form .qf-e { font-size: 13px; font-weight: 700; }
+/* 枠線のボタン（写真を選ぶ・送信後の電話とLINE）。丸い形に */
+.rv .op-form .btn {
+  min-height: 48px;
+  padding: 0 22px;
+  background: var(--rv-paper);
+  border: 2px solid var(--rv-navy);
+  border-radius: 999px;
+  color: var(--rv-navy);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+.rv .op-form .btn:hover { background: #fff; color: var(--rv-navy); }
+.rv .op-form .qf-file-b:has(.qf-file-i:focus-visible) { outline: 3px solid var(--rv-green); outline-offset: 2px; }
+.rv .op-form .qf-file-b:has(.qf-file-i:disabled):hover { background: var(--rv-paper); color: var(--rv-navy); }
+.rv .op-form .qf-file-n { font-size: 13px; color: var(--rv-sub); letter-spacing: 0; }
+.rv .op-form .qf-thumbs { border-top-color: #E1DACB; }
+.rv .op-form .qf-thumbs li { border-bottom-color: #E1DACB; }
+.rv .op-form .qf-thumbs img { border-radius: 8px; }
+.rv .op-form .qf-thumb-m small { color: var(--rv-sub); }
+.rv .op-form .qf-thumbs button { padding: 6px 14px; border: 2px solid var(--rv-line); border-radius: 999px; color: var(--rv-navy); font-weight: 700; letter-spacing: 0; }
+.rv .op-form .qf-thumbs button:hover { border-color: var(--rv-navy); }
+/* 送信ボタンは黄色 */
+.rv .op-form .qf-send { margin-top: 28px; }
+.rv .op-form .qf-send .btn {
+  min-height: 56px;
+  padding: 0 28px;
+  background: var(--rv-yellow);
+  border: 0;
+  box-shadow: 0 5px 0 var(--rv-yellow-shadow);
+  font-size: 17px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.rv .op-form .qf-send .btn:hover { background: var(--rv-yellow); transform: translateY(-2px); box-shadow: 0 7px 0 var(--rv-yellow-shadow); }
+.rv .op-form .qf-send .btn:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 3px; }
+.rv .op-form .qf-send .btn:disabled:hover { background: var(--rv-yellow); color: var(--rv-navy); transform: none; box-shadow: 0 5px 0 var(--rv-yellow-shadow); }
+.rv .op-form .qf-pp { font-size: 13px; color: var(--rv-sub); }
+/* /simulator からの引き継ぎ・送れなかったとき・送れたとき */
+.rv .op-form .qf-sum { margin-top: 22px; padding: 20px 22px; background: #F1EDE4; border: 2px solid var(--rv-navy); border-radius: 16px; }
+.rv .op-form .qf-sum-h { font-size: 13px; font-weight: 900; letter-spacing: 0; color: var(--rv-navy); }
+.rv .op-form .qf-sum-l { font-size: 14px; }
+.rv .op-form .qf-sum-l > div { border-top-color: var(--rv-line); }
+.rv .op-form .qf-sum-l dt,
+.rv .op-form .qf-sum-n { color: var(--rv-sub); }
+.rv .op-form .qf-ng { border-width: 2px; border-radius: 16px; font-size: 14px; color: var(--rv-sub); }
+.rv .op-form .qf-ng-t { font-weight: 900; }
+.rv .op-form .qf-ng-k { color: var(--rv-sub); }
+.rv .op-form .qf-done { margin-top: 22px; padding: 0; border: 0; font-size: 15px; color: var(--rv-sub); }
+.rv .op-form .qf-done-t { font-family: var(--rv-ff-zen); font-size: 22px; font-weight: 900; color: var(--rv-navy); }
+.rv .op-form .qf-done-ng { border-top-color: #E1DACB; }
+
+/* ---- /blog 記事のカード：3列。上に色の帯（黄色・深緑を交互） ---- */
+.rv .op-posts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rv .op-posts article { min-width: 0; }
+.rv .op-post {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+  color: var(--rv-navy);
+  border: 2px solid var(--rv-navy);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--rv-navy);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.rv .op-post:hover { transform: translateY(-3px); box-shadow: 0 9px 0 var(--rv-navy); }
+.rv .op-post:focus-visible { outline: 3px solid var(--rv-green); outline-offset: 3px; }
+.rv .op-post-band {
+  display: flex;
+  align-items: flex-end;
+  height: 160px;
+  padding: 14px;
+  background: var(--rv-yellow);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+}
+.rv .op-post-band.g { background: var(--rv-green); color: var(--rv-paper); }
+.rv .op-post-b { display: flex; flex-direction: column; gap: 8px; padding: 20px; }
+.rv .op-post-b time { font-size: 15px; font-weight: 600; color: var(--rv-sub); }
+.rv .op .op-post-b h2 { font-family: var(--rv-ff-zen); font-size: 18px; font-weight: 900; line-height: 1.5; letter-spacing: 0; }
+.rv .op-post-b p { font-size: 14px; line-height: 1.7; color: var(--rv-sub); }
+@media (max-width: 860px) {
+  .rv .op-posts { grid-template-columns: minmax(0, 1fr); }
+  .rv .op-post-band { height: 96px; }
+}
+/* 記事が0件のとき */
+.rv .op-empty { display: flex; flex-direction: column; gap: 24px; }
+.rv .op-empty p { font-size: 16px; line-height: 1.9; }
+.rv .op-tel { font-size: 22px; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---- 記事ページ：本文（.post）の書体と見出しだけを新しいトーンに ----
+   余白・リスト・引用の組み方は上の .post のまま。**本文の HTML には触っていない。**
+   ⚠ 管理画面のプレビュー（.rv.pv）は .op の外なので、前の見た目（明朝の見出し）のまま出る */
+.rv .op .post { max-width: none; font-size: 16px; line-height: 2; }
+.rv .op .post h2,
+.rv .op .post h3,
+.rv .op .post h4,
+.rv .op .post h5,
+.rv .op .post h6 { font-family: var(--rv-ff-zen); font-weight: 900; letter-spacing: 0; }
+.rv .op .post h2 { font-size: 26px; line-height: 1.5; padding-bottom: 10px; border-bottom: 2px solid var(--rv-navy); }
+.rv .op .post h3 { font-size: 20px; line-height: 1.6; }
+.rv .op .post h4,
+.rv .op .post h5,
+.rv .op .post h6 { font-size: 16px; }
+.rv .op .post strong,
+.rv .op .post b { font-weight: 900; }
+.rv .op .post a { font-weight: 700; border-bottom-color: var(--rv-navy); }
+.rv .op .post a:hover { color: var(--rv-green); border-bottom-color: var(--rv-green); }
+.rv .op .post li::marker { color: var(--rv-green); }
+.rv .op .post blockquote { border-left: 4px solid var(--rv-yellow); color: var(--rv-sub); font-size: 15px; }
+.rv .op .post hr { border-top-color: var(--rv-line); }
+.rv .op .post code,
+.rv .op .post pre { background: #F1EDE4; border-radius: 6px; }
+.rv .op .post pre { border-radius: 12px; }
+.rv .op .post pre code { background: none; }
+@media (max-width: 700px) {
+  .rv .op .post h2 { font-size: 22px; }
+  .rv .op .post h3 { font-size: 18px; }
+}
+/* 記事末：ボタンの下に、一覧とトップへ戻るリンク */
+.rv .op-narrow .tp-sec-hd { margin-bottom: 28px; }
+.rv .op-back { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 36px; }
+.rv .op-back a { font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--rv-navy); padding-bottom: 2px; }
+.rv .op-back a:hover { color: var(--rv-green); border-bottom-color: var(--rv-green); }

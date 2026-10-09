@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import Hero from "../_components/Hero";
+import PageHero from "../_components/PageHero";
 import {
   INDOOR_FEE,
   INBUILDING_MOVE_FEE,
@@ -20,6 +20,11 @@ import { HOURS_RANGE } from "@/lib/site";
  * site.css の `.dl`（定義表）と `.tl`（本文中のリンク）に置き換えてある。
  * 英語のラベル `Legal Notice` も、(site) の流儀（字間を開けた日本語）とは
  * 違うが**法定表示ページの表示文言なので触っていない。**
+ *
+ * 【93_other_pages】見た目だけをトップと同じトーンにした（小さいヒーロー＋白い枠の表・ラベルは深緑）。
+ * **文面は1文字も変えていない。**ROWS には触っていない。クラス（`.h` `.nt` `.gap` `.tl`）もそのままで、
+ * 新しい見た目は site.css の `.op-dl` が当てている。
+ * ヒーローの小見出しは `LEGAL`（参考モックのとおり）。本文ではない。
  *
  * 【金額をこのファイルに書かない】
  * 18で、ここの「時間チャーター 1時間8,000円（2時間〜／4時間超は1時間7,000円）」が、
@@ -255,12 +260,12 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 
 export default function TokushohoPage() {
   return (
-    <>
-      <Hero size="md" kicker="特 商 法" title="特定商取引法に基づく表記" />
+    <div className="tp pp op">
+      <PageHero kicker="LEGAL" title="特定商取引法に基づく表記" />
 
-      <section className="sec first">
-        <div className="w">
-          <dl className="dl">
+      <section className="op-sec">
+        <div className="tw op-legal">
+          <dl className="op-dl">
             {ROWS.map((row) => (
               <div key={row.label}>
                 <dt>{row.label}</dt>
@@ -269,13 +274,13 @@ export default function TokushohoPage() {
             ))}
           </dl>
 
-          <p className="pnote" style={{ marginTop: "38px", textAlign: "right" }}>
+          <p className="op-sign">
             re&apos;vive 富山（運営：AmNiss&amp;Co. Japan）
             <br />
             最終更新：2026年8月7日
           </p>
         </div>
       </section>
-    </>
+    </div>
   );
 }
