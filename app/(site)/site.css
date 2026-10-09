@@ -2919,7 +2919,6 @@ body.rv,
 .rv .op .tl { font-size: inherit; font-weight: 700; border-bottom-color: var(--rv-navy); }
 .rv .op .tl:hover { color: var(--rv-green); border-bottom-color: var(--rv-green); }
 .rv .op-gap-lg { margin-top: 40px; }
-.rv .op-self-start { align-self: flex-start; }
 /* 節の中の2つ目の見出し（/houjin のお受けできないこと）と、記事末の見出し */
 .rv .tp .tp-h2.op-h2-sm { font-size: 32px; }
 .rv .op-trust + .tp-h2.op-h2-sm { margin: 72px 0 28px; }

@@ -3,7 +3,7 @@ import Image from "next/image";
 import PageHero from "../_components/PageHero";
 import LastCta from "../_components/LastCta";
 import { images } from "@/lib/images";
-import { COMPANY, HOURS_RANGE, LICENSES, LINE_URL, TEL } from "@/lib/site";
+import { COMPANY, HOURS_RANGE, LICENSES, TEL } from "@/lib/site";
 
 /**
  * 会社概要。
@@ -147,14 +147,10 @@ export default function CompanyPage() {
               </div>
             ))}
           </dl>
-
-          <a className="tp-btn tp-btn-n op-self-start" href={LINE_URL} target="_blank" rel="noopener noreferrer">
-            LINEで相談する
-          </a>
         </div>
       </section>
 
-      {/* 最後の案内。文はトップと同じ（93a） */}
+      {/* 最後の案内。文はトップと同じ（93a）。表の下にあった LINE のボタンは、ここと重なるので 93b で外した */}
       <LastCta title="まずは、写真を1枚。" lead="運びたい物、売りたい物を撮って送ってください。型番が写っていれば、その場で概算をお伝えします。" />
     </div>
   );

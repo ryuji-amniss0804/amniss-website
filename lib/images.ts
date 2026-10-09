@@ -80,7 +80,7 @@ export const images = {
   // ─── 精密機器（そのまま。背景が整理されているため暗くしない） ───
   pcDellSsd: {
     src: "/images/pc-dell-ssd.jpg",
-    alt: "Dell製ノートパソコンを分解し、SSDを換装している様子",
+    alt: "デスクトップパソコンの内部",
     width: 2000,
     height: 2000,
     treatment: "plain",
