@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "../_components/PageHero";
+import LastCta from "../_components/LastCta";
 import { getAllPosts } from "@/lib/posts";
 import { HOURS, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
@@ -106,6 +107,9 @@ export default function BlogIndex() {
           )}
         </div>
       </section>
+
+      {/* 最後の案内。文はトップと同じ（93a） */}
+      <LastCta title="まずは、写真を1枚。" lead="運びたい物、売りたい物を撮って送ってください。型番が写っていれば、その場で概算をお伝えします。" />
     </div>
   );
 }

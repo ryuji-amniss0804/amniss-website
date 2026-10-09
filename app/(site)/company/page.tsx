@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import Image from "next/image";
 import PageHero from "../_components/PageHero";
+import LastCta from "../_components/LastCta";
 import { images } from "@/lib/images";
 import { COMPANY, HOURS_RANGE, LICENSES, LINE_URL, TEL } from "@/lib/site";
 
@@ -152,6 +153,9 @@ export default function CompanyPage() {
           </a>
         </div>
       </section>
+
+      {/* 最後の案内。文はトップと同じ（93a） */}
+      <LastCta title="まずは、写真を1枚。" lead="運びたい物、売りたい物を撮って送ってください。型番が写っていれば、その場で概算をお伝えします。" />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import {
   INBUILDING_MOVE_FEE,
   INSTALL_FEE,
   INBUILDING_CAP,
+  SPOT_EXTEND_FEE,
+  SPOT_EXTEND_MIN,
   SPOT_FEE,
 } from "../_fees";
 import { DEPART, DISASSEMBLE_FEE, STAIRS_FEE, yen } from "@/lib/pricing";
@@ -41,6 +43,7 @@ import { HOURS_RANGE } from "@/lib/site";
  *  - 建物の中での移動 … `app/(site)/_fees.ts` の INBUILDING_MOVE_FEE / INSTALL_FEE /
  *    INBUILDING_CAP（階段 STAIRS_FEE・分解組立 DISASSEMBLE_FEE は `lib/pricing.ts`）
  *  - 法人スポット便 8,000 … `app/(site)/_fees.ts` の SPOT_FEE
+ *    延長 30分ごと 1,500 … 同じファイルの SPOT_EXTEND_MIN / SPOT_EXTEND_FEE（93a で1行足した）
  *
  * INDOOR_FEE と SPOT_FEE は**同額だが別の定数のまま**にしてある。
  * 片方を改定したときに、もう片方が黙って一緒に動かないようにするため。
@@ -173,6 +176,12 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 
         <span className="h">
           法人のお客様のスポット便　富山市内・1時間まで {yen(SPOT_FEE)}
+        </span>
+        {/* 93a で足した1行（延長料金を新設したため）。文は cc_task の回答のとおり。数字は _fees.ts から。
+            **この行のほかは1文字も変えていない。** */}
+        <span>
+          法人スポット便：富山市内・1時間まで {yen(SPOT_FEE)}、以降{SPOT_EXTEND_MIN}分ごとに{" "}
+          {yen(SPOT_EXTEND_FEE)}（税込・作業員1名）。富山市外は距離料を加算します。
         </span>
         <span>富山市外は距離に応じて加算します。</span>
         <span>

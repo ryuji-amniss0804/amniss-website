@@ -3458,3 +3458,25 @@ body.rv,
 .rv .op-back { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 36px; }
 .rv .op-back a { font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--rv-navy); padding-bottom: 2px; }
 .rv .op-back a:hover { color: var(--rv-green); border-bottom-color: var(--rv-green); }
+
+/* ---- /kaitori 4つの約束：1つ目の横に写真（93a）。会社概要の代表の写真と同じ枠（角丸・下に黄色の影） ----
+   860px以下では、その約束の上に置く（番号と文の上に、幅いっぱい） */
+.rv .op-rs-ph { align-items: center; }
+.rv .op-rs-fig { flex: 0 0 280px; display: flex; flex-direction: column; gap: 14px; }
+.rv .op-rs-fig > div {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #E1DACB;
+  border: 2px solid var(--rv-navy);
+  border-radius: 20px;
+  box-shadow: 0 8px 0 var(--rv-yellow);
+}
+.rv .op-rs-fig img { width: 100%; height: 100%; object-fit: cover; }
+.rv .op-rs-fig figcaption { font-size: 13px; line-height: 1.6; color: var(--rv-sub); text-align: center; }
+@media (max-width: 860px) {
+  .rv .op-rs-ph { flex-wrap: wrap; align-items: flex-start; }
+  .rv .op-rs-fig { order: -1; flex: 0 0 100%; margin-bottom: 8px; }
+  /* 幅いっぱいだと 768px で写真が大きすぎるので、420px で止める。キャプションは写真の左にそろえる */
+  .rv .op-rs-fig > div { aspect-ratio: 16 / 9; max-width: 420px; }
+  .rv .op-rs-fig figcaption { text-align: left; }
+}

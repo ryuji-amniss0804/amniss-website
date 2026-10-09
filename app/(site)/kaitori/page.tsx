@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PriceHero from "../_components/PriceHero";
 import LicenseStrip from "../_components/LicenseStrip";
 import FaqTop, { type FaqTopItem } from "../_components/FaqTop";
 import LastCta from "../_components/LastCta";
+import { images } from "@/lib/images";
 import { LICENSES, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
 
 /**
@@ -21,7 +23,10 @@ import { LICENSES, LINE_URL, TEL, TEL_HREF } from "@/lib/site";
  * 本人確認書類から「保険証」を外した（2026-10-09 決定。従来の保険証は2025年12月までに使えなくなったため）。
  *
  * 【写真】93 の前はヒーローと本文に修理中の写真を1枚ずつ置いていた（lib/images.ts の2枚）。
- * モックに合わせて外してある。戻すかどうかは cc_log/93 で確認中。
+ * 93 でモックに合わせて外し、93a で1枚だけ戻した（pcDellSsd）。
+ * 置き場所は「4つの約束」の1つ目「断られた物こそ」の横（860px以下ではその約束の上）。
+ * 動かない機械を自分で開けていることの証拠として置いている。**ヒーローには置かない。もう1枚（pcBlackCase）は使わない**
+ * （同じ種類の写真が2枚並ぶと飾りになる）。
  *
  * 「不用品回収」「不用品処分」「引き取り」「処分します」は書かない。
  * 買取価格の具体例・相場も書かない（査定してみないと分からないため）。
@@ -198,7 +203,7 @@ export default function KaitoriPage() {
           </div>
           <ol className="tp-rs-list">
             {PROMISES.map((r, i) => (
-              <li className="tp-rs tp-rise" key={r.title}>
+              <li className={i === 0 ? "tp-rs tp-rise op-rs-ph" : "tp-rs tp-rise"} key={r.title}>
                 <span className="tp-rs-n tp-num" aria-hidden="true">
                   {i + 1}
                 </span>
@@ -206,6 +211,21 @@ export default function KaitoriPage() {
                   <h3>{r.title}</h3>
                   <p>{r.body}</p>
                 </div>
+                {/* 1つ目の横にだけ写真（860px以下では上）。会社概要の代表の写真と同じ枠 */}
+                {i === 0 ? (
+                  <figure className="op-rs-fig">
+                    <div>
+                      <Image
+                        src={images.pcDellSsd.src}
+                        alt={images.pcDellSsd.alt}
+                        width={images.pcDellSsd.width}
+                        height={images.pcDellSsd.height}
+                        sizes="(max-width: 860px) 100vw, 280px"
+                      />
+                    </div>
+                    <figcaption>精密機器の分解・修理は自分で行っています</figcaption>
+                  </figure>
+                ) : null}
               </li>
             ))}
           </ol>
