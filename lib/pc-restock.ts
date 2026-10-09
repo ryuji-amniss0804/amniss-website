@@ -24,6 +24,15 @@ export const RESTOCK_KINDS = ["ノート", "デスクトップ", "ゲーミン�
 /** メールアドレスの形。画面と受け口が同じ式で見る（`lib/pc-inquiry.ts` の式と同じ） */
 export const RESTOCK_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * 自動返信（登録した人へ届く1通）の返信先。**アドレスはここ1か所だけに書く。**
+ *
+ * 自動返信には「停止をご希望の場合は、このメールにご返信ください」と書いてある。
+ * 差出人（`RESEND_FROM`）が受け取れないアドレスだと、その返信がどこにも届かずに消える。
+ * 返信先を人が読む受信箱に固定して、停止の依頼が必ず届くようにしている（94a）。
+ */
+export const RESTOCK_REPLY_TO = "ogawa@amniss-japan.jp";
+
 export type RestockInput = {
   /** 形式を検め済みのもの */
   email: string;
@@ -36,8 +45,8 @@ export type RestockInput = {
 export type RestockMails = {
   /** 受信箱へ届く1通。「返信」を押すと登録した人宛になる */
   owner: { subject: string; text: string; replyTo: string };
-  /** 登録した人へ届く自動返信。**1通だけ** */
-  reply: { to: string; subject: string; text: string };
+  /** 登録した人へ届く自動返信。**1通だけ**。「返信」を押すと `RESTOCK_REPLY_TO` 宛になる */
+  reply: { to: string; subject: string; text: string; replyTo: string };
 };
 
 /** 未記入の任意項目。**行ごと消さない。**「聞いたが空だった」と分かるようにする */
@@ -78,6 +87,7 @@ export function buildRestockMails(p: RestockInput): RestockMails {
         "re'vive_doc（パソコン修理・富山）",
         `電話 ${TEL}`,
       ].join("\n"),
+      replyTo: RESTOCK_REPLY_TO,
     },
   };
 }

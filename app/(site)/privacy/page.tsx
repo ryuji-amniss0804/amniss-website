@@ -208,6 +208,8 @@ export default function PrivacyPolicy() {
             AmNiss &amp; Co. Japan
             <br />
             制定日：2026年5月30日
+            <br />
+            改定日：2026年10月10日
           </p>
         </div>
       </section>
