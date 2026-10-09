@@ -10,13 +10,18 @@ import {
   SYMPTOM_WHEN,
   SYMPTOMS,
   TRAVEL,
-  priceOf,
   yen,
 } from "@/lib/pc";
+import { AREAS, laborOf, range } from "../../_lib/estimate";
 
 /**
  * /pc/symptom の道具の本体。
  * 手本：D:\revive_toyama_marketing\mockup_pc_doc_v4.html の「症状の目安（選択式）」
+ *
+ * 【94】見た目だけを、トップ（/pc）の症状の節に合わせた（選んだものは緑・結果は紺の面・
+ * 「そのまま送れる文」は紺の面に等幅の文字）。**質問・文言・金額の出し方は変えていない。**
+ * 金額の計算（`laborOf` `range`）は、トップと同じものを通すために
+ * `app/(pc)/_lib/estimate.ts` へ移した。
  *
  * ⚠ 金額の数字をこのファイルに書かないこと。`SYMPTOMS` が持つのはキー（"std" など）で、
  *   数字は `priceOf()` が `LABOR` / `MENU` から引く。料金を変えれば目安も一緒に直る。
@@ -35,11 +40,18 @@ import {
 /** 出張費つきの市町村。**新しく一覧を書かず、`TRAVEL` から作る。** */
 const CITIES = TRAVEL.flatMap((t) => t.cities.map((n) => ({ name: n, fee: t.fee })));
 
-/** 金額の範囲。`hi === null` は上限を示さない、`hi === lo` は1つの数字 */
-function range(lo: number, hi: number | null, add = 0): string {
-  if (hi === null) return `${yen(lo + add)}円〜`;
-  if (hi === lo) return `${yen(lo + add)}円`;
-  return `${yen(lo + add)}〜${yen(hi + add)}円`;
+/**
+ * トップ（/pc）から引き継いだ地域（`?a=<出張費の段>`）を、市町村の番号にする。
+ * 段の中に市町村が1つだけのとき（富山市内）だけ、選んだ状態にする。
+ * 複数ある段（高岡・砺波・魚津・黒部 など）は、どの市町村かが分からないので選ばない。
+ * **推測で市町村を決めないこと。**知らない値で来ても、何も選ばないだけ。
+ */
+function cityFromArea(a: string | null): number | null {
+  if (a === null || !/^[0-9]+$/.test(a)) return null;
+  const only = AREAS[Number(a)]?.onlyCity;
+  if (!only) return null;
+  const i = CITIES.findIndex((c) => c.name === only);
+  return i < 0 ? null : i;
 }
 
 type Result = {
@@ -75,8 +87,7 @@ function buildResult(
     );
   }
 
-  const lo = s.lo === null ? null : priceOf(s.lo);
-  const hi = s.hi === null ? null : priceOf(s.hi);
+  const { lo, hi } = laborOf(s);
 
   // 下限が引けないものは金額を出さない。**推測で数字を作らないこと。**
   if (lo === null) {
@@ -186,12 +197,18 @@ function toggle<T>(current: T | null, next: T): T | null {
   return current === next ? null : next;
 }
 
-export default function SymptomTool({ initialSymptom }: { initialSymptom: string | null }) {
+export default function SymptomTool({
+  initialSymptom,
+  initialArea,
+}: {
+  initialSymptom: string | null;
+  initialArea: string | null;
+}) {
   // 知らないキー（/pc/symptom?s=zzz）で来ても、何も選ばれていない状態にするだけ。エラーにしない。
   const [symptom, setSymptom] = useState<string | null>(() =>
     SYMPTOMS.some((s) => s.key === initialSymptom) ? initialSymptom : null,
   );
-  const [city, setCity] = useState<number | null>(null);
+  const [city, setCity] = useState<number | null>(() => cityFromArea(initialArea));
   const [when, setWhen] = useState<number | null>(null);
   const [age, setAge] = useState<number | null>(null);
   const [data, setData] = useState<number | null>(null);
@@ -346,16 +363,16 @@ export default function SymptomTool({ initialSymptom }: { initialSymptom: string
               aria-label="そのまま送れる文"
             />
             <div className="dacts">
-              <button type="button" className="btn s" onClick={handleCopy}>
+              <button type="button" className="btn btn-o" onClick={handleCopy}>
                 {copied ? "コピーしました" : "文をコピー"}
               </button>
-              <Link className="btn p" href="/pc/contact">
+              <Link className="btn btn-g" href="/pc/contact">
                 この内容で相談する
               </Link>
               {/* `PC_LINE_URL` が null のあいだは出さない。アカウントを止めて
                   null に戻せば、このボタンごと消える */}
               {PC_LINE_URL && (
-                <a className="btn s" href={PC_LINE_URL} target="_blank" rel="noopener noreferrer">
+                <a className="btn btn-o" href={PC_LINE_URL} target="_blank" rel="noopener noreferrer">
                   LINEで相談する
                 </a>
               )}

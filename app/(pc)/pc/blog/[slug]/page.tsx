@@ -2,26 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPcPosts, getPcPostBySlug } from "@/lib/pc-posts";
+import PcLicense from "../../../_components/PcLicense";
+import PcPageHero from "../../../_components/PcPageHero";
 
 /**
  * /pc/blog/<slug> 記事の本文。
  *
- * 見た目は `/pc/case/01-raiden` と同じ組み方（`.article`）。**新しいCSSは足していない。**
- * 7段の文字サイズの外に新しいサイズを作らないこと。色を敷くのも増やさないこと（79d）。
+ * 見た目は `/pc/case/01-raiden` と同じ組み方（紺のヒーロー＋`.article`）。
+ * 【94】本体の /blog の記事ページ（93）と同じ形にした：見出しまわりは紺のヒーロー
+ * （カテゴリ・日付・見出し・抜粋）、本文は 760px の1本の段。**記事の本文は触っていない。**
  *
- * ⚠ **`.article` を2つに分けているのは、見た目の都合ではない。**
+ * ⚠ **本文は `.article` の直下に流し込むこと。**
  *   `pc.css` の本文の段落は `.pc .article > p`（子セレクタ）で当たっている。
  *   マークダウンから来る HTML を `.article` の中でさらに1枚囲むと、段落が
- *   その指定から外れて余白ゼロ（`.pc p { margin: 0 }`）になる。だから見出しまわりと
- *   本文で `.article` を2つ並べている。`.article` は幅（720px・中央寄せ）だけの器なので、
- *   2つ並べても同じ1本の段のまま見える。
+ *   その指定から外れて余白ゼロ（`.pc p { margin: 0 }`）になる。
  *
  * ⚠ 本文は `dangerouslySetInnerHTML` で入る素のタグ列なので、1要素ずつクラスを
  *   付けられない。表（`.tw`）と但し書き（`.note`）は**記事側（.md）に生HTMLで書いてある。**
  *   なぜ生HTMLでよいのか・いつ見直すのかは `lib/pc-posts.ts` の `renderPcMarkdown()` に書いた。
  *
  * ⚠ 構造化データ（`Article` など）はここに足さないこと。89のあとに別で入れる。
- * ⚠ `.pc-top` を付けないこと。付けるとセクション番号（01 ／ …）が出る。
  *
  * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
@@ -68,29 +68,37 @@ export default async function PcBlogPostPage({
   const { meta, contentHtml } = post;
 
   return (
-    <section className="sec">
-      <div className="w">
-        <header className="article">
-          <div className="card-meta">
-            <span>{meta.date}</span>
-            <span className="tag">{meta.category}</span>
+    <>
+      <PcPageHero
+        kicker="JOURNAL"
+        narrow
+        meta={
+          <>
+            <span className="num">{meta.date}</span>
+            <span>{meta.category}</span>
+          </>
+        }
+        title={meta.title}
+      >
+        {meta.excerpt}
+      </PcPageHero>
+      <PcLicense />
+
+      <section className="sec">
+        <div className="w narrow">
+          {/* 本文。`.article` の直下に置くこと（上の ⚠ を読むこと） */}
+          <article className="article" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+
+          <div className="article-cta">
+            <Link className="btn btn-g" href="/pc/contact">
+              パソコンのことを相談する
+            </Link>
+            <Link className="btn btn-nw" href="/pc/blog">
+              お知らせの一覧へ
+            </Link>
           </div>
-          <h1>{meta.title}</h1>
-          <p className="ld">{meta.excerpt}</p>
-        </header>
-
-        {/* 本文。`.article` の直下に置くこと（上の ⚠ を読むこと） */}
-        <article className="article" dangerouslySetInnerHTML={{ __html: contentHtml }} />
-
-        <div className="center article-cta">
-          <Link className="btn p" href="/pc/contact">
-            パソコンのことを相談する
-          </Link>
-          <Link className="btn s" href="/pc/blog">
-            お知らせの一覧へ
-          </Link>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

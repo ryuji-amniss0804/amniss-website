@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { DIAGNOSIS_FEE, LABOR, MENU, PAYMENTS, PC_META, TRAVEL, TRAVEL_MAX, yen } from "@/lib/pc";
+import PcLastCta from "../../_components/PcLastCta";
+import PcLicense from "../../_components/PcLicense";
+import PcPageHero from "../../_components/PcPageHero";
 
 /**
  * /pc/price 料金ページ。
- * 手本：D:\revive_toyama_marketing\mockup_pc_site_v1.html の `#/price`
+ *
+ * 【94】本体（re'vive）と同じトーンに載せ替えた。**文と金額は前のまま。**
+ * 4つの箱と工賃の3枚はトップ（/pc）の料金の節と同じ形、出張費とメニューの表は本体の 92 の表の形。
  *
  * ⚠ 金額はすべて `lib/pc.ts` から引く。ページに直接書かないこと。
  *   工賃の3枚はトップページと同じ `LABOR` を読む。**ズレたらそれはバグ。**
- * ⚠ `.pc-top` を付けないこと。付けるとセクション番号（01 ／ …）が出る。
- *   番号はトップページだけのもの。
- * ⚠ 背景（`.sec.band`）は敷かない。セクションは余白と罫線で区切る。
- * ⚠ マーカー（`.lead b` と `.mk`）は1セクションにつき1か所まで。
- *   このページで引くのは3か所（リード文／作業工賃／直せないとき）だけ。
  *
  * robots はレイアウト（`app/(pc)/layout.tsx`）で一括して見ている。ここでは指定しない。
  */
@@ -26,68 +26,93 @@ export default function PcPricePage() {
   return (
     <>
       {/* ---------- 料金（このページの h1） ---------- */}
-      <section className="sec">
-        <div className="w">
-          <p className="eyebrow">PRICE</p>
-          <h1>料金</h1>
-          <p className="lead">
-            お支払いは4つの合計です。
-            <b>
-              出張診断 {yen(DIAGNOSIS_FEE)}円 ＋ 作業工賃 ＋ 出張費 ＋ 部品代
-            </b>
-            。診断料は作業工賃に充当するので、そのまま作業に進む場合の実質負担はありません。
-          </p>
-        </div>
-      </section>
+      <PcPageHero kicker="PRICE" title="料金">
+        お支払いは4つの合計です。
+        <b>
+          出張診断 {yen(DIAGNOSIS_FEE)}円 ＋ 作業工賃 ＋ 出張費 ＋ 部品代
+        </b>
+        。診断料は作業工賃に充当するので、そのまま作業に進む場合の実質負担はありません。
+      </PcPageHero>
+      <PcLicense />
 
       {/* ---------- 作業工賃 ----------
-          トップページの3枚と同じ `LABOR` を読む詳細版。
-          判定基準（rule）と中身（items）を出すぶんが、トップとの違い。 */}
+          4つの箱と3枚は、トップページと同じ `LABOR` を読む。 */}
       <section className="sec">
         <div className="w">
-          <h2>作業工賃</h2>
-          <p className="lead">
-            <b>本体を開けるかどうかで、3段に分けています。</b>
-            作業時間ではなく作業の内容で決まるので、伺う前におおよその金額をお伝えできます。
-          </p>
+          <div className="formula">
+            <div className="fx">
+              <b>出張診断</b>
+              <span>{`${yen(DIAGNOSIS_FEE)}円`}</span>
+              <small>工賃に充当</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx g">
+              <b>作業工賃</b>
+              <span>{`${yen(LABOR[0].price)}円〜`}</span>
+              <small>{`${LABOR.length}段`}</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx">
+              <b>出張費</b>
+              <span>{`${yen(TRAVEL[0].fee)}〜${yen(TRAVEL_MAX)}円`}</span>
+              <small>{`${TRAVEL[0].label}は${yen(TRAVEL[0].fee)}円`}</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx">
+              <b>部品代</b>
+              <span>実費</span>
+              <small>必要なときだけ</small>
+            </div>
+          </div>
 
-          <div className="grid g3">
-            {LABOR.map((l) => (
-              <div key={l.key} className="card">
-                <div className="body">
-                  {"popular" in l && l.popular && (
-                    <span className="tag ok top">いちばん多いご依頼</span>
-                  )}
+          <div className="sec-hd">
+            <h2 className="h2 sm">作業工賃</h2>
+            <p className="lead">
+              <b>本体を開けるかどうかで、3段に分けています。</b>
+              作業時間ではなく作業の内容で決まるので、伺う前におおよその金額をお伝えできます。
+            </p>
+          </div>
+
+          <div className="labor">
+            {LABOR.map((l) => {
+              const pop = "popular" in l && l.popular;
+              return (
+                <div key={l.key} className={pop ? "lb pop" : "lb"}>
+                  {pop && <span className="lb-tag">いちばん多いご依頼</span>}
                   <h3>{l.name}</h3>
-                  <p className="rule-line">{l.rule}</p>
-                  <ul className="items">
+                  <p className="rule">{l.rule}</p>
+                  <ul>
                     {l.items.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
-                  <div className="foot-of-card">
-                    <span className="price">
-                      {yen(l.price)}
-                      <small> 円</small>
-                    </span>
-                    <span className="foot-note">＋出張費・部品代</span>
-                  </div>
+                  <span className="lb-p">
+                    {yen(l.price)}
+                    <small>円</small>
+                  </span>
+                  <span className="lb-n">＋出張費・部品代</span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ---------- 出張費 ----------
-          表は `.tw` の箱で包む。390px では表が収まらないので、
-          箱の中だけが横に動く（ページ本体は横スクロールさせない）。 */}
-      <section className="sec">
+      {/* ---------- 出張費 ---------- */}
+      <section className="sec bg2">
         <div className="w">
-          <h2>出張費（富山県内）</h2>
+          <div className="sec-hd">
+            <h2 className="h2 sm">出張費（富山県内）</h2>
+          </div>
 
           <div className="tw">
-            <table>
+            <table className="tbl">
               <thead>
                 <tr>
                   <th scope="col">エリア</th>
@@ -102,7 +127,10 @@ export default function PcPricePage() {
                   <tr key={t.label}>
                     <th scope="row">{t.label}</th>
                     <td>{t.cities.join("・")}</td>
-                    <td className="n">{yen(t.fee)} 円</td>
+                    <td className="n p">
+                      {yen(t.fee)}
+                      <small> 円</small>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -119,10 +147,12 @@ export default function PcPricePage() {
           `price` が null のものは「要見積り」。金額を書かないこと。 */}
       <section className="sec">
         <div className="w">
-          <h2>個別メニュー</h2>
+          <div className="sec-hd">
+            <h2 className="h2 sm">個別メニュー</h2>
+          </div>
 
           <div className="tw">
-            <table>
+            <table className="tbl">
               <thead>
                 <tr>
                   <th scope="col">内容</th>
@@ -137,9 +167,14 @@ export default function PcPricePage() {
                   <tr key={m.name}>
                     <th scope="row">{m.name}</th>
                     <td>{m.note}</td>
-                    <td className="n">
-                      {m.price === null ? "要見積り" : `${yen(m.price)} 円`}
-                    </td>
+                    {m.price === null ? (
+                      <td className="n est">要見積り</td>
+                    ) : (
+                      <td className="n p">
+                        {yen(m.price)}
+                        <small> 円</small>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -149,9 +184,11 @@ export default function PcPricePage() {
       </section>
 
       {/* ---------- 直せないとき ---------- */}
-      <section className="sec">
+      <section className="sec bg2">
         <div className="w">
-          <h2>直せないとき</h2>
+          <div className="sec-hd">
+            <h2 className="h2 sm">直せないとき</h2>
+          </div>
           <div className="callout">
             <p>
               <b className="mk">
@@ -168,17 +205,17 @@ export default function PcPricePage() {
             使えるかのように書かないこと。 */}
       <section className="sec">
         <div className="w">
-          <h2>お支払い方法</h2>
+          <div className="sec-hd">
+            <h2 className="h2 sm">お支払い方法</h2>
+          </div>
 
-          <div className="grid g4">
+          <div className="pays">
             {PAYMENTS.map((p) => (
-              <div key={p.name} className="card">
-                <div className="body">
-                  <span className={p.ready ? "tag ok top" : "tag top"}>
-                    {p.ready ? "ご利用いただけます" : "準備中"}
-                  </span>
-                  <h3>{p.name}</h3>
-                </div>
+              <div key={p.name} className={p.ready ? "pay" : "pay off"}>
+                <span className={p.ready ? "tag ok" : "tag"}>
+                  {p.ready ? "ご利用いただけます" : "準備中"}
+                </span>
+                <h3>{p.name}</h3>
               </div>
             ))}
           </div>
@@ -188,6 +225,8 @@ export default function PcPricePage() {
           </p>
         </div>
       </section>
+
+      <PcLastCta />
     </>
   );
 }

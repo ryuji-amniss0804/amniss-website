@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { AREA, LICENSES } from "@/lib/site";
-import { CASES, DIAGNOSIS_FEE, LABOR, PC_JOURNAL_HREF, SYMPTOMS, yen } from "@/lib/pc";
-import PcIcon from "../_components/PcIcon";
+import { CASES, DIAGNOSIS_FEE, LABOR, MENU, TRAVEL, TRAVEL_MAX, yen } from "@/lib/pc";
+import { getAllPcPosts } from "@/lib/pc-posts";
+import PcLastCta from "../_components/PcLastCta";
+import PcLicense from "../_components/PcLicense";
+import RestockForm from "../_components/RestockForm";
+import PcEstimate from "./PcEstimate";
 
 /**
  * /pc のトップページ。
- * 手本：D:\revive_toyama_marketing\mockup_pc_site_v1.html の `#/`
+ * 見た目・動き・文言の正：D:\revive_toyama_marketing\Claude outputs\top_mock_20261008\PcTop.dc.html（94）
+ *
+ * 順番：ヒーロー → 許認可の帯 → 症状（目安が出る）→ 料金 → 事例 → 中古PC（準備中・入荷通知）→ 記事 → 最後の案内
  *
  * ⚠ 金額はすべて `lib/pc.ts` から引く。ページに直接書かないこと。
- * ⚠ セクション番号（01 ／ SYMPTOMS）は `.pc-top` のカウンタで出る。
- *   **トップページだけ。**下層ページ（77以降）に `.pc-top` を付けないこと。
- * ⚠ 背景（`.sec.band`）を敷いてよいのは最後のCTAの1か所だけ。
- *   （2か所あると帯が繋がって「ここは他と違う」が伝わらない。）
- *
- * 料金・事例・中古PC・お問い合わせの各ページは 77 以降で作る。
- * それまでリンク先は 404 になる（想定どおり。`app/sitemap.ts` には載せていない）。
+ * ⚠ 中身はすべて最初の HTML に出す（動きで出すものも、文字は最初から入っている）。
  */
 
 export const metadata: Metadata = {
@@ -25,59 +24,41 @@ export const metadata: Metadata = {
   alternates: { canonical: "/pc" },
 };
 
-/**
- * 修理事例は `lib/pc.ts` の `CASES` から描く。**実在するものだけ。**
- * 「準備中」のダミーで枠を埋めないこと。事例が増えたらここは触らなくてよい。
- *
- * 3列に1枚だけ置くと2枚ぶんが空いて欠けて見えるので、
- * 3件に満たないあいだはグリッドを使わない（1件＝`.g1` ／ 2件＝`.g2`）。
- * `CASES` はタプル型（いまは長さ1）で、そのまま `=== 2` と比べると
- * 型が重ならず tsc が落ちる。number に落としてから比べている。
- */
-const caseCount: number = CASES.length;
-const caseGrid = caseCount >= 3 ? "g3" : caseCount === 2 ? "g2" : "g1";
+/** 料金の札に出すメニュー。金額が決まっているものだけ（null ＝ 要見積り は出さない） */
+const PRICED_MENU = MENU.filter((m) => m.price !== null);
 
-/**
- * お知らせ・記事（05）を出すかどうか。
- * 記事がまだ1本も無いので false。**判定はこの1か所だけ。**
- * 1本でも公開したら true にすればセクションが戻る。
- * ⚠ 05 が消えているあいだ、セクション番号は 01〜04 になる。それが正しい状態。
- */
-const HAS_JOURNAL: boolean = false;
-
-/**
- * お知らせ・記事の3枚（`HAS_JOURNAL` が true のときだけ描く）。
- * ⚠ 置き場所が未決（既存ブログにPCカテゴリを足すか、`content/pc/` を別に作るか）。
- *   見出しはモックアップの予定タイトルをそのまま置いている。
- */
-const JOURNAL = [
-  { cat: "お知らせ", title: "9月の出張スケジュールについて" },
-  { cat: "記事", title: "パソコンが遅いとき、買い替える前に確かめる3つのこと" },
-  { cat: "記事", title: "高校のBYOD、どんなパソコンを買えばいいのか" },
-] as const;
-
-/** 許認可バーに出す3つ。古物商許可とSDGsは `lib/site.ts` が唯一の出どころ */
-const kobutsu = LICENSES.find((l) => l.label === "古物商許可");
-const sdgs = LICENSES.find((l) => l.label === "富山県SDGs宣言企業");
+/** トップに出す記事の本数 */
+const JOURNAL_MAX = 3;
 
 export default function PcTopPage() {
+  // 記事は `content/pc-blog/` の実物から。新しい順（並べ替えは getAllPcPosts の中）。
+  // 0本のときは節ごと出さない。**架空の見出しで枠を埋めないこと。**
+  const posts = getAllPcPosts().slice(0, JOURNAL_MAX);
+
   return (
-    <div className="pc-top">
+    <>
       {/* ---------- ヒーロー ---------- */}
       <section className="hero">
-        <div className="w">
-          <div>
-            <h1>
+        <div className="w hero-in">
+          <div className="hero-t">
+            <p className="hero-k mono a1">PC REPAIR ／ 富山県全域に出張</p>
+            <h1 className="hero-h kp a2">
               買い替える前に、
               <br />
-              <b>ご相談ください。</b>
+              <span className="mark">ご相談ください。</span>
             </h1>
-            <p className="sub">
-              富山県内どこでも伺います。まず測って、直せるか直せないかを報告書でお出しします。
-              <b>直せないと判断したときは、その理由もお伝えします。</b>
+            <p className="hero-lead kp a3">
+              まず測って、直せるかどうかを報告書でお渡しします。
+              <br />
+              直せないときは、その理由もお伝えします。
             </p>
 
-            <div className="offers">
+            {/* 心電図のような線。飾りなので読み上げない */}
+            <svg className="ecg a3" viewBox="0 0 320 36" width="320" height="36" aria-hidden="true">
+              <path d="M0 18 H110 L122 4 L134 32 L146 10 L156 18 H320" fill="none" stroke="currentColor" strokeWidth="2.5" />
+            </svg>
+
+            <div className="offers a4">
               <div className="offer">
                 <b>無料</b>
                 <span>ご相談・お見積り</span>
@@ -95,23 +76,27 @@ export default function PcTopPage() {
               </div>
             </div>
 
-            <Link className="btn p" href="/pc/contact">
-              まずは無料で相談する
-            </Link>
-            <Link className="btn s" href="/pc/price">
-              料金を見る
-            </Link>
+            <div className="hero-acts a4">
+              <Link className="btn btn-g pulse" href="/pc/contact">
+                無料で相談する
+              </Link>
+              <a className="btn btn-o" href="#price">
+                料金を見る
+              </a>
+            </div>
           </div>
 
           {/* 診断報告書の2枚重ね。ヒーローなので priority（遅延させない）。
-              width / height を必ず渡す。読み込み中に下の要素が飛ばないようにするため。 */}
-          <div className="stack">
+              width / height を必ず渡す。読み込み中に下の要素が飛ばないようにするため。
+              上を走る緑の線は飾り。 */}
+          <div className="stack a3">
             <Image
               className="b"
               src="/pc/report-2.jpg"
               alt="診断報告書の見本 2枚目"
               width={560}
               height={791}
+              sizes="(max-width: 860px) 58vw, 330px"
               priority
             />
             <Image
@@ -120,228 +105,192 @@ export default function PcTopPage() {
               alt="パソコン診断報告書の見本"
               width={680}
               height={961}
+              sizes="(max-width: 860px) 66vw, 380px"
               priority
             />
+            <span className="scan" aria-hidden="true" />
             <span className="cap">お渡しする診断報告書（見本）</span>
           </div>
         </div>
       </section>
 
-      {/* ---------- 許認可バー ---------- */}
-      <div className="lic">
-        <div className="w">
-          {kobutsu && (
-            <span>
-              <i>✓</i>
-              {kobutsu.label} {kobutsu.value}
-            </span>
-          )}
-          {sdgs && (
-            <span>
-              <i>✓</i>富山県SDGs宣言事業者
-            </span>
-          )}
-          <span>
-            <i>✓</i>
-            {AREA} 出張対応
-          </span>
-        </div>
-      </div>
+      {/* ---------- 許認可の帯 ---------- */}
+      <PcLicense />
 
-      {/* ---------- 01 症状から探す ---------- */}
-      <section className="sec">
+      {/* ---------- 症状（目安が出る） ---------- */}
+      <section className="sec" id="sym">
         <div className="w">
-          <p className="eyebrow">SYMPTOMS</p>
-          <h2>こんなときに、お呼びください</h2>
-          <p className="lead">
-            当てはまるものを選ぶと、考えられる原因と費用の目安をその場でお出しします。
-          </p>
-
-          {/* カードは `lib/pc.ts` の `SYMPTOMS` から描く。ここに症状を書き足さないこと。
-              べた書きにすると /pc/symptom の選択肢と食い違い、押した人が
-              自分の症状を選べない行き止まりができる。
-              リンクの `?s=` で押した症状を引き継ぎ、選ばれた状態で開く。 */}
-          <div className="grid g4">
-            {SYMPTOMS.map((s) => (
-              <Link key={s.key} className="card sym" href={`/pc/symptom?s=${s.key}`}>
-                <div className="body">
-                  <PcIcon name={s.icon} />
-                  <h3>{s.card}</h3>
-                  <p>{s.cardNote}</p>
-                </div>
-              </Link>
-            ))}
+          <div className="sec-hd">
+            <p className="eyebrow">SYMPTOMS</p>
+            <h2 className="h2 kp">
+              症状を押すと、<span className="mark">費用の目安</span>が出ます
+            </h2>
           </div>
-
-          <Link className="more" href="/pc/symptom">
-            症状から費用の目安を出す →
-          </Link>
+          <PcEstimate />
         </div>
       </section>
 
-      {/* ---------- 02 料金 ---------- */}
-      <section className="sec">
+      {/* ---------- 料金 ---------- */}
+      <section className="sec bg2" id="price">
         <div className="w">
-          <p className="eyebrow">PRICE</p>
-          <h2>料金</h2>
-          <p className="lead">
-            出張診断 {yen(DIAGNOSIS_FEE)}円 ＋ 作業工賃 ＋ 出張費 ＋
-            部品代。診断料は作業工賃に充当します。
-            <b>直せなかった場合は、診断料と出張費のみです。</b>
-          </p>
+          <div className="sec-hd">
+            <p className="eyebrow">PRICE</p>
+            <h2 className="h2 kp">
+              金額は、<span className="mark">開けるかどうか</span>で3段
+            </h2>
+            <p className="lead">
+              診断料は作業工賃に充てます。直せなかったときは、診断料と出張費だけです。
+            </p>
+          </div>
 
-          <div className="grid g3">
-            {LABOR.map((l) => (
-              <div key={l.key} className="card">
-                <div className="body">
-                  {"popular" in l && l.popular && (
-                    <span className="tag ok top">いちばん多いご依頼</span>
-                  )}
+          {/* 4つの箱。数字はすべて `lib/pc.ts` から */}
+          <div className="formula rv">
+            <div className="fx">
+              <b>出張診断</b>
+              <span>{`${yen(DIAGNOSIS_FEE)}円`}</span>
+              <small>工賃に充当</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx g">
+              <b>作業工賃</b>
+              <span>{`${yen(LABOR[0].price)}円〜`}</span>
+              <small>{`${LABOR.length}段`}</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx">
+              <b>出張費</b>
+              <span>{`${yen(TRAVEL[0].fee)}〜${yen(TRAVEL_MAX)}円`}</span>
+              <small>{`${TRAVEL[0].label}は${yen(TRAVEL[0].fee)}円`}</small>
+            </div>
+            <span className="fx-op" aria-hidden="true">
+              ＋
+            </span>
+            <div className="fx">
+              <b>部品代</b>
+              <span>実費</span>
+              <small>必要なときだけ</small>
+            </div>
+          </div>
+
+          <div className="labor">
+            {LABOR.map((l) => {
+              const pop = "popular" in l && l.popular;
+              return (
+                <div key={l.key} className={pop ? "lb pop rv" : "lb rv"}>
+                  {pop && <span className="lb-tag">いちばん多いご依頼</span>}
                   <h3>{l.name}</h3>
-                  <p className="rule-line">{l.rule}</p>
-                  <ul className="items">
+                  <p className="rule">{l.rule}</p>
+                  <ul>
                     {l.items.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
-                  <div className="foot-of-card">
-                    <span className="price">
-                      {yen(l.price)}
-                      <small> 円</small>
-                    </span>
-                    <span className="foot-note">＋出張費・部品代</span>
-                  </div>
+                  <span className="lb-p">
+                    {yen(l.price)}
+                    <small>円</small>
+                  </span>
+                  <span className="lb-n">＋出張費・部品代</span>
                 </div>
-              </div>
+              );
+            })}
+          </div>
+
+          {/* 個別メニューのうち、金額が決まっているもの */}
+          <div className="note-g">
+            {PRICED_MENU.map((m) => (
+              <span key={m.key}>
+                {`${m.name} ${yen(m.price as number)}円`}
+                <small>{`（${m.note}）`}</small>
+              </span>
             ))}
           </div>
 
-          <Link className="more" href="/pc/price">
-            全メニューと内訳を見る →
+          <Link className="btn btn-n more" href="/pc/price">
+            全メニューと出張費を見る
           </Link>
         </div>
       </section>
 
-      {/* ---------- 03 修理事例 ---------- */}
-      <section className="sec">
+      {/* ---------- 事例 ----------
+          `lib/pc.ts` の `CASES` から描く。**実在するものだけ。**「準備中」のダミーで埋めないこと。
+          横長の大きなカードを縦に並べるので、1件のときは1枚が全幅になる。 */}
+      <section className="sec" id="case">
         <div className="w">
-          <p className="eyebrow">CASE</p>
-          <h2>修理事例</h2>
-          <p className="lead">
-            実際にお受けした作業を、診断報告書とあわせて公開しています。
-          </p>
+          <div className="sec-hd">
+            <p className="eyebrow">CASE</p>
+            <h2 className="h2">修理事例</h2>
+            <p className="lead">実際の作業を、診断報告書とあわせて公開しています。</p>
+          </div>
 
-          {/* 器は件数で変わる（`caseGrid`）。3件に満たないあいだは3列に置かない。 */}
-          <div className={`grid ${caseGrid}`}>
+          <div className="cases">
             {CASES.map((c) => (
-              <Link key={c.slug} className="card" href={`/pc/case/${c.slug}`}>
+              <Link key={c.slug} className="case rv" href={`/pc/case/${c.slug}`}>
                 <Image
-                  className="thumb"
                   src={c.image}
                   alt={c.imageAlt}
                   width={c.imageW}
                   height={c.imageH}
-                  sizes="(max-width: 640px) 100vw, 560px"
+                  sizes="(max-width: 860px) 100vw, 560px"
                 />
-                <div className="body">
-                  <div className="card-meta">
+                <div className="case-b">
+                  <div className="meta">
                     <span>{c.date}</span>
-                    <span className="tag">
-                      {c.area} ／ {c.machine}
-                    </span>
+                    <span>{`${c.area} ／ ${c.machine}`}</span>
+                    {c.hasReport && <span className="ok">診断報告書あり</span>}
                   </div>
                   <h3>{c.title}</h3>
                   <p>{c.summary}</p>
-                  <div className="foot-of-card">
-                    {c.hasReport && <span className="tag ok">診断報告書あり</span>}
-                    <span className="read-on">読む →</span>
-                  </div>
+                  <span className="case-go">事例を読む →</span>
                 </div>
               </Link>
             ))}
           </div>
-
-          <Link className="more" href="/pc/case">
-            事例をすべて見る →
-          </Link>
         </div>
       </section>
 
-      {/* ---------- 04 診断書付き中古PC（背景を敷く1か所目） ----------
-          ⚠ **在庫が0件なのでカタログの形にしない。**
-            価格・構成・バッテリー健全度の数字は1つも書かないこと。実在庫が無く、
-            出どころのない数字になる。「在庫あり」「商談中」のタグも同じ理由で出さない。
-            `used-desktop.jpg` `used-gaming.jpg` も実在庫の写真ではないので使わない
-            （ファイルは残してある。在庫が入る80でカタログに戻すときに使う）。 */}
-      <section className="sec">
-        <div className="w">
-          <p className="eyebrow">USED PC</p>
-          <h2>診断書付きの中古パソコン</h2>
-          <p className="lead">
-            修理より買い替えのほうが良いときのために、整備済みの中古パソコンもご用意しています。
-            <b>どの個体にも、修理のときと同じ項目を測った診断報告書が付きます。</b>
-            バッテリーの健全度もSSDの使用時間も、隠さず書いてあります。
-          </p>
-
-          <p className="sec-body">
-            いまご案内できる在庫はありません。ご希望の用途とご予算を伺って、入荷したときにご連絡することもできます。
-          </p>
-          <p className="sec-body">
-            新品のパーツで組むこともできます。用途とご予算を伺って構成をご提案します。
-            <b>構成のご相談は無料</b>です。組み立てと初期設定までお引き受けします。
-          </p>
-
-          <Link className="btn p" href="/pc/contact">
-            中古パソコン・BTOの相談をする
-          </Link>
-        </div>
-      </section>
-
-      {/* ---------- 05 お知らせ・記事 ---------- */}
-      {/* ⚠ 記事が0本のあいだは**見出しも枠も出さない。**空の枠は作りかけに見える。
-          出し戻しは `HAS_JOURNAL` の1か所だけで済むようにしてある。 */}
-      {HAS_JOURNAL && (
-        <section className="sec">
-          <div className="w">
-            <p className="eyebrow">JOURNAL</p>
-            <h2>お知らせ・記事</h2>
-
-            <div className="grid g3">
-              {JOURNAL.map((j) => (
-                <Link key={j.title} className="card" href={PC_JOURNAL_HREF}>
-                  <div className="body">
-                    <div className="card-meta">
-                      <span className="tag">{j.cat}</span>
-                    </div>
-                    <h3>{j.title}</h3>
-                  </div>
-                </Link>
-              ))}
+      {/* ---------- 中古PC（準備中・入荷通知）と記事 ----------
+          ⚠ **在庫が0件。**「ご用意しています」のような、在庫があるように読める書き方をしないこと。
+            価格・構成の数字、「在庫あり」の札、実在庫でない写真（used-*.jpg）も出さない。
+          ⚠ ここは `PC_NAV` の `/pc/used`（`ready: false`）とは別。/pc/used のページはまだ無い。 */}
+      <section className="sec flush">
+        <div className="w stackcol">
+          <div className="soon rv" id="used">
+            <div className="soon-t">
+              <span className="soon-tag">準備中</span>
+              <h2>診断書付きの中古パソコン</h2>
+              <p className="kp">
+                修理より買い替えが合うときのために、整備した中古パソコンを準備しています。どの1台にも、修理のときと同じ項目を測った診断報告書を付けます。
+              </p>
             </div>
-
-            <Link className="more" href={PC_JOURNAL_HREF}>
-              すべての記事を見る →
-            </Link>
+            <RestockForm />
           </div>
-        </section>
-      )}
 
-      {/* ---------- CTA（背景を敷く唯一の場所） ----------
-          LINE のボタンは出さない。トップのCTAは `/pc/contact` の1本に絞る。
-          入口を増やすと、どれを押せばよいかが薄まる。
-          85で `PC_LINE_URL` にURLが入ったあとも、この判断は変わらない。
-          LINEの入口は `/pc/contact` のカードとフッターにある。 */}
-      <section className="sec band">
-        <div className="w center">
-          <h2>まずは、状態を聞かせてください</h2>
-          <p className="lead">
-            ご相談とお見積りは無料です。写真を送っていただければ、伺う前におおよその見当をお伝えできます。
-          </p>
-          <Link className="btn p" href="/pc/contact">
-            無料で相談する
-          </Link>
+          {posts.length > 0 && (
+            <div>
+              <div className="sec-hd tight">
+                <p className="eyebrow">JOURNAL</p>
+                <h2 className="h2 sm">記事</h2>
+              </div>
+              <div className="posts">
+                {posts.map((post) => (
+                  <Link key={post.slug} className="post" href={`/pc/blog/${post.slug}`}>
+                    <time className="num">{post.date}</time>
+                    <b>{post.title}</b>
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
-    </div>
+
+      {/* ---------- 最後の案内 ---------- */}
+      <PcLastCta />
+    </>
   );
 }

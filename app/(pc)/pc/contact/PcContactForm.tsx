@@ -562,7 +562,7 @@ export default function PcContactForm() {
           ) : null}
           <p className="cf-done-tel-note">お急ぎのときは、{HOURS_RANGE}にお電話ください。</p>
           <div className="cf-done-acts">
-            <a className="btn p" href={TEL_HREF}>
+            <a className="btn btn-g" href={TEL_HREF}>
               {TEL}
             </a>
           </div>
@@ -724,11 +724,11 @@ export default function PcContactForm() {
           **display:none にしない。**キーボードと読み上げから触れなくなる。 */}
       <div className="f">
         <label htmlFor="cf-photos">
-          写真<em>任意・{MAX_PHOTOS}枚まで</em>
+          写真<em className="opt">任意・{MAX_PHOTOS}枚まで</em>
         </label>
 
         <div className="cf-file">
-          <label className="btn s cf-file-b">
+          <label className="btn btn-nw cf-file-b">
             <input
               ref={fileRef}
               id="cf-photos"
@@ -828,7 +828,7 @@ export default function PcContactForm() {
       ) : null}
 
       <div className="cf-send">
-        <button type="submit" className="btn p" disabled={sending || picking}>
+        <button type="submit" className="btn btn-g" disabled={sending || picking}>
           {sending ? "送信しています…" : "この内容で送信する"}
         </button>
         <p className="hint">送信いただいても、費用は発生しません。</p>
