@@ -660,7 +660,7 @@ export default function QuoteForm() {
       {/* ---- 写真 ---- */}
       <div className="qf-f">
         <label htmlFor="qf-photos">
-          お荷物の写真<em>任意・{MAX_PHOTOS}枚まで</em>
+          お荷物の写真<em className="opt">任意・{MAX_PHOTOS}枚まで</em>
         </label>
 
         {/* **ブラウザ標準の「ファイル選択／選択されていません」は出さない**（指示 28 ①）。

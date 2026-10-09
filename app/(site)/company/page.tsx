@@ -1,8 +1,9 @@
-import Hero from "../_components/Hero";
-import Photo from "../_components/Photo";
-import Split from "../_components/Split";
+import { Fragment } from "react";
+import Image from "next/image";
+import PageHero from "../_components/PageHero";
+import LastCta from "../_components/LastCta";
 import { images } from "@/lib/images";
-import { HOURS_RANGE, LINE_URL } from "@/lib/site";
+import { COMPANY, HOURS_RANGE, LICENSES, TEL } from "@/lib/site";
 
 /**
  * 会社概要。
@@ -13,11 +14,7 @@ import { HOURS_RANGE, LINE_URL } from "@/lib/site";
  * （番号は `lib/site.ts` の LICENSES にもあるが、**この表の文言のほうが先にあった**もの。
  *  21では突き合わせだけにして、統合はしていない。まとめるなら別便で）。
  *
- * 代表の写真は `lib/images.ts` の daihyou。丸く切り抜いていたのをやめて素の矩形にした。
- * (site) は角丸・影を使わないデザインで、**丸は写真の切り取りではなく装飾**だから。
- *
- * 英語のラベル `Company Profile` `Representative` と `Ryuji Ogawa` は、
- * (site) の流儀（字間を開けた日本語）とは違うが**表示文言なので触っていない。**
+ * 代表の写真は `lib/images.ts` の daihyou。
  *
  * 【75 で代表のリード文を差し替えた】
  * 元は物販の年数と海外向けの売り先を並べ、そこを根拠に高値を言い切っていた。
@@ -27,10 +24,31 @@ import { HOURS_RANGE, LINE_URL } from "@/lib/site";
  * 古物商許可は下の事業概要の表に番号で載るので、リード文では繰り返さない。
  * 旧文言をこのコメントに書き写さないこと。次に全文検索したとき誤ってヒットする。
  *
- * <br> の位置は文節の切れ目に合わせてある。360px では .lead が 288px まで縮んで
- * 折り返しが増えるので、2文目を「動かないカメラやパソコンも、」で切っている。
- * ここを切らずに1行にすると、360px で「どうかは」の4文字だけが行に残る。
+ * 【93_other_pages】トップと同じトーンに作り直した。見た目の正は参考モック
+ * （top_mock_20261008/Others.dc.html の1つ目）。
+ *  - 代表の文章を3行に差し替えた（cc_task/93 §1-2。前の4行目が2名での作業と食い違っていたため）。
+ *    **文言は指示のとおり。ここで言い換えないこと。**
+ *  - 写真は角丸・下に黄色の影。21 で外した装飾を、新しいトーンに合わせて戻した形。
+ *  - **表の中身（TABLE_ROWS）は変えていない。**電話番号と古物商許可の番号だけ、
+ *    同じ文字列を `lib/site.ts` から引くようにした（出る文字は同じ）。
  */
+
+/** 古物商許可の番号は lib/site.ts の LICENSES から引く。書き写さない */
+const KOBUTSU = (() => {
+  const l = LICENSES.find((x) => x.label === "古物商許可");
+  if (!l) throw new Error('許認可 "古物商許可" が lib/site.ts の LICENSES にありません');
+  return l;
+})();
+
+/** 代表の名前のローマ字。名刺と同じ並び（名・姓） */
+const REP_LATIN = "RYUJI OGAWA";
+
+/** 代表の文章。1行が1文（cc_task/93 §1-2） */
+const REP_MESSAGE = [
+  "軽貨物の運送と、カメラ・パソコンの修理をしています。",
+  "動かない物も、値がつくかどうかは現物を見て正直にお伝えします。",
+  "お問い合わせから当日の作業まで、小川が担当します。",
+];
 
 export const metadata = {
   title: "会社概要 | re'vive 富山",
@@ -49,8 +67,6 @@ export const metadata = {
     type: "website",
   },
 };
-
-const TEL = "070-8450-0897";
 
 const TABLE_ROWS = [
   { label: "屋号", value: "re'vive 富山（リバイブ富山）" },
@@ -76,7 +92,7 @@ const TABLE_ROWS = [
   },
   {
     label: "古物商許可",
-    value: "富山県公安委員会 第501310007877号",
+    value: KOBUTSU.value,
   },
   {
     label: "運送事業",
@@ -90,45 +106,52 @@ const TABLE_ROWS = [
 
 export default function CompanyPage() {
   return (
-    <>
-      <Hero size="md" kicker="会 社" title="会社概要" />
+    <div className="tp pp op">
+      <PageHero kicker="COMPANY" title="会社概要" />
 
-      {/* 代表。kicker / 見出し / その下の1行 が、そのまま
-          Representative / 小川 竜司 / Ryuji Ogawa の並びになる */}
-      <Split kicker="Representative" title="小川 竜司" note="Ryuji Ogawa" first>
-        {/* 643×730 の縦位置の写真。本文列いっぱいに流すと主役を食うので幅で止める */}
-        <div style={{ maxWidth: "220px", marginBottom: "26px" }}>
-          <Photo image={images.daihyou} sizes="220px" />
-        </div>
-        <p className="lead" style={{ marginTop: 0 }}>
-          軽貨物運送を本業に、精密機器の分解・修理を自分で行っています。<br />
-          動かないカメラやパソコンも、<br />
-          値がつくかどうかは現物を見て正直にお伝えします。<br />
-          引越しから買取まで、すべて一人で責任を持って対応します。
-        </p>
-      </Split>
-
-      <Split title="事業概要" tint>
-        <dl className="dl">
-          {TABLE_ROWS.map((row) => (
-            <div key={row.label}>
-              <dt>{row.label}</dt>
-              <dd>{row.value}</dd>
+      <section className="op-sec">
+        <div className="tw op-stack">
+          {/* 代表。左に写真、右に名前と3行 */}
+          <div className="op-rep">
+            <div className="op-rep-ph">
+              <Image
+                src={images.daihyou.src}
+                alt={images.daihyou.alt}
+                width={images.daihyou.width}
+                height={images.daihyou.height}
+                sizes="240px"
+              />
             </div>
-          ))}
-        </dl>
+            <div className="op-rep-t">
+              <h2 className="op-rep-n">
+                <b>{COMPANY.representative}</b>
+                <span className="tp-num">{REP_LATIN}</span>
+              </h2>
+              <p className="op-rep-msg">
+                {REP_MESSAGE.map((line, i) => (
+                  <Fragment key={line}>
+                    {i > 0 ? <br /> : null}
+                    {line}
+                  </Fragment>
+                ))}
+              </p>
+            </div>
+          </div>
 
-        <div className="go">
-          <a
-            className="btn btn-fill"
-            href={LINE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LINEで無料相談・お問い合わせ
-          </a>
+          {/* 事業概要。白い枠の表（ラベルは深緑）。中身は前のまま */}
+          <dl className="op-dl">
+            {TABLE_ROWS.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-      </Split>
-    </>
+      </section>
+
+      {/* 最後の案内。文はトップと同じ（93a）。表の下にあった LINE のボタンは、ここと重なるので 93b で外した */}
+      <LastCta title="まずは、写真を1枚。" lead="運びたい物、売りたい物を撮って送ってください。型番が写っていれば、その場で概算をお伝えします。" />
+    </div>
   );
 }

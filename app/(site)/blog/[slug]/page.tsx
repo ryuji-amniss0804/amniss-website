@@ -17,6 +17,11 @@ import { LINE_URL } from "@/lib/site";
  *
  * 本文は `dangerouslySetInnerHTML` で入る素のタグ列なので、
  * 1要素ずつクラスを付けられない。`.post` の子孫セレクタで当てること。
+ *
+ * 【93_other_pages】ヘッダー（紺の地）・本文の幅・見出しの書体を、ほかのページにそろえた。
+ * **記事の本文（contentHtml）は触っていない。**テンプレートの文言もそのまま
+ * （記事末のラベルだけ、ほかのページと同じ英字の小見出しにした）。
+ * 本文の見た目は site.css の `.op .post`（書体と見出しだけを上書きしている）。
  */
 
 export async function generateStaticParams() {
@@ -62,83 +67,63 @@ export default async function BlogPostPage({
   const { meta, contentHtml } = post;
 
   return (
-    <>
-      {/* 見出しまわり。下層ページのヒーローと同じ組み方（写真は無い） */}
-      <section className="hero md">
-        <div className="w in">
-          <nav className="bc">
+    <div className="tp pp op">
+      {/* 見出しまわり。小さいページのヒーローと同じ紺の地（写真は無い） */}
+      <section className="op-phero art">
+        <div className="tw op-narrow">
+          <nav className="op-bc" aria-label="パンくず">
             <Link href="/">ホーム</Link>
-            <span>›</span>
+            <span aria-hidden="true">›</span>
             <Link href="/blog">ブログ</Link>
-            <span>›</span>
+            <span aria-hidden="true">›</span>
             {meta.category}
           </nav>
 
-          <div className="pmeta">
+          <p className="op-phero-k">
             {meta.category}
-            <time>{meta.date}</time>
-          </div>
+            <time className="tp-num">{meta.date}</time>
+          </p>
 
-          <h1 className="mincho" style={{ marginTop: "18px" }}>
-            {meta.title}
-          </h1>
+          <h1>{meta.title}</h1>
 
-          <p className="sub">{meta.excerpt}</p>
+          <p className="op-phero-lead">{meta.excerpt}</p>
         </div>
       </section>
 
       {/* 本文 */}
-      <section className="sec first">
-        <div className="w">
+      <section className="op-sec">
+        <div className="tw op-narrow">
           <div className="post" dangerouslySetInnerHTML={{ __html: contentHtml }} />
         </div>
       </section>
 
-      {/* 記事末のご案内。トップや下層の Cta（濃紺の帯）とは文言が別なので、
-          共通コンポーネントに寄せていない。
-          **23_contact でラベル（kicker）だけを日本語にした。**見出し・本文・ボタンは移設前のまま。
-          字間は (site) の既存ラベルと同じ半角スペース1つ区切り
-          （`/contact` の `お 問 い 合 わ せ` と同じ文字列）。 */}
-      <section className="sec tint">
-        <div className="w">
-          <div className="kicker">お 問 い 合 わ せ</div>
-          <h2 className="t mincho">この記事についてのご相談</h2>
-          {/* 【48-A】46-B で主ボタンを `/contact` にしたのに、この文が LINE を名指ししたま
-              まだった。窓口を1つに絞らない言い方に変え、主ボタン（写真を送って見積りを依頼）
-              の理由を1文足す。「引越し・運送・不用品の買取など」は一字も変えていない。 */}
-          <p className="lead">
-            引越し・運送・不用品の買取など、ご不明な点はお気軽にご相談ください。写真を1枚送っていただければ、概算をお伝えできます。
-          </p>
-          {/* 【46-B】ここは LINE の1本だけだった。`/contact` を主にして2本にする。
-              組み方は `cd3f701` で /blog に入れた導線と同じ（`.sec .acts` ＋
-              `btn-fill` ＋ 枠線の `btn`）。960px 以下で縦積み・幅いっぱいになる。
-              **LINE のボタンは文言も href もそのまま。**塗り→枠線に変えただけ。 */}
-          <div className="acts">
-            <Link className="btn btn-fill" href="/contact">
+      {/* 記事末のご案内。最後の案内（LastCta）とは文言が別なので、共通の部品に寄せていない。
+          見出し・本文・ボタンの文字は移設前のまま。 */}
+      <section className="op-sec beige">
+        <div className="tw op-narrow">
+          <div className="tp-sec-hd">
+            <p className="tp-eyebrow tp-num">CONTACT</p>
+            <h2 className="tp-h2 op-h2-sm">この記事についてのご相談</h2>
+            {/* 【48-A】窓口を1つに絞らない言い方。「引越し・運送・不用品の買取など」は一字も変えていない。 */}
+            <p className="tp-sec-lead">
+              引越し・運送・不用品の買取など、ご不明な点はお気軽にご相談ください。写真を1枚送っていただければ、概算をお伝えできます。
+            </p>
+          </div>
+          {/* 【46-B】`/contact` が主、LINE が従。**LINE のボタンは文言も href もそのまま。** */}
+          <div className="op-acts">
+            <Link className="tp-btn tp-btn-n" href="/contact">
               写真を送って見積りを依頼
             </Link>
-            <a
-              className="btn"
-              href={LINE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a className="tp-btn tp-btn-nw" href={LINE_URL} target="_blank" rel="noopener noreferrer">
               💬 LINEで無料相談
             </a>
           </div>
+          <div className="op-back">
+            <Link href="/blog">← ブログ一覧へ戻る</Link>
+            <Link href="/">トップページへ →</Link>
+          </div>
         </div>
       </section>
-
-      <section className="sec">
-        <div className="w" style={{ display: "flex", gap: "26px", flexWrap: "wrap" }}>
-          <Link className="tl" href="/blog">
-            ← ブログ一覧へ戻る
-          </Link>
-          <Link className="tl" href="/">
-            トップページへ →
-          </Link>
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

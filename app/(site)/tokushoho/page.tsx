@@ -1,11 +1,13 @@
 import React from "react";
 import Link from "next/link";
-import Hero from "../_components/Hero";
+import PageHero from "../_components/PageHero";
 import {
   INDOOR_FEE,
   INBUILDING_MOVE_FEE,
   INSTALL_FEE,
   INBUILDING_CAP,
+  SPOT_EXTEND_FEE,
+  SPOT_EXTEND_MIN,
   SPOT_FEE,
 } from "../_fees";
 import { DEPART, DISASSEMBLE_FEE, STAIRS_FEE, yen } from "@/lib/pricing";
@@ -20,6 +22,11 @@ import { HOURS_RANGE } from "@/lib/site";
  * site.css の `.dl`（定義表）と `.tl`（本文中のリンク）に置き換えてある。
  * 英語のラベル `Legal Notice` も、(site) の流儀（字間を開けた日本語）とは
  * 違うが**法定表示ページの表示文言なので触っていない。**
+ *
+ * 【93_other_pages】見た目だけをトップと同じトーンにした（小さいヒーロー＋白い枠の表・ラベルは深緑）。
+ * **文面は1文字も変えていない。**ROWS には触っていない。クラス（`.h` `.nt` `.gap` `.tl`）もそのままで、
+ * 新しい見た目は site.css の `.op-dl` が当てている。
+ * ヒーローの小見出しは `LEGAL`（参考モックのとおり）。本文ではない。
  *
  * 【金額をこのファイルに書かない】
  * 18で、ここの「時間チャーター 1時間8,000円（2時間〜／4時間超は1時間7,000円）」が、
@@ -36,6 +43,8 @@ import { HOURS_RANGE } from "@/lib/site";
  *  - 建物の中での移動 … `app/(site)/_fees.ts` の INBUILDING_MOVE_FEE / INSTALL_FEE /
  *    INBUILDING_CAP（階段 STAIRS_FEE・分解組立 DISASSEMBLE_FEE は `lib/pricing.ts`）
  *  - 法人スポット便 8,000 … `app/(site)/_fees.ts` の SPOT_FEE
+ *    延長 30分ごと 1,500 … 同じファイルの SPOT_EXTEND_MIN / SPOT_EXTEND_FEE
+ *    （93b で、スポット便の見出しの行の後ろにつなげた。93 でほかに変えた文面は「最終更新」の日付だけ）
  *
  * INDOOR_FEE と SPOT_FEE は**同額だが別の定数のまま**にしてある。
  * 片方を改定したときに、もう片方が黙って一緒に動かないようにするため。
@@ -167,7 +176,8 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
         </span>
 
         <span className="h">
-          法人のお客様のスポット便　富山市内・1時間まで {yen(SPOT_FEE)}
+          法人のお客様のスポット便　富山市内・1時間まで {yen(SPOT_FEE)}、以降{SPOT_EXTEND_MIN}分ごとに{" "}
+          {yen(SPOT_EXTEND_FEE)}（作業員1名）
         </span>
         <span>富山市外は距離に応じて加算します。</span>
         <span>
@@ -255,12 +265,12 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
 
 export default function TokushohoPage() {
   return (
-    <>
-      <Hero size="md" kicker="特 商 法" title="特定商取引法に基づく表記" />
+    <div className="tp pp op">
+      <PageHero kicker="LEGAL" title="特定商取引法に基づく表記" />
 
-      <section className="sec first">
-        <div className="w">
-          <dl className="dl">
+      <section className="op-sec">
+        <div className="tw op-legal">
+          <dl className="op-dl">
             {ROWS.map((row) => (
               <div key={row.label}>
                 <dt>{row.label}</dt>
@@ -269,13 +279,13 @@ export default function TokushohoPage() {
             ))}
           </dl>
 
-          <p className="pnote" style={{ marginTop: "38px", textAlign: "right" }}>
+          <p className="op-sign">
             re&apos;vive 富山（運営：AmNiss&amp;Co. Japan）
             <br />
-            最終更新：2026年8月7日
+            最終更新：2026年10月9日
           </p>
         </div>
       </section>
-    </>
+    </div>
   );
 }

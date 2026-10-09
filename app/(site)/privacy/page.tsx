@@ -1,6 +1,5 @@
 import { Fragment } from "react";
-import Hero from "../_components/Hero";
-import Split from "../_components/Split";
+import PageHero from "../_components/PageHero";
 
 /**
  * プライバシーポリシー（法定表示に準じる）。
@@ -19,6 +18,11 @@ import Split from "../_components/Split";
  * **文言は 25_answers に書かれた文字列をそのまま使っている。判断はしていない。**
  * 1条・5条・8条・9条は旧3条・旧5条・旧6条を含めて1バイトも動かしていない
  * （条番号だけが変わった）。
+ *
+ * 【93_other_pages】見た目だけをトップと同じトーンにした（小さいヒーロー＋白い枠の表・ラベルは深緑）。
+ * **文面は1文字も変えていない。**POLICY_SECTIONS には触っていない。
+ * 条の見出しを、上に目次の札として並べた（押すとその条へ動く）。札の文字は条の見出しそのもの。
+ * ヒーローの小見出しは `PRIVACY`。本文ではない。
  *
  * content は段落の配列。1要素が1段落で、要素の中の配列は箇条書き
  * （箇条書きの行間は本文の段落間より詰めたいので、<br> でつないでいる）。
@@ -147,60 +151,62 @@ const POLICY_SECTIONS: { title: string; content: Block[] }[] = [
 
 export default function PrivacyPolicy() {
   return (
-    <>
-      <Hero size="md" kicker="個 人 情 報" title="プライバシーポリシー" />
+    <div className="tp pp op">
+      <PageHero kicker="PRIVACY" title="プライバシーポリシー" />
 
-      {POLICY_SECTIONS.map((item, i) => (
-        <Split key={item.title} title={item.title} first={i === 0} tint={i % 2 === 1}>
-          {item.content.map((block, b) => {
-            // 小見出し。`.rv h3`（18px・明朝）が site.css に既にあるので CSS は足さない。
-            // ただしリセットで margin が 0 なので、上の余白だけインラインで入れる。
-            // 42px は `.rv .post h3`（記事の中の小見出し）と同じ値。site.css は触らない。
-            if (typeof block === "object" && !Array.isArray(block)) {
-              return (
-                <h3 key={b} style={{ marginTop: b === 0 ? 0 : 42 }}>
-                  {block.h3}
-                </h3>
-              );
-            }
+      <section className="op-sec">
+        <div className="tw op-legal">
+          {/* 目次の札。条の見出しをそのまま並べる */}
+          <nav className="op-toc" aria-label="目次">
+            {POLICY_SECTIONS.map((item, i) => (
+              <a key={item.title} href={`#p${i + 1}`}>
+                {item.title}
+              </a>
+            ))}
+          </nav>
 
-            // URLは途中に折り返せる場所が無い1語なので、`.lead` の word-break: auto-phrase
-            // のままだと桁があふれる。**360px で横スクロールが出た**（実測：本文の
-            // scrollWidth が 345px → 489px）。URLを含む段落にだけ、必要なときは
-            // どこでも折り返してよいと足す。site.css は触らない（CSSチャンクを動かさないため）。
-            // break-word ではなく anywhere。min-content に効くのは anywhere のほうだけで、
-            // 桁があふれる原因は段の最小幅が URL の長さまで広がることだった。
-            const hasUrl = Array.isArray(block) && block.some((l) => l.includes("https://"));
-            const style = {
-              ...(b === 0 ? { marginTop: 0 } : null),
-              ...(hasUrl ? { overflowWrap: "anywhere" as const } : null),
-            };
+          <div className="op-dl">
+            {POLICY_SECTIONS.map((item, i) => (
+              <section key={item.title} id={`p${i + 1}`}>
+                <h2 className="op-dl-k">{item.title}</h2>
+                <div className="op-dl-v">
+                  {item.content.map((block, b) => {
+                    // 節の頭に置く小見出し（第4条の「アクセス解析ツールについて」）
+                    if (typeof block === "object" && !Array.isArray(block)) {
+                      return <h3 key={b}>{block.h3}</h3>;
+                    }
 
-            return (
-              <p className="lead" key={b} style={Object.keys(style).length > 0 ? style : undefined}>
-                {Array.isArray(block)
-                  ? block.map((line, n) => (
-                      <Fragment key={n}>
-                        {n > 0 ? <br /> : null}
-                        {line}
-                      </Fragment>
-                    ))
-                  : block}
-              </p>
-            );
-          })}
-        </Split>
-      ))}
+                    // URLは途中に折り返せる場所が無い1語なので、文節で折る指定のままだと桁があふれる
+                    // （360px で横スクロールが出た。61 の実測）。URLを含む段落にだけ、
+                    // 必要なときはどこでも折り返してよいと足す。break-word ではなく anywhere
+                    // （min-content に効くのは anywhere のほうだけ）。
+                    const hasUrl = Array.isArray(block) && block.some((l) => l.includes("https://"));
 
-      <section className="sec">
-        <div className="w">
-          <p className="pnote" style={{ marginTop: 0, textAlign: "right" }}>
+                    return (
+                      <p key={b} style={hasUrl ? { overflowWrap: "anywhere" } : undefined}>
+                        {Array.isArray(block)
+                          ? block.map((line, n) => (
+                              <Fragment key={n}>
+                                {n > 0 ? <br /> : null}
+                                {line}
+                              </Fragment>
+                            ))
+                          : block}
+                      </p>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <p className="op-sign">
             AmNiss &amp; Co. Japan
             <br />
             制定日：2026年5月30日
           </p>
         </div>
       </section>
-    </>
+    </div>
   );
 }

@@ -19,7 +19,7 @@
  * （元の基準は 2026/8/6 決定。pricing_unpan_houjin）。
  */
 
-import { DEPART, DISASSEMBLE_FEE, STAIRS_FEE, TIER, plainTotal } from "@/lib/pricing";
+import { DEPART, DISASSEMBLE_FEE, STAIRS_FEE, TIER, distOf, plainTotal } from "@/lib/pricing";
 
 /**
  * 室内での作業だけ（運ばない）の料金。
@@ -37,6 +37,37 @@ export const INDOOR_FEE = 8000;
  * 個人向けの日程係数（土日1.20・当日1.50）は法人には掛けない。
  */
 export const SPOT_FEE = 8000;
+
+/**
+ * 法人スポット便の延長。1時間を超えたぶんを、SPOT_EXTEND_MIN 分ごとに。
+ *
+ * 2026-10-09 新設（cc_task/93 §1-1）。それまでは「超えたぶんはお見積り」で、金額が先に分からなかった。
+ * ⚠ スポット便は**作業員1名だけ。**2人がかりの重い物はお受けしない（/houjin のお断りに書いてある）。
+ */
+export const SPOT_EXTEND_FEE = 1500;
+/** 延長のきざみ（分）。端数は切り上げる（1時間15分は30分ぶん） */
+export const SPOT_EXTEND_MIN = 30;
+/** 最初の料金（SPOT_FEE）に入っている時間（分） */
+const SPOT_BASE_MIN = 60;
+
+/**
+ * 法人スポット便の合計。**日程係数は掛けない**（当日も土日祝も同じ）。
+ *
+ * SPOT_FEE ＋ 1時間を超えたぶん（30分単位で切り上げ）× SPOT_EXTEND_FEE ＋ 距離料。
+ * 距離料は個人と同じ距離表（lib/pricing.ts の DIST）。富山市内は 0。
+ * 画面に金額を書かず、ここを通すこと。
+ */
+export function spotTotal(p: {
+  /** 作業の時間（分） */
+  minutes: number;
+  /** 片道の距離（km） */
+  km: number;
+}): number {
+  const dist = distOf(p.km);
+  if (!dist) throw new Error(`スポット便：片道${p.km}kmは距離表の外です`);
+  const over = Math.max(0, p.minutes - SPOT_BASE_MIN);
+  return SPOT_FEE + Math.ceil(over / SPOT_EXTEND_MIN) * SPOT_EXTEND_FEE + dist.fee;
+}
 
 /**
  * 建物の中での移動（車を出さない）。1点につき。
