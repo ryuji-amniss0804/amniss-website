@@ -33,6 +33,22 @@ export const RESTOCK_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export const RESTOCK_REPLY_TO = "ogawa@amniss-japan.jp";
 
+/** 入荷通知の2通の、差出人の表示名。**ここ1か所だけに書く** */
+export const RESTOCK_FROM_NAME = "re'vive_doc";
+
+/**
+ * 入荷通知の2通の差出人（From）を組む。**表示名だけを差し替え、アドレスは `RESEND_FROM` のまま。**
+ *
+ * `RESEND_FROM` は「表示名 <アドレス>」の形でも、アドレスだけの形でも入りうる。
+ * どちらからもアドレスの部分だけを取り出して、表示名を `RESTOCK_FROM_NAME` にする。
+ * `RESEND_FROM` そのものは /api/quote と /api/pc/inquiry も使っているので、値は変えない（94c）。
+ */
+export function restockFrom(resendFrom: string): string {
+  const m = resendFrom.match(/<([^<>]+)>\s*$/);
+  const address = (m ? m[1] : resendFrom).trim();
+  return `${RESTOCK_FROM_NAME} <${address}>`;
+}
+
 export type RestockInput = {
   /** 形式を検め済みのもの */
   email: string;
