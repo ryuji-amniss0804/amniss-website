@@ -15,6 +15,7 @@ import {
   DIST,
   LONG_HAUL,
   ROUNDTRIP_MAX_KM,
+  SAME_DAY_CREW2_NOTICE,
   SLOT_FEE,
   STAIRS_FEE,
   STAIRS_FREE_UPTO,
@@ -28,6 +29,7 @@ import {
   itemOf,
   itemWarnings,
   load,
+  needsReservation,
   pickedItems,
   roundtripExtra,
   stairFloors,
@@ -172,6 +174,8 @@ export default function Simulator() {
   const l = load(counts);
   /** 人数は選ばせない。荷物から決まる（lib/pricing.ts の crewFor） */
   const crew = crewFor(counts);
+  /** 2名の作業はご予約制。2名＋当日のときだけ、結果の欄と LINE に貼る文に一言を出す */
+  const reserveNotice = needsReservation(crew, coefKey) ? SAME_DAY_CREW2_NOTICE : null;
   const dist = distOf(km);
   const tier = tierOf(l.m3);
   const warnings = itemWarnings(counts);
@@ -284,6 +288,7 @@ export default function Simulator() {
     const dnames = picked.filter((p) => dis[p.item.id]).map((p) => p.item.short ?? p.item.name);
     if (dnames.length) lines.push(`・分解・組み立て：${dnames.join(" / ")}`);
     lines.push(`・概算：${estimateText()}`);
+    if (reserveNotice) lines.push(`※${reserveNotice}`);
     return lines.join("\n");
   }
 
@@ -317,6 +322,7 @@ export default function Simulator() {
       disassembles: items.filter((p) => dis[p.item.id]).map((p) => p.item.short ?? p.item.name),
       coefLabel: COEF[coefKey].label,
       coef: COEF[coefKey].coef,
+      coefKey,
       amount: handoffAmount(),
       roundtrip: !normal && roundtrip !== null,
     };
@@ -763,6 +769,7 @@ export default function Simulator() {
               <p className="tp-msg-s">{msg ? msg[1] : ""}</p>
             </div>
           )}
+          {reserveNotice ? <p className="tp-card-warn">{reserveNotice}</p> : null}
 
           {/* 送る。LINE のボタンは、条件を写してから LINE を開く（前は「コピー」と「LINEで送る」の2つだった）。
               リンクなので、JS がなくても LINE は開く。運ぶ物を選ぶ前は写さない */}

@@ -13,6 +13,7 @@ import {
   SHRINK_LONG_EDGE,
   handoffCalcAt,
   handoffLines,
+  handoffNotice,
   parseHandoff,
   type QuoteHandoff,
 } from "@/lib/quote";
@@ -578,6 +579,7 @@ export default function QuoteForm() {
               軽バン1台に積み切れないため、同じ日に2回に分けて運ぶ往復プランの金額です。
             </p>
           ) : null}
+          {handoffNotice(handoff) ? <p className="qf-sum-n">{handoffNotice(handoff)}</p> : null}
           <p className="qf-sum-n">
             この内容で合っていない場合は、下の「ご依頼の内容」に書いてください。
           </p>

@@ -1948,6 +1948,8 @@ body.rv,
 .rv .tp-price .v { font-size: 76px; font-weight: 800; line-height: 1; color: var(--rv-yellow); }
 .rv .tp-price .u { font-size: 22px; font-weight: 900; }
 .rv .tp-card-sum { font-size: 14px; color: var(--rv-sub-on-navy); }
+/* 作業員2名＋当日が選ばれたときの一言（lib/pricing.ts の SAME_DAY_CREW2_NOTICE） */
+.rv .tp-card-warn { font-size: 14px; font-weight: 700; line-height: 1.7; color: var(--rv-yellow); }
 .rv .tp-rows { border-top: 1px solid rgba(250, 248, 243, 0.18); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
 .rv .tp-rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
 .rv .tp-rows span { color: var(--rv-sub-on-navy); }

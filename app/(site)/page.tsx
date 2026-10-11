@@ -46,7 +46,7 @@ import {
  * /unpan /houjin と同じ定数を見ているので、3ページでずれることがない。
  *
  * 【「できること」と FAQ は、同じ数字を2回出す】
- * 運搬（CARRY_FROM）と当日（TOUJI_FULL）の金額は、どちらの節でも同じ定数から組んでいる。
+ * 運搬（CARRY_FROM）と当日（TOUJI_SMALL）の金額は、どちらの節でも同じ定数から組んでいる。
  * **片方だけ手で書き換えられる状態を作らないこと。**1円ずれたらそこで終わる。
  *
  * 【本文に数字を埋め込まないこと】
@@ -72,11 +72,11 @@ const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heiji
  *     点数の幅でラベルを付け直すときは注意。3点を小口に含めると4,000円足りない。 */
 const CARRY_FROM = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
 /**
- * 当日のお引越し。ワンルーム〜1K一式・富山市内・作業員2名。
- * MOVING_FROM と条件は同じで、日程係数だけが平日(×1.00)→当日(×1.50)。
- * (5,000 ＋ 15,000 ＋ 0) × 1.50 ＝ 30,000。**ベタ書きしない。**
+ * 当日のお引越し。小口・富山市内・**作業員1名**。（出動料 ＋ 小口1名）× 当日の係数。
+ * /moving の「実際の金額」の当日の例と同じ条件。**ベタ書きしない。**
+ * ⚠ 2名の作業はご予約制で、当日は受けない。ここを2名の金額に戻さないこと。
  */
-const TOUJI_FULL = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "touji" });
+const TOUJI_SMALL = plainTotal({ tier: TIER[0], crew: 1, km: 12, coefKey: "touji" });
 /** 日帰りの上限。距離表のいちばん遠い行 */
 const MAX_KM = DIST[DIST.length - 1].km;
 
@@ -166,8 +166,8 @@ const SERVICE_ROWS: ServiceRow[] = [
   {
     no: "03",
     name: "当日のお引越し",
-    desc: "空きがあれば、その日のうちに伺います。",
-    price: fmt(TOUJI_FULL),
+    desc: "作業員1名で運べる量まで。2名が要る作業はご予約制です。",
+    price: fmt(TOUJI_SMALL),
     unit: "円〜",
     href: "/moving",
   },
@@ -225,7 +225,7 @@ const NUMBERS: { label: string; to: number; digits?: number; unit: string; note:
 
 /**
  * よくあるご質問。金額と距離はすべて定数から。**本文に数字を書かないこと。**
- * 「できること」と同じ数字を2回出している（CARRY_FROM・TOUJI_FULL）。
+ * 「できること」と同じ数字を2回出している（CARRY_FROM・TOUJI_SMALL）。
  * 答えは必ずテンプレートリテラルで1本にする。「シミュレーター」の語は FaqTop がリンクにする。
  */
 const FAQ = [
@@ -239,7 +239,7 @@ const FAQ = [
   },
   {
     q: "当日でもお願いできますか。",
-    a: `空きがあればお受けします。ワンルーム〜1K一式・富山市内で${yen(TOUJI_FULL)}からです。`,
+    a: `空きがあればお受けします。当日は作業員1名で運べる量に限り、富山市内で${yen(TOUJI_SMALL)}からです。大型の家具・家電があり2名が要る作業はご予約制です。`,
   },
   {
     q: "荷物が積みきれるか分かりません。",

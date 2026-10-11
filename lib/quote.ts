@@ -10,6 +10,8 @@
  * サーバーで素の Date を整形すると、9時間ずれた削除予定日がメールに載る。
  */
 
+import { COEF, SAME_DAY_CREW2_NOTICE, needsReservation, type CoefKey } from "./pricing";
+
 /* ============ 定数 ============ */
 
 /** 写真の保管日数。/privacy の条文・メールの削除予定日・Cron の3つがこれを見る */
@@ -79,6 +81,11 @@ export type QuoteHandoff = {
   disassembles: string[];
   coefLabel: string;
   coef: number;
+  /**
+   * 日程のキー。「2名＋当日はご予約制」の一言を出すかどうかの判定に使う（handoffNotice）。
+   * あとから足した項目なので、入っていない引き継ぎもある（そのときは一言を出さない）。
+   */
+  coefKey?: CoefKey;
   /** 画面に出ていた金額の文字列。lib/pricing.ts が出した値そのまま */
   amount: string;
   /** 往復プラン（同じ日に2回に分けて運ぶ）の金額かどうか */
@@ -177,6 +184,14 @@ export function handoffLines(h: QuoteHandoff): HandoffLine[] {
   return lines;
 }
 
+/**
+ * 作業員2名＋当日のときの一言。**画面（/contact）とメールが、この同じ関数から出す。**
+ * 文と判定は lib/pricing.ts（/simulator に出しているものと同じ）。ここに書き写さない。
+ */
+export function handoffNotice(h: QuoteHandoff): string | null {
+  return h.coefKey && needsReservation(h.crew, h.coefKey) ? SAME_DAY_CREW2_NOTICE : null;
+}
+
 /** 「（2026年8月7日 23:14 に計算）」。at が壊れていたら空文字 */
 export function handoffCalcAt(h: QuoteHandoff): string {
   const d = new Date(h.at);
@@ -191,6 +206,8 @@ export function handoffText(h: QuoteHandoff): string {
   if (h.roundtrip) {
     body.push("　※ 軽バン1台に積み切れないため、同じ日に2回に分けて運ぶ往復プランの金額です。");
   }
+  const notice = handoffNotice(h);
+  if (notice) body.push(`　※ ${notice}`);
   return [head, ...body].join("\n");
 }
 
@@ -248,6 +265,9 @@ export function parseHandoff(v: unknown): QuoteHandoff | null {
       : [],
     coefLabel: str(o.coefLabel, 40),
     coef: Math.max(0, Math.min(9, num(o.coef))),
+    ...(typeof o.coefKey === "string" && Object.hasOwn(COEF, o.coefKey)
+      ? { coefKey: o.coefKey as CoefKey }
+      : {}),
     amount: str(o.amount, 60),
     roundtrip: o.roundtrip === true,
   };

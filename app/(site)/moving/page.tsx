@@ -71,12 +71,12 @@ import {
 const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
 
 export const metadata: Metadata = {
-  title: `富山の単身引越し｜最短当日・軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
+  title: `富山の単身引越し｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
   description:
     `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
   alternates: { canonical: "/moving" },
   openGraph: {
-    title: `富山の単身引越し｜最短当日・軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
+    title: `富山の単身引越し｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
     description:
       `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
     url: "https://revive-toyama.jp/moving",
@@ -217,10 +217,13 @@ const ITEM_VOLUME_ROWS = MOVING_ITEMS.map((pick) => {
 /* ============ 実際の金額 ============ */
 
 /**
- * moving_final.md の「4. 実際の金額（検算）」の8行。どれも作業員2名・階段なし。
+ * moving_final.md の「4. 実際の金額（検算）」の8行がもと。どれも階段なし。
  * **金額は書かずに、条件から計算している。**手で書いた数字を置くと、
  * 上の表を直したときにここだけ古くなる。
  * 「1K一式」は 1.9〜2.8m³ ＝ 軽バン満載の区分。
+ *
+ * 【当日の例は作業員1名】2名の作業は予約制で、当日は受けない。
+ * 当日の例に、2名が要る荷物（冷蔵庫など）を置かないこと。
  */
 const EXAMPLE_CASES: {
   name: string;
@@ -231,9 +234,11 @@ const EXAMPLE_CASES: {
   tier: number;
   km: number;
   coef: CoefKey;
+  /** 作業員の人数。省略時は2名 */
+  crew?: 1 | 2;
 }[] = [
   { name: "冷蔵庫1点・富山市内", day: "平日", tier: 0, km: 12, coef: "heijitsu" },
-  { name: "冷蔵庫1点・富山市内", day: "当日", hot: true, tier: 0, km: 12, coef: "touji" },
+  { name: "段ボール・小物（1名）・富山市内", day: "当日", hot: true, tier: 0, km: 12, coef: "touji", crew: 1 },
   { name: "1K一式・富山市内", day: "日程おまかせ", hot: true, tier: 2, km: 12, coef: "omakase" },
   { name: "1K一式・富山市内", day: "平日", tier: 2, km: 12, coef: "heijitsu" },
   { name: "1K一式・富山市内", day: "土日祝", tier: 2, km: 12, coef: "donichi" },
@@ -246,7 +251,7 @@ const EXAMPLE_CASES: {
 
 const EXAMPLES = EXAMPLE_CASES.map((c) => ({
   ...c,
-  price: fmt(plainTotal({ tier: TIER[c.tier], crew: 2, km: c.km, coefKey: c.coef })),
+  price: fmt(plainTotal({ tier: TIER[c.tier], crew: c.crew ?? 2, km: c.km, coefKey: c.coef })),
 }));
 
 /* ============ よくあるご質問 ============ */
@@ -255,7 +260,7 @@ const EXAMPLES = EXAMPLE_CASES.map((c) => ({
 const FAQ = [
   {
     q: "当日でもお願いできますか？",
-    a: `空いていれば伺います。日程の係数は${coefText("touji")}です。まずは電話かLINEでご相談ください。`,
+    a: `空いていれば伺います。当日は作業員1名で運べる量に限ります（大型の家具・家電があり2名が要る作業はご予約制です）。日程の係数は${coefText("touji")}です。まずは電話かLINEでご相談ください。`,
   },
   {
     q: "荷物が積みきれない場合は？",
@@ -410,7 +415,7 @@ export default function MovingPage() {
           <div className="tp-sec-hd">
             <p className="tp-eyebrow tp-num">EXAMPLES</p>
             <h2 className="tp-h2">だいたい、こんな金額です</h2>
-            <p className="tp-sec-lead">作業員2名・階段なしの場合。</p>
+            <p className="tp-sec-lead">階段なしの場合。作業員は2名、当日の例のみ1名です。</p>
           </div>
           <div className="pp-cases">
             {EXAMPLES.map((c) => (

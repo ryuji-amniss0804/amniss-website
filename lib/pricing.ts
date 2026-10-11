@@ -357,6 +357,18 @@ export function crewFor(counts: Counts): 1 | 2 {
 }
 
 /**
+ * 作業員2名の作業はご予約制で、当日は受けない（当日は1名で運べる量のみ）。
+ * 当日の選択肢は消さずに、2名＋当日が選ばれたときだけ、金額の近くと LINE に貼る文にこの一言を出す。
+ * /simulator とトップの簡易見積り（QuickEstimate）で同じ文を使う。**書き写さないこと。**
+ */
+export const SAME_DAY_CREW2_NOTICE = "作業員2名の作業はご予約制です。当日のご相談は電話かLINEで";
+
+/** 上の一言を出す条件。判定を書いてよいのはここだけ */
+export function needsReservation(crew: 1 | 2, coefKey: CoefKey): boolean {
+  return crew === 2 && coefKey === "touji";
+}
+
+/**
  * 階段の料金がかかるフロア数（車で運ぶ場合）。**数え方を書いてよいのはここだけ。**
  *
  * 運び出す側・運び込む側それぞれ「エレベーターなしで何階か」を渡す。エレベーターがあれば 0。

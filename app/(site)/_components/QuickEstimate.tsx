@@ -10,12 +10,14 @@ import {
   COEF,
   DEPART,
   DIST,
+  SAME_DAY_CREW2_NOTICE,
   TIER,
   crewFor,
   distOf,
   fmt,
   itemOf,
   load,
+  needsReservation,
   plainTotal,
   tierOf,
   type CoefKey,
@@ -208,6 +210,8 @@ export default function QuickEstimate() {
       ? `片道${km}kmくらい${dist.fee > 0 ? `（距離 ${fmt(dist.fee)}円）` : "（市内扱い・0円）"}`
       : "—";
   const dayNote = DAYS.find((d) => d.k === day);
+  /** 2名の作業はご予約制。2名＋当日のときだけ一言を出す（車を使わない／1LDK以上は日程を使わないので出さない） */
+  const reserveNotice = !noStep && needsReservation(crew, day) ? SAME_DAY_CREW2_NOTICE : null;
 
   return (
     <section className="tp tp-est" id="estimate">
@@ -390,6 +394,7 @@ export default function QuickEstimate() {
                   <p className="tp-msg-s">{msg ? msg[1] : ""}</p>
                 </div>
               )}
+              {reserveNotice ? <p className="tp-card-warn">{reserveNotice}</p> : null}
               <div className="tp-card-acts">
                 <Link href={detailHref} className="tp-btn tp-btn-y">
                   {indoor ? "建物の中の作業の料金をみる" : "この条件で詳しく見積もる"}
