@@ -4,9 +4,11 @@ import PriceHero from "../_components/PriceHero";
 import LicenseStrip from "../_components/LicenseStrip";
 import LastCta from "../_components/LastCta";
 import UnpanChoices, { type Choice } from "./UnpanChoices";
+import InBuildingEstimate from "./InBuildingEstimate";
 import {
   INDOOR_FEE,
   INBUILDING_MOVE_FEE,
+  INBUILDING_CREW2_FEE,
   INSTALL_FEE,
   INBUILDING_CAP,
   inBuildingTotal,
@@ -33,6 +35,11 @@ import { CAP, DEPART, DISASSEMBLE_FEE, STAIRS_FEE, TIER, fmt, plainTotal, yen } 
  * 【階段の数え方は 02 と 03 で違う】2026-10-08 決定（cc_task/92 §1-1）
  *   03（車で運ぶ）… 2階までは込み。3階から1フロアにつき STAIRS_FEE（lib/pricing.ts の stairFloors）
  *   02（建物の中）… **変えていない。**階の移動そのものが作業なので、エレベーターなしは1フロアから STAIRS_FEE
+ *
+ * 【02 建物の中】2026-10-11 作り直し。見た目・文言・計算の正はモック（mock/unpan_bldg_mock.html）
+ *   - 大型の家具・家電があると作業員2名で伺い、2人目の INBUILDING_CREW2_FEE が加わる
+ *   - 階段は上限（INBUILDING_CAP）の外
+ *   - 表の金額も、簡易見積り（InBuildingEstimate.tsx）の金額も inBuildingTotal() から出す
  *
  * 【料金の出どころ】
  *  - 03 の3行は **lib/pricing.ts** から算出している。手で書かない。
@@ -81,35 +88,40 @@ const CARRY_FROM = CARRY_ROWS[0].amount;
 
 /* ============ _fees.ts から引く数字（02 建物の中） ============ */
 
-/** 02 の例。どれも作業員2名・エレベーターあり */
-const INBUILDING_ROWS = [
-  {
-    name: "冷蔵庫1点",
-    desc: "移動と設置",
-    amount: inBuildingTotal({ items: 1, floors: 0, disassembles: 0, installs: 0 }),
-  },
-  {
-    name: "ドラム式洗濯機1点",
-    desc: "取り外し・設置つき",
-    amount: inBuildingTotal({ items: 1, floors: 0, disassembles: 0, installs: 1 }),
-  },
-  {
-    name: "洗濯機・冷蔵庫・ベッドの3点",
-    desc: "洗濯機の取り外し・設置、ベッドの解体・組み立てつき",
-    amount: inBuildingTotal({ items: 3, floors: 0, disassembles: 1, installs: 1 }),
-  },
+/** 02 の表の列。エレベーターあり・加算なしで、点数だけが違う */
+const INBUILDING_POINTS = [1, 2, 3];
+
+/** 02 の表の行。作業員の人数だけが違う。金額は inBuildingTotal から出す */
+const INBUILDING_KINDS: { name: string; badge?: string; things: string; crew: 1 | 2 }[] = [
+  { name: "小型だけ", things: "棚・テレビ・段ボール・衣装ケースなど", crew: 1 },
+  { name: "大型を含む", badge: "ご予約制", things: "冷蔵庫・洗濯機・ベッド・ソファ・タンスなど", crew: 2 },
 ];
 
-/** 02 の下限（1点・加算なし）。カードに出す */
-const INBUILDING_FROM = INBUILDING_ROWS[0].amount;
+const INBUILDING_TABLE = INBUILDING_KINDS.map((k) => ({
+  name: k.name,
+  badge: k.badge,
+  desc: `作業員${k.crew}名。${k.things}`,
+  amounts: INBUILDING_POINTS.map((items) =>
+    inBuildingTotal({ items, crew: k.crew, floors: 0, disassembles: 0, installs: 0 }),
+  ),
+}));
 
-/** 02 に足すもの。札で出す */
-const INBUILDING_ADDS = [
-  `エレベーターなし　1フロア ${yen(STAIRS_FEE)}`,
-  `分解・組み立て　1点 ${yen(DISASSEMBLE_FEE)}`,
-  `洗濯機の取り外し・設置　1点 ${yen(INSTALL_FEE)}`,
-  `上限 ${yen(INBUILDING_CAP)}`,
+/** 02 の下限（作業員1名・1点・加算なし）。カードに出す */
+const INBUILDING_FROM = INBUILDING_TABLE[0].amounts[0];
+
+/** 02 の札。必要なときだけ足すもの（上限の内側）と、エレベーターがないときの階段（上限の外） */
+const INBUILDING_OPTIONS = [
+  { name: "洗濯機の取り外し・取り付け", fee: INSTALL_FEE },
+  { name: "ベッドなどの分解・組み立て（1点）", fee: DISASSEMBLE_FEE },
 ];
+const INBUILDING_STAIRS = [{ name: "階段で運ぶ（1フロアにつき）", fee: STAIRS_FEE }];
+
+/** お受けできないこと。⑤ と、02 の欄の最後の「運べない物」で同じ名前を出す */
+const DENY_WASTE = { title: "廃棄物の運搬、処分場への持ち込み", reason: "廃棄物を運ぶ許可がないためです。" };
+const DENY_HEAVY = {
+  title: "ピアノ・金庫などの重量物",
+  reason: "軽バンの道具と人数では、安全に運べないためです。",
+};
 
 /* ============ 3枚のカード ============ */
 
@@ -182,6 +194,37 @@ function Rows({ rows }: { rows: { name: string; desc: string; amount: number }[]
   );
 }
 
+/** 02 の札。名前と「＋金額」 */
+function Pills({ items }: { items: { name: string; fee: number }[] }) {
+  return (
+    <ul className="pp-inc">
+      {items.map((it) => (
+        <li key={it.name}>
+          {it.name}
+          <b className="tp-num">{`＋${yen(it.fee)}`}</b>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** お受けできないこと。紺の箱に黄色の× */
+function Deny({ title, reason }: { title: string; reason: string }) {
+  return (
+    <div className="pp-deny">
+      <span className="x" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="3">
+          <path d="M5 5l12 12M17 5L5 17" />
+        </svg>
+      </span>
+      <div>
+        <b>{title}</b>
+        <span>{reason}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function UnpanPage() {
   return (
     <div className="tp pp">
@@ -230,13 +273,50 @@ export default function UnpanPage() {
                   </h3>
                   <p className="tp-sec-lead">
                     同じマンションの別の階や部屋へ。車を出さないので、距離の料金はかかりません。
+                    <br />
+                    {`大型の家具・家電があるときは、2人目の${yen(INBUILDING_CREW2_FEE)}が加わります。`}
                   </p>
-                  <Rows rows={INBUILDING_ROWS} />
-                  <ul className="pp-inc">
-                    {INBUILDING_ADDS.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
+                  <table className="pp-tbl pts">
+                    <thead>
+                      <tr>
+                        <th scope="col">エレベーターありの場合</th>
+                        {INBUILDING_POINTS.map((n) => (
+                          <th scope="col" key={n}>{`${n}点`}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {INBUILDING_TABLE.map((r) => (
+                        <tr key={r.name}>
+                          <th scope="row">
+                            {r.name}
+                            {r.badge ? <span className="pp-badge">{r.badge}</span> : null}
+                            <small>{r.desc}</small>
+                          </th>
+                          {r.amounts.map((a, i) => (
+                            <td className="p tp-num" key={INBUILDING_POINTS[i]} data-l={`${INBUILDING_POINTS[i]}点`}>
+                              {fmt(a)}
+                              <small>円</small>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p className="pp-tbl-note">{`4点目からも1点 ${yen(INBUILDING_MOVE_FEE)}ずつ。下の「必要なときだけ」の作業を足しても、上限は ${yen(INBUILDING_CAP)} です（階段の料金は上限の外で、別にかかります）。`}</p>
+
+                  <p className="pp-sub">必要なときだけ</p>
+                  <Pills items={INBUILDING_OPTIONS} />
+
+                  <p className="pp-sub">エレベーターがないとき</p>
+                  <Pills items={INBUILDING_STAIRS} />
+
+                  <InBuildingEstimate />
+
+                  <Deny
+                    title="運べない物"
+                    reason={`${DENY_HEAVY.title}（安全に運べないため）／処分のための運び出し（廃棄物を運ぶ許可がないため）`}
+                  />
                 </>
               ),
               out: (
@@ -288,17 +368,8 @@ export default function UnpanPage() {
             <p className="tp-eyebrow tp-num">NOTE</p>
             <h2 className="tp-h2">お受けできないこと</h2>
           </div>
-          <div className="pp-deny">
-            <span className="x" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="3">
-                <path d="M5 5l12 12M17 5L5 17" />
-              </svg>
-            </span>
-            <div>
-              <b>廃棄物の運搬、処分場への持ち込み</b>
-              <span>廃棄物を運ぶ許可がないためです。</span>
-            </div>
-          </div>
+          <Deny {...DENY_WASTE} />
+          <Deny {...DENY_HEAVY} />
         </div>
       </section>
 

@@ -90,6 +90,23 @@ export type QuoteHandoff = {
   amount: string;
   /** 往復プラン（同じ日に2回に分けて運ぶ）の金額かどうか */
   roundtrip: boolean;
+  /**
+   * /unpan の「建物の中」の簡易見積り（InBuildingEstimate）から来たときだけ入る。
+   * 車を出さない作業なので、積載・距離・日程の行は出さず、こちらの行を出す（handoffLines）。
+   * このとき crew・floors・amount は建物の中の値。m3・km・coef などは使わない（0 のまま運ぶ）。
+   */
+  inBuilding?: {
+    /** 小型の点数（1人で持てる物） */
+    small: number;
+    /** 大型の点数（2人で運ぶ物） */
+    large: number;
+    /** 洗濯機の取り外し・取り付けをする点数 */
+    installs: number;
+    /** 分解・組み立てをする点数 */
+    disassembles: number;
+    /** 画面に出ていた内訳の1行。_fees.ts の inBuildingParts が出した数字を並べたもの */
+    breakdown: string;
+  };
 };
 
 /* ============ 日付（日本時間） ============ */
@@ -144,6 +161,19 @@ export type HandoffLine = { label: string; value: string };
 export function handoffLines(h: QuoteHandoff): HandoffLine[] {
   const lines: HandoffLine[] = [];
 
+  if (h.inBuilding) {
+    const b = h.inBuilding;
+    lines.push({ label: "作業", value: "建物の中での移動（車は出しません）" });
+    lines.push({ label: "運ぶ物", value: `小型 × ${b.small}　／　大型 × ${b.large}` });
+    lines.push({ label: "作業員", value: `${h.crew}名` });
+    lines.push({ label: "建物", value: h.floors > 0 ? `エレベーターなし・階段 ${h.floors}フロア` : "エレベーターあり" });
+    if (b.installs > 0) lines.push({ label: "取り付け", value: `洗濯機の取り外し・取り付け ${b.installs}点` });
+    if (b.disassembles > 0) lines.push({ label: "分解・組み立て", value: `${b.disassembles}点` });
+    lines.push({ label: "内訳", value: b.breakdown });
+    lines.push({ label: "概算（税込）", value: h.amount });
+    return lines;
+  }
+
   lines.push({
     label: "運ぶ物",
     value: h.items.map((i) => `${i.name} × ${i.n}`).join("　／　") || "（選択なし）",
@@ -189,6 +219,8 @@ export function handoffLines(h: QuoteHandoff): HandoffLine[] {
  * 文と判定は lib/pricing.ts（/simulator に出しているものと同じ）。ここに書き写さない。
  */
 export function handoffNotice(h: QuoteHandoff): string | null {
+  // 建物の中は日程を選ばせていない。2名なら、当日かどうかにかかわらず出す
+  if (h.inBuilding) return h.crew === 2 ? SAME_DAY_CREW2_NOTICE : null;
   return h.coefKey && needsReservation(h.crew, h.coefKey) ? SAME_DAY_CREW2_NOTICE : null;
 }
 
@@ -221,6 +253,20 @@ function str(v: unknown, max = MAX_TEXT): string {
 
 function num(v: unknown): number {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+function count(v: unknown): number {
+  return Math.max(0, Math.min(99, Math.floor(num(v))));
+}
+
+function parseInBuilding(b: Record<string, unknown>): NonNullable<QuoteHandoff["inBuilding"]> {
+  return {
+    small: count(b.small),
+    large: count(b.large),
+    installs: count(b.installs),
+    disassembles: count(b.disassembles),
+    breakdown: str(b.breakdown, 400),
+  };
 }
 
 /**
@@ -270,5 +316,8 @@ export function parseHandoff(v: unknown): QuoteHandoff | null {
       : {}),
     amount: str(o.amount, 60),
     roundtrip: o.roundtrip === true,
+    ...(o.inBuilding && typeof o.inBuilding === "object"
+      ? { inBuilding: parseInBuilding(o.inBuilding as Record<string, unknown>) }
+      : {}),
   };
 }

@@ -21,8 +21,20 @@ type Props = {
   panels: Record<ChoiceId, ReactNode>;
 };
 
-/** トップの「料金の目安」で「車を使わない」を選んだときの飛び先。01 の説明の箱に付く */
-const INDOOR_HASH = "tatemononai";
+/**
+ * URL のハッシュで開く欄。**ハッシュは、その欄の説明の箱の id にもなる。**
+ *   #tatemononai … 01（同じ部屋の中だけ）。トップの「料金の目安」で「車を使わない」を選んだときの飛び先
+ *   #bldg        … 02（建物の中）。同じく「同じ建物の別の階・部屋へ」を選んだときの飛び先
+ * ⚠ #tatemononai の飛び先は変えないこと（ほかのリンクが 01 を開く前提で張ってある）
+ */
+const HASH_OF: Partial<Record<ChoiceId, string>> = { room: "tatemononai", bldg: "bldg" };
+
+/** いまの URL のハッシュが指している欄。なければ null */
+function hashChoice(): { id: ChoiceId; hash: string } | null {
+  const hash = window.location.hash.slice(1);
+  const id = (Object.keys(HASH_OF) as ChoiceId[]).find((k) => HASH_OF[k] === hash);
+  return id ? { id, hash } : null;
+}
 
 /** JS が動かないときは、3つの説明を全部出す。`hidden` を CSS で打ち消すだけ */
 const NOSCRIPT = "<style>.rv .pp-panel[hidden]{display:block!important}</style>";
@@ -31,7 +43,7 @@ const NOSCRIPT = "<style>.rv .pp-panel[hidden]{display:block!important}</style>"
  * /unpan の「どこまで動かしますか？」。3枚のカードを押すと、下の説明が切り替わる（92_price_pages）。
  *
  * - 最初は 03（建物の外へ）を選んだ状態
- * - **URL が `#tatemononai` のときは 01 を選んだ状態にして、その箱まで動かす。**
+ * - **URL が `#tatemononai` のときは 01 を、`#bldg` のときは 02 を選んだ状態にして、その箱まで動かす。**
  *   閉じている箱は `display:none` で、ブラウザは隠れた要素へは飛べないので、開けてからこちらで動かす
  * - 3つの説明はどれも最初の HTML に入っている（`hidden` で隠すだけ）。JS がなければ3つとも見える
  */
@@ -45,16 +57,18 @@ export default function UnpanChoices({ choices, panels }: Props) {
   useEffect(() => {
     if (!jump.current) return;
     jump.current = false;
-    document.getElementById(INDOOR_HASH)?.scrollIntoView();
+    const to = hashChoice();
+    if (to) document.getElementById(to.hash)?.scrollIntoView();
   }, [picked]);
 
   useEffect(() => {
     const read = () => {
-      if (window.location.hash !== `#${INDOOR_HASH}`) return;
+      const to = hashChoice();
+      if (!to) return;
       jump.current = true;
-      setPicked("room");
-      // すでに 01 が開いているとき（state が変わらない）は、下の effect が走らないのでここで動かす
-      document.getElementById(INDOOR_HASH)?.scrollIntoView();
+      setPicked(to.id);
+      // すでにその欄が開いているとき（state が変わらない）は、下の effect が走らないのでここで動かす
+      document.getElementById(to.hash)?.scrollIntoView();
     };
     read();
     window.addEventListener("hashchange", read);
@@ -89,11 +103,11 @@ export default function UnpanChoices({ choices, panels }: Props) {
       </div>
 
       {choices.map((c) => (
-        // id="tatemononai" は 01 の箱そのものに付ける（aria-controls の id は内側）
+        // ハッシュの id は箱そのものに付ける（aria-controls の id は内側）
         <div
           className="pp-panel"
           key={c.id}
-          id={c.id === "room" ? INDOOR_HASH : undefined}
+          id={HASH_OF[c.id]}
           hidden={picked !== c.id}
         >
           <div id={`pp-panel-${c.id}`}>{panels[c.id]}</div>

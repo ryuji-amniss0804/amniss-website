@@ -2708,6 +2708,110 @@ body.rv,
   .rv .pp-deny { padding: 24px 20px; gap: 14px; }
   .rv .pp-deny b { font-size: 18px; }
 }
+/* 2つ並べるとき（下の黄色の影 8px のぶんを空ける）／「建物の中」の欄の最後に置くとき */
+.rv .pp-deny + .pp-deny { margin-top: 24px; }
+.rv .pp-panel .pp-deny { margin-top: 36px; }
+
+/* ---- /unpan「建物の中」：点数ごとの表・札の小見出し・簡易見積り（InBuildingEstimate.tsx） ---- */
+/* 行＝小型だけ／大型を含む、列＝1点・2点・3点 */
+.rv .pp-tbl.pts thead th {
+  width: auto;
+  padding-top: 0;
+  padding-bottom: 10px;
+  border-top: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rv-sub);
+  text-align: right;
+}
+.rv .pp-tbl.pts thead th:first-child { text-align: left; }
+.rv .pp-tbl.pts tbody th { width: 46%; font-size: 17px; }
+.rv .pp-tbl.pts tbody th small { display: block; margin-top: 4px; font-size: 13px; font-weight: 500; line-height: 1.6; color: var(--rv-sub); }
+.rv .pp-tbl.pts td.p { font-size: 26px; }
+.rv .pp-tbl.pts td.p small { margin-left: 2px; font-family: var(--rv-ff-zen); font-size: 14px; font-weight: 700; }
+.rv .pp-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 2px;
+}
+.rv .pp-sub { margin-top: 28px; font-size: 15px; font-weight: 900; }
+.rv .pp-panel .pp-sub + .pp-inc { margin-top: 10px; }
+.rv .pp-inc li b { margin-left: 10px; font-weight: 700; }
+@media (max-width: 640px) {
+  /* 幅が足りないので、名前を1行、金額3つをその下に並べる。列の見出しは金額の上に小さく出す */
+  .rv .pp-tbl.pts,
+  .rv .pp-tbl.pts thead,
+  .rv .pp-tbl.pts tbody { display: block; }
+  .rv .pp-tbl.pts thead tr { display: block; }
+  .rv .pp-tbl.pts thead th { display: none; }
+  .rv .pp-tbl.pts thead th:first-child { display: block; padding-left: 0; }
+  .rv .pp-tbl.pts tbody tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #E1DACB; padding: 14px 0; }
+  .rv .pp-tbl.pts tbody th { grid-column: 1 / -1; width: auto; padding: 0 0 8px; border-top: 0; font-size: 16px; }
+  .rv .pp-tbl.pts td.p { padding: 0; border-top: 0; font-size: 22px; text-align: left; }
+  .rv .pp-tbl.pts td.p::before {
+    content: attr(data-l);
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--rv-ff-zen);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--rv-sub);
+  }
+  .rv .pp-tbl.pts td.p small { font-size: 12px; }
+}
+
+/* 簡易見積り。紺の面。数の増減（pp-stp）・選ぶボタン（tp-chip）・金額（tp-price）・ボタン（tp-btn）は既存の部品 */
+.rv .pp-inb {
+  margin-top: 36px;
+  padding: 28px 30px;
+  background: var(--rv-navy);
+  color: var(--rv-paper);
+  border-radius: 22px;
+}
+.rv .pp-inb h4 { font-size: 20px; font-weight: 900; line-height: 1.5; }
+.rv .pp-inb-hint { margin-bottom: 14px; font-size: 13px; line-height: 1.8; color: var(--rv-sub-on-navy); }
+.rv .pp-inb-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(250, 248, 243, 0.18);
+}
+.rv .pp-inb-q .l { min-width: 0; font-size: 15px; font-weight: 700; line-height: 1.5; }
+.rv .pp-inb-q .l small { display: block; margin-top: 2px; font-size: 12px; font-weight: 500; color: var(--rv-sub-on-navy); }
+.rv .pp-inb .pp-stp { flex: none; }
+.rv .pp-inb .pp-stp button:focus-visible,
+.rv .pp-inb .tp-chip:focus-visible,
+.rv .pp-inb .tp-btn:focus-visible { outline-color: var(--rv-yellow); }
+.rv .pp-inb-seg { flex: none; display: flex; gap: 8px; }
+.rv .pp-inb .tp-chip { justify-content: center; min-width: 64px; color: var(--rv-navy); }
+/* 紺の面の上なので、選んだ状態は黄色（既定の紺だと面に沈む） */
+.rv .pp-inb .tp-chip.on { background: var(--rv-yellow); border-color: var(--rv-yellow); color: var(--rv-navy); }
+.rv .pp-inb-out { display: flex; flex-direction: column; gap: 8px; margin-top: 22px; }
+.rv .pp-inb-total { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 12px; }
+.rv .pp-inb-total .k { font-size: 14px; color: var(--rv-sub-on-navy); }
+.rv .pp-inb .tp-price .v { font-size: 56px; }
+.rv .pp-inb .tp-card-sum { font-size: 13px; line-height: 1.9; }
+.rv .pp-inb-acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.rv .pp-inb button.tp-btn { appearance: none; background: transparent; font-family: inherit; cursor: pointer; }
+.rv .pp-inb button.tp-btn:hover { background: var(--rv-paper); }
+.rv .pp-inb button.tp-btn:disabled { opacity: 0.45; cursor: not-allowed; background: transparent; color: var(--rv-paper); }
+.rv .pp-inb .tp-btn-y { min-height: 50px; font-size: 15px; }
+@media (max-width: 480px) {
+  .rv .pp-inb { padding: 24px 16px; }
+  .rv .pp-inb .tp-price .v { font-size: 46px; }
+  .rv .pp-inb-acts .tp-btn { width: 100%; }
+  .rv .pp-inb .tp-chip { min-width: 56px; padding: 10px 12px; }
+}
 
 /* ---- /simulator：左に5つの手順、右に結果（Simulator.tsx） ----
    手順の番号・見出し・チップ・セレクト・結果の面は、トップの「料金の目安」（tp-step ほか）をそのまま使う */

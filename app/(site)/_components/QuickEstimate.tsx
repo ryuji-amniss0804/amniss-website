@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCountUp } from "./useCountUp";
-import { INBUILDING_MOVE_FEE, INDOOR_FEE } from "../_fees";
+import { INBUILDING_MOVE_FEE, INDOOR_FEE, inBuildingParts, inBuildingTotal } from "../_fees";
 import { LINE_URL } from "@/lib/site";
 import { PLACES, kmBetween, type PlaceId } from "@/lib/regions";
 import {
@@ -34,6 +34,11 @@ import {
  *   定数と関数だけで行う。合計は `plainTotal()` をそのまま呼んでいるので、
  *   /moving の検算表・/simulator と同じ式から出る。
  * ★**人数は選ばせない。**`crewFor()` で決める（2026-09-24 の決定）。
+ * ★「車を使わない」で「同じ建物の別の階・部屋へ」を選んだときの金額は、/unpan の簡易見積り
+ *   （InBuildingEstimate）と同じ `inBuildingTotal()` / `inBuildingParts()` から出す。
+ *   大型が入っていれば2名（`crewFor()`）で、2人目の加算が入る。**同じ条件なら同じ金額になる。**
+ *   ここで選べるのは点数と洗濯機の取り外し・取り付けだけ（エレベーターあり・分解なしの金額）。
+ *   階段と分解・組み立ては /unpan で足してもらう。
  * ★/simulator の本体は埋めていない（トップが重くなる）。これは軽い別部品で、
  *   階段・分解・時刻指定・個数の増減は「詳しく見積もる」の先でやってもらう。
  *
@@ -62,6 +67,13 @@ const MODES: { k: Mode; t: string; s: string }[] = [
   { k: "small", t: "段ボールや小物だけ", s: `大きい家具・家電はない。段ボール${SMALL_BOXES}箱くらいまで` },
 ];
 
+/** 「車を使わない」の中の2つ。部屋の中だけ（定額）か、建物の中で階・部屋をまたぐか */
+type Scope = "room" | "bldg";
+const SCOPES: { k: Scope; t: string }[] = [
+  { k: "room", t: "同じ部屋の中だけ" },
+  { k: "bldg", t: "同じ建物の別の階・部屋へ" },
+];
+
 const MODES2: { k: Mode; t: string }[] = [
   { k: "big", t: "1LDK以上・家族の引越し" },
   { k: "indoor", t: "車を使わない（同じ部屋・建物の中だけ）" },
@@ -85,6 +97,10 @@ const PICK_ITEMS: { id: string; name: string }[] = [
   { id: "tv-42", name: "テレビ" },
   { id: "bike", name: "自転車" },
 ];
+/** 「同じ建物の別の階・部屋へ」で出す品目。自転車は建物の中で運ぶ物ではないので外す */
+const BLDG_ITEMS = PICK_ITEMS.filter((it) => it.id !== "bike");
+/** 取り外し・取り付け（_fees.ts の INSTALL_FEE）がつく品目。洗濯機だけ */
+const WASHER_IDS = ["washer-top", "washer-drum"];
 // load() は知らない id を黙って飛ばす。id を打ち間違えると0m³のまま金額が出るので、ここで止める
 for (const it of PICK_ITEMS) {
   if (!itemOf(it.id)) throw new Error(`lib/pricing.ts に品目 ${it.id} がありません`);
@@ -109,10 +125,17 @@ export default function QuickEstimate() {
   const [from, setFrom] = useState<PlaceId>("toyama");
   const [to, setTo] = useState<PlaceId>("toyama");
   const [day, setDay] = useState<CoefKey>("heijitsu");
+  const [scope, setScope] = useState<Scope>("room");
+  /** 洗濯機の取り外し・取り付けもする（/unpan の簡易見積りの初期値と同じく、最初は「する」） */
+  const [install, setInstall] = useState(true);
 
   /* ---- 手順1：段と人数 ---- */
+  /** 車を使わない・建物の中で階や部屋をまたぐ。金額は _fees.ts の inBuildingTotal から出す */
+  const inBldg = mode === "indoor" && scope === "bldg";
+  // 「大きい物をいくつか」で自転車を選んだまま建物の中に切り替えても、見えていない自転車は数えない
+  const pickItems = inBldg ? BLDG_ITEMS : PICK_ITEMS;
   const counts: Counts = {};
-  for (const it of PICK_ITEMS) if (picked[it.id]) counts[it.id] = 1;
+  for (const it of pickItems) if (picked[it.id]) counts[it.id] = 1;
   const l = load(counts);
 
   let tier: Tier | null = null;
@@ -138,6 +161,11 @@ export default function QuickEstimate() {
     } else {
       tier = tierOf(l.m3);
     }
+  } else if (inBldg) {
+    crew = crewFor(counts);
+    if (l.items === 0) {
+      msg = ["動かす物を選んでください", "上のボタンをタップすると、ここに金額が出ます。"];
+    }
   } else if (mode === "big") {
     msg = [
       "1LDK以上はご相談ください",
@@ -147,6 +175,9 @@ export default function QuickEstimate() {
 
   /* ---- 手順2：距離 ---- */
   const indoor = mode === "indoor";
+  const washers = WASHER_IDS.filter((id) => picked[id]).length;
+  /** エレベーターあり・分解なしで見る（階段と分解・組み立ては /unpan で足す） */
+  const bldgInput = { items: l.items, crew, floors: 0, disassembles: 0, installs: install ? washers : 0 };
   /** 手順2・3を使わない選び方（車を使わない／1LDK以上） */
   const noStep = indoor || mode === "big";
   const km = kmBetween(from, to);
@@ -160,16 +191,30 @@ export default function QuickEstimate() {
 
   /* ---- 結果 ---- */
   const work = tier ? tier.work[crew === 1 ? 0 : 1] : 0;
-  const total = indoor
-    ? INDOOR_FEE
-    : tier && km !== null && dist && !msg
+  const total = inBldg
+    ? l.items > 0
+      ? inBuildingTotal(bldgInput)
+      : null
+    : indoor
+      ? INDOOR_FEE
+      : tier && km !== null && dist && !msg
       ? plainTotal({ tier, crew, km, coefKey: day })
       : null;
   const shown = useCountUp(total, plainTotal({ tier: FULL_TIER, crew: 2, km: 10, coefKey: "heijitsu" }));
 
   let rows: { name: string; v: string }[] = [];
   let summary = "";
-  if (indoor) {
+  if (inBldg && total !== null) {
+    const p = inBuildingParts(bldgInput);
+    rows = [
+      { name: "出動料", v: fmt(p.depart) },
+      { name: `${l.items}点 × ${fmt(INBUILDING_MOVE_FEE)}`, v: fmt(p.move) },
+    ];
+    if (p.crew2) rows.push({ name: "2人目", v: fmt(p.crew2) });
+    if (p.install) rows.push({ name: `洗濯機の取り外し・取り付け ×${bldgInput.installs}`, v: fmt(p.install) });
+    if (p.capped) rows.push({ name: "上限", v: fmt(total) });
+    summary = `作業員${crew}名で伺います${crew === 2 ? "（大型の荷物があるため）" : ""}`;
+  } else if (indoor && !inBldg) {
     rows = [
       { name: "同じ部屋の中で動かす", v: fmt(INDOOR_FEE) },
       { name: "同じ建物で階・部屋をまたぐ", v: `出動料＋1点${fmt(INBUILDING_MOVE_FEE)}` },
@@ -190,7 +235,8 @@ export default function QuickEstimate() {
      こちらで品目を決めて渡すと、選んでいない物が入った状態で開くことになるため。
      距離と日程だけを渡す。1LDK以上は、引き継ぐ条件がないのでそのまま開く。
      車を使わないときは、シミュレーターに該当する作業がないので /unpan の料金の節へ送る
-     （飛び先の id は unpan/page.tsx の ①のSpec に付けてある）。 */
+     （飛び先の id は unpan/UnpanChoices.tsx が説明の箱に付けている）。
+     「同じ建物の別の階・部屋へ」を選んでいるときは、02（建物の中）の欄を開く。 */
   const simParams: string[] = [];
   if (!noStep) {
     if (km !== null) simParams.push(`km=${km}`);
@@ -202,7 +248,7 @@ export default function QuickEstimate() {
     }
   }
   const simHref = simParams.length ? `/simulator?${simParams.join("&")}` : "/simulator";
-  const detailHref = indoor ? "/unpan#tatemononai" : simHref;
+  const detailHref = inBldg ? "/unpan#bldg" : indoor ? "/unpan#tatemononai" : simHref;
 
   const pct = Math.min(100, l.pct);
   const kmLabel =
@@ -211,7 +257,14 @@ export default function QuickEstimate() {
       : "—";
   const dayNote = DAYS.find((d) => d.k === day);
   /** 2名の作業はご予約制。2名＋当日のときだけ一言を出す（車を使わない／1LDK以上は日程を使わないので出さない） */
-  const reserveNotice = !noStep && needsReservation(crew, day) ? SAME_DAY_CREW2_NOTICE : null;
+  // 建物の中は日程を選ばせていないので、2名なら当日かどうかにかかわらず出す（/unpan の簡易見積りと同じ）
+  const reserveNotice = inBldg
+    ? total !== null && crew === 2
+      ? SAME_DAY_CREW2_NOTICE
+      : null
+    : !noStep && needsReservation(crew, day)
+      ? SAME_DAY_CREW2_NOTICE
+      : null;
 
   return (
     <section className="tp tp-est" id="estimate">
@@ -294,6 +347,64 @@ export default function QuickEstimate() {
                         : `軽バンの荷台 約${pct}%（${l.m3.toFixed(2)}m³）`}
                     </p>
                   </div>
+                </div>
+              ) : null}
+
+              {/* 車を使わない。部屋の中だけ（定額）か、建物の中か。建物の中は動かす物を選ぶと金額が出る */}
+              {indoor ? (
+                <div className="tp-pick">
+                  <p className="tp-pick-t">どこまで動かしますか？</p>
+                  <div className="tp-chips">
+                    {SCOPES.map((sc) => (
+                      <button
+                        type="button"
+                        key={sc.k}
+                        className={scope === sc.k ? "tp-chip on" : "tp-chip"}
+                        aria-pressed={scope === sc.k}
+                        onClick={() => setScope(sc.k)}
+                      >
+                        <span className="dot" />
+                        {sc.t}
+                      </button>
+                    ))}
+                  </div>
+                  {inBldg ? (
+                    <>
+                      <p className="tp-pick-t">
+                        動かす物をタップ <small>（もう一度タップで外れます）</small>
+                      </p>
+                      <div className="tp-chips">
+                        {BLDG_ITEMS.map((it) => (
+                          <button
+                            type="button"
+                            key={it.id}
+                            className={picked[it.id] ? "tp-chip on" : "tp-chip"}
+                            aria-pressed={!!picked[it.id]}
+                            onClick={() => setPicked((p) => ({ ...p, [it.id]: !p[it.id] }))}
+                          >
+                            <span className="dot" />
+                            {it.name}
+                          </button>
+                        ))}
+                      </div>
+                      {washers > 0 ? (
+                        <div className="tp-chips">
+                          <button
+                            type="button"
+                            className={install ? "tp-chip on" : "tp-chip"}
+                            aria-pressed={install}
+                            onClick={() => setInstall((v) => !v)}
+                          >
+                            <span className="dot" />
+                            洗濯機の取り外し・取り付けもする
+                          </button>
+                        </div>
+                      ) : null}
+                      <p className="tp-note">
+                        エレベーターがある場合の金額です。階段と分解・組み立ては、建物の中の料金のページで足せます。
+                      </p>
+                    </>
+                  ) : null}
                 </div>
               ) : null}
             </fieldset>

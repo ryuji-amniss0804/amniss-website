@@ -72,17 +72,24 @@ export function spotTotal(p: {
 /**
  * 建物の中での移動（車を出さない）。1点につき。
  *
- * ⚠ この 4,000 と下の INSTALL_FEE 6,000 は、2026-09-24 の実績2件
- *   （ドラム式1点＝15,000円／3点＝26,000円、いずれもエレベーターあり・作業員2名）から
- *   逆算した値。ただし**未知数3つに対して式は2本しかなく、一意には決まらない。**
- *   「解体・組み立ては引越しと同じ DISASSEMBLE_FEE（3,000円）にする」という前提を
- *   置いたうえでの解である。同じベッドの解体組立が引越しと建物内で違う額になるのを
+ * ⚠ この 4,000 と下の INSTALL_FEE 6,000 は、2026-09-24 の実績1件から置いた値。
+ *   洗濯機1点で 15,000円 と見積もり、当日ほかの移動が加わって最終 26,000円 になった
+ *   （エレベーターあり・作業員2名・手伝いへの支払い 5,000円）。**2件ではなく、同じ1件。**
+ *   見積もりと最終の2つの額だけでは、1点の移動・取り外し取り付け・分解組み立ての3つは**一意には決まらない。**
+ *   「分解・組み立ては引越しと同じ DISASSEMBLE_FEE（3,000円）にする」という前提を
+ *   置いたうえでの値である。同じベッドの分解組立が引越しと建物内で違う額になるのを
  *   避けるための選択で、データがこの値を証明しているわけではない。
  */
 export const INBUILDING_MOVE_FEE = 4000;
 
 /**
- * 取り外し・設置。1点につき。洗濯機（縦型・ドラム式）、据置型の食洗機。
+ * 大型の家具・家電があり作業員2名で伺うときの加算（手伝いの人件費）。
+ * 1時間以内の作業が前提。2026-10-11 本人決定
+ */
+export const INBUILDING_CREW2_FEE = 5000;
+
+/**
+ * 取り外し・取り付け。1点につき。洗濯機（縦型・ドラム式）、据置型の食洗機。
  *
  * 縦型とドラム式を同額にしている。やることは給水・排水・アース・水平出しで同じで、
  * 違うのは重さだけ。重さは「大型は2名」（lib/pricing.ts の crewFor）で吸収済み。
@@ -105,25 +112,64 @@ export const INBUILDING_CAP = plainTotal({
   coefKey: "heijitsu",
 });
 
+/** inBuildingTotal / inBuildingParts に渡す条件 */
+export type InBuildingInput = {
+  /** 動かす点数 */
+  items: number;
+  /** 作業員の人数。大型の家具・家電が1点でもあれば 2 */
+  crew: 1 | 2;
+  /** 階段のフロア数（エレベーターがあれば 0） */
+  floors: number;
+  /** 分解・組み立てをする点数 */
+  disassembles: number;
+  /** 取り外し・取り付けをする点数 */
+  installs: number;
+};
+
+/**
+ * 建物内作業の内訳。**式を書いてよいのはここだけ。**
+ * 画面に内訳を出すとき（InBuildingEstimate）も、ここが返した数字を並べるだけにする。
+ *
+ * 上限 INBUILDING_CAP の内側 … 出動料 ＋ 点数 × INBUILDING_MOVE_FEE ＋ 2人目 ＋ 取り外し・取り付け ＋ 分解・組み立て
+ * 上限の外 … 階段（floors × STAIRS_FEE）
+ * つまり min(内側, CAP) ＋ 階段。2026-10-11 本人決定（それまでは階段も上限の内側だった）。
+ */
+export function inBuildingParts(p: InBuildingInput) {
+  const depart = DEPART;
+  const move = p.items * INBUILDING_MOVE_FEE;
+  const crew2 = p.crew === 2 ? INBUILDING_CREW2_FEE : 0;
+  const install = p.installs * INSTALL_FEE;
+  const disassemble = p.disassembles * DISASSEMBLE_FEE;
+  const raw = depart + move + crew2 + install + disassemble;
+  const stairs = p.floors * STAIRS_FEE;
+  return {
+    depart,
+    move,
+    crew2,
+    install,
+    disassemble,
+    /** 上限に当たったか */
+    capped: raw > INBUILDING_CAP,
+    stairs,
+    total: Math.min(raw, INBUILDING_CAP) + stairs,
+  };
+}
+
 /**
  * 建物内作業（車を出さない）の合計。**日程係数は掛けない。**
  * INDOOR_FEE が係数なしなので、車を出さない作業は定額、という形をそろえている。
  */
-export function inBuildingTotal(p: {
-  /** 動かす点数 */
-  items: number;
-  /** 階段のフロア数（エレベーターがあれば 0） */
-  floors: number;
-  /** 解体・組み立てをする点数 */
-  disassembles: number;
-  /** 取り外し・設置をする点数 */
-  installs: number;
-}): number {
-  const raw =
-    DEPART +
-    p.items * INBUILDING_MOVE_FEE +
-    p.floors * STAIRS_FEE +
-    p.disassembles * DISASSEMBLE_FEE +
-    p.installs * INSTALL_FEE;
-  return Math.min(raw, INBUILDING_CAP);
+export function inBuildingTotal(p: InBuildingInput): number {
+  return inBuildingParts(p).total;
+}
+
+// 建物の中（車を出さない）が、車で運ぶいちばん安い2名の作業を超えないこと。
+// 2名・ドラム式1点＋取り外し取り付け・エレベーターあり と、小口・2名・富山市内・平日 を比べる。
+// 定数を動かして逆転したら、ビルドを止める
+{
+  const inb = inBuildingTotal({ items: 1, crew: 2, floors: 0, disassembles: 0, installs: 1 });
+  const car = plainTotal({ tier: TIER[0], crew: 2, km: 12, coefKey: "heijitsu" });
+  if (inb > car) {
+    throw new Error(`_fees.ts：建物の中（2名・1点＋取り外し取り付け）${inb}円 が、車で運ぶ小口・2名 ${car}円 を超えています`);
+  }
 }

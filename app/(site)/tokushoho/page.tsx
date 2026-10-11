@@ -4,6 +4,7 @@ import PageHero from "../_components/PageHero";
 import {
   INDOOR_FEE,
   INBUILDING_MOVE_FEE,
+  INBUILDING_CREW2_FEE,
   INSTALL_FEE,
   INBUILDING_CAP,
   SPOT_EXTEND_FEE,
@@ -40,7 +41,7 @@ import { HOURS_RANGE } from "@/lib/site";
  * **金額は必ず、ほかのページと同じソースから引くこと。**
  *  - 出動料 5,000 … `lib/pricing.ts` の DEPART
  *  - 室内作業のみ 8,000 … `app/(site)/_fees.ts` の INDOOR_FEE
- *  - 建物の中での移動 … `app/(site)/_fees.ts` の INBUILDING_MOVE_FEE / INSTALL_FEE /
+ *  - 建物の中での移動 … `app/(site)/_fees.ts` の INBUILDING_MOVE_FEE / INBUILDING_CREW2_FEE / INSTALL_FEE /
  *    INBUILDING_CAP（階段 STAIRS_FEE・分解組立 DISASSEMBLE_FEE は `lib/pricing.ts`）
  *  - 法人スポット便 8,000 … `app/(site)/_fees.ts` の SPOT_FEE
  *    延長 30分ごと 1,500 … 同じファイルの SPOT_EXTEND_MIN / SPOT_EXTEND_FEE
@@ -170,9 +171,12 @@ const ROWS: { label: string; value: React.ReactNode }[] = [
           {yen(INBUILDING_MOVE_FEE)}
         </span>
         <span>
-          （階段 1フロアにつき {yen(STAIRS_FEE)}／分解・組み立て 1点につき{" "}
-          {yen(DISASSEMBLE_FEE)}／取り外し・設置 1点につき {yen(INSTALL_FEE)}。上限{" "}
+          （大型の家具・家電があり作業員2名で伺う場合 2人目 {yen(INBUILDING_CREW2_FEE)}／分解・組み立て
+          1点につき {yen(DISASSEMBLE_FEE)}／取り外し・取り付け 1点につき {yen(INSTALL_FEE)}。ここまでの合計の上限{" "}
           {yen(INBUILDING_CAP)}）
+        </span>
+        <span>
+          エレベーターがなく階段で運ぶ場合は、1フロアにつき {yen(STAIRS_FEE)}。階段の料金は上限の外で、別にかかります。
         </span>
 
         <span className="h">
