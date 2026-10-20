@@ -3865,6 +3865,7 @@ body.rv,
   box-shadow: 0 4px 0 #04913e;
 }
 .rv .bn .bn-form-note { margin-top: 12px; font-size: 12px; color: var(--bn-sub); text-align: center; }
+.rv .bn .bn-form-note + .bn-form-note { margin-top: 4px; }
 
 /* できないこと */
 .rv .bn .bn-dekinai { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }

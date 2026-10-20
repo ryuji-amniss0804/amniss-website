@@ -85,6 +85,8 @@ export default function BenriyaForm() {
           フォームで送る
         </Link>
       </div>
+      {/* 友だち追加がまだの人は、追加の画面を挟むと oaMessage の文面が消える（実機で確認済み） */}
+      <p className="bn-form-note">初めての方は、友だち追加のあとにこのページへ戻り、もう一度『LINEで送る』を押してください。</p>
       <p className="bn-form-note">{`LINE・フォームは${ONLINE_HOURS}受付。電話は ${HOURS_RANGE}（${TEL}）`}</p>
     </div>
   );
