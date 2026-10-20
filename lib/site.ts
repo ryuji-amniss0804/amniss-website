@@ -36,7 +36,21 @@ export const HOURS_CLOSE_TEXT = TEL_CLOSE;
 export const HOURS_OPEN = TEL_OPEN.padStart(5, "0");
 export const HOURS_CLOSE = TEL_CLOSE.padStart(5, "0");
 
+/**
+ * LINE とフォームの受付時間。電話（HOURS）とは別に持つ。
+ * いまは /benriya の「LINE・フォームは24時間受付」だけが使っている。
+ * ⚠ 電話の時間と1つの文字列に混ぜないこと（上の HOURS の注意と同じ理由）。
+ */
+export const ONLINE_HOURS = "24時間";
+
 export const LINE_URL = "https://lin.ee/845Fdsy";
+
+/**
+ * 引越し・買取用の公式アカウントのID。LINE_URL（URL用）と lin.ee/3dpL6Og（QR用）の飛び先と同じ。
+ * 文面を入れた状態でトークを開く oaMessage の URL は、ここから組み立てる（/benriya の相談フォーム）。
+ * ⚠ パソコン用（@680gavoj・lib/pc.ts の PC_LINE_URL）とは別のアカウント。
+ */
+export const LINE_ID = "@022lhymn";
 export const AREA = "富山県全域";
 
 export const COMPANY = {
