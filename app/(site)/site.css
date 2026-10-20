@@ -3585,3 +3585,316 @@ body.rv,
   .rv .op-rs-fig > div { aspect-ratio: 16 / 9; max-width: 420px; }
   .rv .op-rs-fig figcaption { text-align: left; }
 }
+
+/* ============================================================
+   便利屋（/benriya）
+   見た目の正は benriya_handoff/benriya_mockup.html。
+   **配色はこのページの中だけ。**トークンを .bn に載せ、サイト共通の --accent などは触らない。
+   書体は layout.tsx で読み込み済みの3つ（Zen Kaku Gothic New／Noto Sans JP／Barlow Condensed）。
+   ============================================================ */
+.rv .bn {
+  --bn-accent: #E86A50;
+  --bn-dark: #B23F28;
+  --bn-bg: #FFF7F4;
+  --bn-pale: #F9DCD4;
+  --bn-ink: #14202b;
+  --bn-sub: #4a5561;
+  --bn-line: #EADCD5;
+  --bn-line-2: #F3E8E3;
+  font-family: var(--rv-font-sans), "Noto Sans CJK JP", sans-serif;
+  color: var(--bn-ink);
+  background: var(--bn-bg);
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: normal;
+  font-feature-settings: normal;
+}
+.rv .bn h1,
+.rv .bn h2,
+.rv .bn h3 { letter-spacing: normal; }
+.rv .bn .bn-zen { font-family: var(--rv-font-zen), var(--rv-font-sans), sans-serif; }
+.rv .bn .bn-num { font-family: var(--rv-font-num), var(--rv-font-zen), sans-serif; }
+.rv .bn .bn-dark { color: var(--bn-dark); }
+.rv .bn .bn-in { max-width: 1200px; margin: 0 auto; }
+/* 共通ヘッダー（sticky・74px）の下に見出しが隠れないように。既存ページと同じ 96px */
+.rv .bn [id] { scroll-margin-top: 96px; }
+
+/* ボタン */
+.rv .bn .bn-btn {
+  display: inline-block;
+  background: var(--bn-accent);
+  color: var(--bn-ink);
+  font-weight: 900;
+  padding: 15px;
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--bn-dark);
+  text-align: center;
+}
+.rv .bn .bn-btn-lg { font-size: 16px; padding: 16px 32px; }
+.rv .bn .bn-btn-md { padding: 14px 28px; }
+
+/* 節 */
+.rv .bn .bn-sec { padding: 88px 24px; }
+.rv .bn .bn-sec-s { padding: 72px 24px; }
+.rv .bn .bn-white { background: #fff; }
+.rv .bn .bn-pale { background: var(--bn-bg); }
+.rv .bn .bn-sec-h { font-weight: 900; line-height: 1.4; margin-bottom: 12px; }
+.rv .bn .bn-h-32 { font-size: 32px; }
+.rv .bn .bn-h-34 { font-size: 34px; margin-bottom: 16px; }
+.rv .bn .bn-h-36 { font-size: 36px; }
+.rv .bn .bn-h-40 { font-size: 40px; line-height: 1.35; margin-bottom: 16px; }
+.rv .bn .bn-sec-lead { margin-bottom: 36px; color: var(--bn-sub); }
+.rv .bn .bn-sec-lead-s { margin-bottom: 28px; }
+
+/* ヒーロー */
+.rv .bn .bn-hero { padding: 72px 24px 80px; }
+.rv .bn .bn-hero-in { display: flex; flex-wrap: wrap; gap: 56px; align-items: center; }
+.rv .bn .bn-hero-t { flex: 1 1 520px; min-width: 0; }
+.rv .bn .bn-hero-k { margin-bottom: 20px; color: var(--bn-dark); font-weight: 700; font-size: 14px; letter-spacing: 0.12em; }
+.rv .bn .bn-hero-h { font-weight: 900; line-height: 1.35; font-feature-settings: "palt"; letter-spacing: 0.01em; }
+.rv .bn .bn-hero-h > span { display: block; font-size: clamp(30px, 4.3vw, 56px); white-space: nowrap; }
+.rv .bn .bn-hero-h > span + span { margin-top: 4px; }
+.rv .bn .bn-q-open { color: var(--bn-accent); margin-left: -0.5em; }
+.rv .bn .bn-hero-h > span:first-child .bn-q-close { color: var(--bn-accent); }
+.rv .bn .bn-q-close { margin-right: -0.4em; }
+.rv .bn .bn-mark {
+  background: linear-gradient(transparent 60%, #F9C3B6 60%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.rv .bn .bn-hero-lead { margin-top: 28px; font-size: 17px; line-height: 1.9; color: var(--bn-sub); font-feature-settings: "palt"; }
+.rv .bn .bn-hero-act { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; margin-top: 36px; }
+.rv .bn .bn-hero-price { display: flex; align-items: baseline; gap: 8px; }
+.rv .bn .bn-hero-price-l { font-size: 13px; color: var(--bn-sub); }
+.rv .bn .bn-hero-price-n { font-size: 44px; font-weight: 700; color: var(--bn-dark); line-height: 1; }
+.rv .bn .bn-hero-price-u { font-size: 16px; font-weight: 700; color: var(--bn-dark); }
+.rv .bn .bn-hero-ph { flex: 1 1 420px; min-width: 0; position: relative; }
+.rv .bn .bn-hero-ph img { width: 100%; height: 440px; object-fit: cover; border-radius: 28px; }
+
+/* 約束の帯 */
+.rv .bn .bn-band { background: var(--bn-pale); }
+.rv .bn .bn-band-in {
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.rv .bn .bn-band-i { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.rv .bn .bn-band-ic {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rv .bn .bn-band-t { line-height: 1.4; }
+.rv .bn .bn-band-t > span:first-child { display: block; font-weight: 900; font-size: 15px; }
+.rv .bn .bn-band-t > span:last-child { font-size: 13px; color: var(--bn-sub); }
+
+/* たとえば、こんなご相談も。 */
+.rv .bn .bn-rei { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.rv .bn .bn-rei-c {
+  background: #fff;
+  border: 1.5px solid var(--bn-line);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rv .bn .bn-rei-c img { width: 100%; height: 200px; object-fit: cover; }
+.rv .bn .bn-rei-t { padding: 20px 22px; }
+.rv .bn .bn-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bn-dark);
+  background: var(--bn-pale);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.rv .bn .bn-rei-h { margin: 10px 0 6px; font-weight: 900; font-size: 18px; }
+.rv .bn .bn-rei-b { font-size: 15px; color: var(--bn-sub); }
+
+/* 料金 */
+.rv .bn .bn-menu { margin-top: 56px; }
+.rv .bn .bn-menu-h { margin-bottom: 8px; font-size: 26px; font-weight: 900; }
+.rv .bn .bn-menu-lead { margin-bottom: 28px; font-size: 15px; color: var(--bn-sub); }
+.rv .bn .bn-box-h { font-size: 20px; font-weight: 900; }
+.rv .bn .bn-hourly { background: var(--bn-bg); border: 2px solid var(--bn-accent); border-radius: 24px; padding: 32px; }
+.rv .bn .bn-hourly-hd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--bn-pale);
+}
+.rv .bn .bn-hourly-p { font-size: 15px; }
+.rv .bn .bn-hourly-p b { font-size: 30px; color: var(--bn-dark); }
+.rv .bn .bn-hourly-p .bn-zen { font-weight: 700; color: var(--bn-dark); }
+.rv .bn .bn-hourly-note { margin: -8px 0 24px; font-size: 14px; color: var(--bn-sub); line-height: 1.9; }
+.rv .bn .bn-hourly-g { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px 32px; }
+.rv .bn .bn-hourly-gh { margin-bottom: 8px; font-size: 15px; font-weight: 900; color: var(--bn-dark); }
+.rv .bn .bn-hourly-g ul { padding-left: 1.2em; font-size: 15px; line-height: 2; }
+.rv .bn .bn-fee { margin-top: 24px; background: #fff; border: 1.5px solid var(--bn-line); border-radius: 16px; padding: 18px 20px; }
+.rv .bn .bn-fee .bn-hourly-gh { margin-bottom: 12px; }
+.rv .bn .bn-fee-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 40px; font-size: 14px; }
+.rv .bn .bn-fee-r {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--bn-line-2);
+  padding-bottom: 8px;
+}
+.rv .bn .bn-fee-r .bn-num { font-size: 20px; font-weight: 700; white-space: nowrap; }
+.rv .bn .bn-hourly-ft { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--bn-line); font-size: 13px; color: var(--bn-sub); line-height: 1.8; }
+.rv .bn .bn-perjob { margin-top: 20px; background: #fff; border: 1.5px solid var(--bn-line); border-radius: 24px; padding: 32px; }
+.rv .bn .bn-perjob-hd { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--bn-line-2); }
+.rv .bn .bn-perjob-hd > p:last-child { margin-top: 4px; font-size: 14px; color: var(--bn-sub); }
+.rv .bn .bn-perjob-l { display: flex; flex-direction: column; gap: 10px; }
+.rv .bn .bn-prow {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  align-items: center;
+  gap: 6px 20px;
+  background: var(--bn-bg);
+  border: 1.5px solid var(--bn-line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  color: var(--bn-ink);
+}
+.rv .bn .bn-prow-n { font-weight: 900; font-size: 17px; }
+.rv .bn .bn-prow-d { font-size: 14px; color: var(--bn-sub); }
+.rv .bn .bn-prow-p { font-size: 14px; font-weight: 700; color: var(--bn-dark); white-space: nowrap; text-align: right; }
+
+/* 定期訪問 */
+.rv .bn .bn-teiki { display: flex; flex-wrap: wrap; gap: 40px; align-items: center; }
+.rv .bn .bn-teiki-t { flex: 1 1 420px; min-width: 0; }
+.rv .bn .bn-teiki-lead { margin-bottom: 16px; color: var(--bn-sub); }
+.rv .bn .bn-teiki-p { display: flex; align-items: baseline; gap: 8px; margin: 20px 0 4px; }
+.rv .bn .bn-teiki-p .bn-num { font-size: 56px; font-weight: 700; line-height: 1; }
+.rv .bn .bn-teiki-p .bn-zen { font-size: 18px; font-weight: 700; }
+.rv .bn .bn-teiki-note { margin-bottom: 20px; font-size: 13px; color: var(--bn-sub); }
+.rv .bn .bn-teiki-box { flex: 1 1 420px; min-width: 0; background: #fff; border: 1.5px solid var(--bn-line); border-radius: 22px; padding: 32px; }
+.rv .bn .bn-teiki-bh { margin-bottom: 16px; font-size: 14px; font-weight: 700; color: var(--bn-dark); }
+.rv .bn .bn-teiki-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rv .bn .bn-teiki-g > div { background: var(--bn-bg); border-radius: 14px; padding: 16px; font-weight: 700; font-size: 15px; }
+
+/* 相談 */
+.rv .bn .bn-soudan { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
+.rv .bn .bn-soudan-t { flex: 1 1 380px; min-width: 0; }
+.rv .bn .bn-soudan-lead { margin-bottom: 28px; color: var(--bn-sub); }
+.rv .bn .bn-me { background: #fff; border: 1.5px solid var(--bn-line); border-radius: 18px; padding: 22px; display: flex; gap: 18px; align-items: flex-start; }
+.rv .bn .bn-me-ph {
+  flex: 0 0 84px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--bn-pale);
+  border: 3px solid var(--bn-accent);
+  overflow: hidden;
+}
+.rv .bn .bn-me-ph img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.rv .bn .bn-me-t { min-width: 0; }
+.rv .bn .bn-me-h { font-size: 20px; font-weight: 900; }
+.rv .bn .bn-me-n { margin: 2px 0 10px; font-size: 13px; color: var(--bn-sub); }
+.rv .bn .bn-me-b { margin-bottom: 10px; font-size: 14px; }
+.rv .bn .bn-me-a { font-size: 13px; font-weight: 700; color: var(--bn-dark); }
+.rv .bn .bn-me-a:hover { color: var(--bn-ink); }
+.rv .bn .bn-voice { margin-top: 12px; background: var(--bn-pale); border-radius: 18px; padding: 18px 22px; }
+.rv .bn .bn-voice-s { margin-bottom: 4px; color: var(--bn-dark); font-size: 15px; letter-spacing: 0.1em; }
+.rv .bn .bn-voice-q { margin-bottom: 4px; font-size: 16px; font-weight: 700; }
+.rv .bn .bn-voice-src { font-size: 12px; color: var(--bn-sub); }
+
+/* 相談フォーム（BenriyaForm.tsx） */
+.rv .bn .bn-form {
+  flex: 1 1 460px;
+  min-width: 0;
+  background: #fff;
+  border: 2px solid var(--bn-accent);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 12px 32px rgba(232, 106, 80, 0.12);
+}
+.rv .bn .bn-form-q { display: block; font-size: 22px; font-weight: 900; line-height: 1.4; }
+.rv .bn .bn-form-sub { margin: 4px 0 14px; font-size: 13px; color: var(--bn-sub); }
+.rv .bn .bn-form textarea,
+.rv .bn .bn-form select {
+  width: 100%;
+  border: 1.5px solid var(--bn-line);
+  border-radius: 12px;
+  font-family: inherit;
+  color: var(--bn-ink);
+  background: var(--bn-bg);
+}
+.rv .bn .bn-form textarea { display: block; padding: 14px; font-size: 16px; line-height: 1.6; resize: vertical; }
+.rv .bn .bn-form textarea::placeholder { color: #8d949c; }
+.rv .bn .bn-form select { padding: 12px; font-size: 15px; }
+.rv .bn .bn-form-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.rv .bn .bn-form-row > * { flex: 1 1 180px; min-width: 0; }
+.rv .bn .bn-form-lb { display: block; font-size: 12px; font-weight: 700; color: var(--bn-sub); margin-bottom: 4px; }
+.rv .bn .bn-form-photo { align-self: flex-end; font-size: 13px; line-height: 1.6; color: var(--bn-sub); }
+.rv .bn .bn-form-fee {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 18px 0 14px;
+  padding: 12px 14px;
+  background: var(--bn-bg);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.rv .bn .bn-form-fee b { font-size: 20px; }
+.rv .bn .bn-form-fee-v { color: var(--bn-dark); font-weight: 700; }
+.rv .bn .bn-form-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.rv .bn .bn-form-btns > a { flex: 1 1 180px; }
+.rv .bn .bn-btn-line {
+  text-align: center;
+  background: #06c755;
+  color: #fff;
+  font-weight: 900;
+  padding: 15px;
+  border-radius: 999px;
+  box-shadow: 0 4px 0 #04913e;
+}
+.rv .bn .bn-form-note { margin-top: 12px; font-size: 12px; color: var(--bn-sub); text-align: center; }
+.rv .bn .bn-form-note + .bn-form-note { margin-top: 4px; }
+
+/* できないこと */
+.rv .bn .bn-dekinai { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rv .bn .bn-dekinai > div { background: #fff; border: 1.5px solid var(--bn-line); border-radius: 16px; padding: 22px; }
+.rv .bn .bn-dekinai p:first-child { margin-bottom: 6px; font-weight: 900; font-size: 17px; }
+.rv .bn .bn-dekinai p:last-child { font-size: 15px; color: var(--bn-sub); }
+
+/* 最後の帯 */
+.rv .bn .bn-last { background: var(--bn-accent); }
+.rv .bn .bn-last-in { max-width: 880px; margin: 0 auto; text-align: center; }
+.rv .bn .bn-last .bn-sec-h { color: var(--bn-ink); margin-bottom: 28px; }
+.rv .bn .bn-last-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.rv .bn .bn-btn-ink { background: var(--bn-ink); color: #fff; font-weight: 900; padding: 16px 32px; border-radius: 999px; box-shadow: 0 4px 0 #0e171f; }
+.rv .bn .bn-btn-tel {
+  background: #fff;
+  color: var(--bn-ink);
+  font-weight: 700;
+  font-size: 20px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: 2px solid var(--bn-ink);
+}
+
+/* スマホ。モックアップの @media (max-width:760px) どおり */
+@media (max-width: 760px) {
+  .rv .bn .bn-sec-h { font-size: 28px; }
+  .rv .bn .bn-hero-ph img { height: 260px; }
+  .rv .bn .bn-prow { grid-template-columns: 1fr; }
+  .rv .bn .bn-prow-p { text-align: left; }
+  .rv .bn .bn-fee-g { grid-template-columns: 1fr; }
+  .rv .bn .bn-rei { grid-template-columns: 1fr; }
+}

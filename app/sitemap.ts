@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       { path: '/kaitori', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/unpan', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/houjin', changeFrequency: 'monthly' as const, priority: 0.8 },
+      { path: '/benriya', changeFrequency: 'monthly' as const, priority: 0.8 },
       { path: '/simulator', changeFrequency: 'monthly' as const, priority: 0.7 },
       // 記事一覧。実体のある公開ページでフッターからもリンクしているのに、
       // ここに無かったため sitemap から漏れていた（69-5 で追加）。

@@ -134,6 +134,57 @@ export const images = {
     height: 1080,
     treatment: "plain",
   },
+
+  // ─── 便利屋（/benriya）。Unsplash・商用可。並びは「たとえば、こんなご相談も。」の順 ───
+  benriyaHero: {
+    src: "/images/benriya/hero-living.jpg",
+    alt: "片付いた居間",
+    width: 1200,
+    height: 900,
+    treatment: "plain",
+  },
+  benriyaHakobu: {
+    src: "/images/benriya/rei-hakobu.jpg",
+    alt: "部屋で荷物の箱を動かしている様子",
+    width: 1200,
+    height: 675,
+    treatment: "plain",
+  },
+  benriyaPrinter: {
+    src: "/images/benriya/rei-printer.jpg",
+    alt: "床に置いたプリンター",
+    width: 1200,
+    height: 800,
+    treatment: "plain",
+  },
+  benriyaSmartphone: {
+    src: "/images/benriya/rei-smartphone.jpg",
+    alt: "スマホを操作する手元",
+    width: 1200,
+    height: 800,
+    treatment: "plain",
+  },
+  benriyaKumitate: {
+    src: "/images/benriya/rei-kumitate.jpg",
+    alt: "木製の棚を組み立てている様子",
+    width: 1200,
+    height: 800,
+    treatment: "plain",
+  },
+  benriyaKaitori: {
+    src: "/images/benriya/rei-kaitori.jpg",
+    alt: "古いカメラ",
+    width: 1200,
+    height: 1600,
+    treatment: "plain",
+  },
+  benriyaYukikaki: {
+    src: "/images/benriya/rei-yukikaki.jpg",
+    alt: "雪に立てたスコップ",
+    width: 1200,
+    height: 1200,
+    treatment: "plain",
+  },
 } as const satisfies Record<string, SiteImage>;
 
 export type SiteImageKey = keyof typeof images;
