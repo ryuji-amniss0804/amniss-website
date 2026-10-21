@@ -2097,6 +2097,13 @@ body.rv,
 .rv .tp-svc-card.doc .d { color: var(--rv-sub-on-navy); }
 .rv .tp-svc-card.doc .p { color: var(--rv-doc); }
 .rv .tp-svc-card.doc .go { border-top-color: rgba(250, 248, 243, 0.16); }
+/* カードの下の便利屋の案内（見出し＋1文＋ボタン）。カードにはしない。
+   ボタンは /blog と同じ .tp-btn-nw。生成りの地なので、フォーカスの枠は紺にする */
+.rv .tp-svc-more { display: flex; flex-direction: column; gap: 14px; padding-top: 32px; border-top: 2px solid var(--rv-navy); }
+.rv .tp-svc-more h3 { font-weight: 900; font-size: 22px; line-height: 1.5; }
+.rv .tp-svc-more p { font-size: 16px; line-height: 1.9; color: var(--rv-sub); }
+.rv .tp-svc-more > div { margin-top: 6px; }
+.rv .tp-svc-more .tp-btn:focus-visible { outline-color: var(--rv-navy); }
 @media (max-width: 860px) {
   .rv .tp-svc { padding: 72px 0; }
   .rv .tp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
