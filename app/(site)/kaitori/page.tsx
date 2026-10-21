@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import PriceHero from "../_components/PriceHero";
 import LicenseStrip from "../_components/LicenseStrip";
 import FaqTop, { type FaqTopItem } from "../_components/FaqTop";
@@ -90,7 +91,8 @@ const CANNOT_BUY: { name: string; note?: string }[] = [
 ];
 
 /** 4つの約束。cc_task/93 §4-2 の表のとおり */
-const PROMISES: { title: string; body: string }[] = [
+/** link は本文の下に置く本文リンク（「引越しと同じ日に」から /moving へ） */
+const PROMISES: { title: string; body: string; link?: { href: string; label: string } }[] = [
   {
     title: "断られた物こそ",
     body: "動かないカメラ、起動しないパソコン。見る前に「買えません」とは言いません。",
@@ -102,6 +104,7 @@ const PROMISES: { title: string; body: string }[] = [
   {
     title: "引越しと同じ日に",
     body: "買取額を、その日の引越し代から差し引きます。運ぶ物が減るぶん、引越し代も下がります。",
+    link: { href: "/moving", label: "富山の単身引越しの料金" },
   },
   {
     title: "値がつかない物は、その場で",
@@ -210,6 +213,13 @@ export default function KaitoriPage() {
                 <div className="tp-rs-b">
                   <h3>{r.title}</h3>
                   <p>{r.body}</p>
+                  {r.link ? (
+                    <p>
+                      <Link href={r.link.href} className="tl">
+                        {r.link.label}
+                      </Link>
+                    </p>
+                  ) : null}
                 </div>
                 {/* 1つ目の横にだけ写真（860px以下では上）。会社概要の代表の写真と同じ枠 */}
                 {i === 0 ? (

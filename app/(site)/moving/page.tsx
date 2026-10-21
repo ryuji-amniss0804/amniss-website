@@ -7,6 +7,8 @@ import PriceAccordion, { type AccordionTable } from "../_components/PriceAccordi
 import FaqTop from "../_components/FaqTop";
 import LastCta from "../_components/LastCta";
 import Figure from "../_components/Figure";
+import { SITE_URL } from "@/app/components/JsonLd";
+import { images } from "@/lib/images";
 import { MOVING_REASONS } from "../_reasons";
 import { CARGO_SIZE } from "../_cargo";
 import {
@@ -70,19 +72,38 @@ import {
  */
 const MOVING_FROM = plainTotal({ tier: TIER[2], crew: 2, km: 12, coefKey: "heijitsu" });
 
+const TITLE = `富山の単身引越し｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`;
+const DESCRIPTION = `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`;
+
+/**
+ * SNS で共有されたときの画像。トップのヒーロー写真（hero-top-2026.jpg）を 1200×630 に切り出したもの。
+ * ヒーローの荷台の図は SVG で、色を site.css から取っているため、そのままでは画像にできない
+ */
+const OG_IMAGE = {
+  url: "/images/moving/og.jpg",
+  width: 1200,
+  height: 630,
+  alt: images.heroTop.alt,
+};
+
 export const metadata: Metadata = {
-  title: `富山の単身引越し｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
-  description:
-    `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: "/moving" },
   openGraph: {
-    title: `富山の単身引越し｜軽バン1台 ${yen(MOVING_FROM)}〜 ｜ re'vive 富山`,
-    description:
-      `富山県全域の単身引越し。ワンルームから1Kくらいの規模だけをやっています。軽バン1台・作業員2名で、富山市内・平日 ${yen(MOVING_FROM)}から。料金の内訳は全部公開。貨物軽自動車運送事業 届出済。`,
+    title: TITLE,
+    description: DESCRIPTION,
     url: "https://revive-toyama.jp/moving",
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
   },
 };
 
@@ -276,14 +297,58 @@ const FAQ = [
   },
 ];
 
+/* ============ 構造化データ ============ */
+
+/**
+ * このページの構造化データ。提供元はサイト共通の #business（app/components/JsonLd.tsx）を @id で参照する。
+ * 金額は上の MOVING_FROM（lib/pricing.ts から計算）。
+ */
+const serviceJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": `${SITE_URL}/moving#service`,
+  name: "単身引越し",
+  url: `${SITE_URL}/moving`,
+  provider: { "@id": `${SITE_URL}/#business` },
+  areaServed: {
+    "@type": "AdministrativeArea",
+    name: "富山県",
+  },
+  serviceType: "単身引越し",
+  offers: {
+    "@type": "Offer",
+    price: String(MOVING_FROM),
+    priceCurrency: "JPY",
+    description: "ワンルーム〜1K一式・富山市内・作業員2名・平日の場合（税込）",
+  },
+};
+
+/** よくあるご質問。画面と同じ FAQ から作る（文言を書き写さない） */
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
+/** JSON の中の `<` を `<` に逃がす（Next.js の JSON-LD ガイドの指示） */
+const ldJson = (data: object) => JSON.stringify(data).replace(/</g, "\\u003c");
+
 export default function MovingPage() {
   return (
     <div className="tp pp">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(serviceJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ldJson(faqJsonLd) }} />
       {/* ① ヒーロー。紺の地。見出しはお客さんの言葉、リードでこちらが名乗る。
           右は荷台の断面図。実車の写真は「軽バンだ」としか言えず、
-          このページで先に知りたいのは「自分の荷物が入るか」なので、寸法のほうを出す */}
+          このページで先に知りたいのは「自分の荷物が入るか」なので、寸法のほうを出す。
+          小見出しも h1 に入れる（「富山の単身引越し」を h1 に含めるため。見た目は変わらない） */}
       <PriceHero
-        kicker="単身引越し ／ 富山県全域"
+        kickerInH1
+        kicker="富山の単身引越し ／ 富山県全域"
         title={["荷物、そんなに", "多くないんですけど。"]}
         lead={["その規模のお引越しだけ、やっています。", "ワンルーム〜1Kを、軽バン1台で。"]}
         actions={
@@ -312,7 +377,7 @@ export default function MovingPage() {
           <div className="tp-sec-hd">
             <p className="tp-eyebrow tp-num">PRICE</p>
             <h2 className="tp-h2">
-              金額は、<span className="tp-mark pp-fill">先に決まります</span>
+              引越し料金は、<span className="tp-mark pp-fill">先に決まります</span>
             </h2>
             <p className="tp-sec-lead">税込。作業のあとに増えることはありません。</p>
           </div>
@@ -476,7 +541,10 @@ export default function MovingPage() {
         <div className="tw tp-sec-in">
           <div className="tp-sec-hd">
             <p className="tp-eyebrow tp-num">FAQ</p>
-            <h2 className="tp-h2">よくあるご質問</h2>
+            {/* スマホでは「単身引越しの／よくあるご質問」と折る。「よくあるご質問」は途中で切らない */}
+            <h2 className="tp-h2">
+              単身引越しの<span className="nw">よくあるご質問</span>
+            </h2>
           </div>
           <FaqTop items={FAQ} />
         </div>
