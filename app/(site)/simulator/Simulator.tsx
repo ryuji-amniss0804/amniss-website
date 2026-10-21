@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, Suspense, useEffect, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCountUp } from "../_components/useCountUp";
 import { HANDOFF_KEY, type QuoteHandoff } from "@/lib/quote";
@@ -799,6 +800,9 @@ export default function Simulator() {
             <button type="button" className="pp-to-form" onClick={requestQuote} disabled={l.items === 0}>
               この内容で見積りフォームへ
             </button>
+            <p className="tp-card-note">
+              料金のしくみは、<Link href="/moving">富山の単身引越しの料金</Link>にまとめています。
+            </p>
           </div>
         </div>
 

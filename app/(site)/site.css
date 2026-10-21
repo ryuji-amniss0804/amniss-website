@@ -1959,6 +1959,8 @@ body.rv,
 .rv .tp-card-acts { display: flex; flex-direction: column; gap: 14px; }
 .rv .tp-card-acts .tp-btn { width: 100%; }
 .rv .tp-card-note { font-size: 12px; line-height: 1.7; color: var(--rv-sub-on-navy); }
+/* /simulator の結果の欄から /moving への本文リンク */
+.rv .tp-card-note a { color: var(--rv-paper); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 860px) {
   .rv .tp-est { padding: 72px 0 80px; }
@@ -2357,6 +2359,11 @@ body.rv,
 .rv .pp-hero.sm .pp-hero-t { gap: 20px; }
 .rv .pp-hero-f { flex: 1 1 420px; min-width: 0; }
 .rv .pp-hero-k { font-weight: 700; font-size: 14px; letter-spacing: 0.24em; color: var(--rv-yellow); }
+/* 小見出しも h1 に入れるとき（/moving）。h1 の見出し体系（明朝・600・字間）を外して、
+   中の2つの span を、h1 に入れないときの p・h1 と同じ並び（.pp-hero-t の縦並び・間隔）にする */
+.rv .pp-hero-h1 { display: flex; flex-direction: column; gap: 24px; font-family: inherit; font-weight: inherit; letter-spacing: inherit; }
+.rv .pp-hero.sm .pp-hero-h1 { gap: 20px; }
+.rv .pp-hero-h1 > span { display: block; }
 .rv .pp .pp-hero-h {
   font-family: var(--rv-ff-zen);
   font-weight: 900;

@@ -15,6 +15,11 @@ type Props = {
   figure?: ReactNode;
   /** 見出しを一回り小さくする（/simulator。すぐ下が入力なので、ヒーローを低くする） */
   small?: boolean;
+  /**
+   * 小見出しも h1 の中に入れる（/moving。「富山の単身引越し」を h1 に含めるため）。
+   * 見た目は入れないときと同じ。h1 を縦並びの箱にして、2つの span に元の p・h1 の役を持たせる（site.css の .pp-hero-h1）
+   */
+  kickerInH1?: boolean;
 };
 
 /**
@@ -25,17 +30,29 @@ type Props = {
  *
  * 見出しの2行目は、トップの「金額がわかる。」と同じ作り（黄色の塗りの上に紺の文字）。
  */
-export default function PriceHero({ kicker, title, lead, badges, actions, figure, small }: Props) {
+export default function PriceHero({ kicker, title, lead, badges, actions, figure, small, kickerInH1 }: Props) {
+  const heading = (
+    <>
+      {title[0]}
+      <br />
+      <span className="tp-mark pp-fill">{title[1]}</span>
+    </>
+  );
   return (
     <section className={small ? "pp-hero sm" : figure ? "pp-hero" : "pp-hero solo"}>
       <div className="tw pp-hero-in">
         <div className="pp-hero-t">
-          <p className="pp-hero-k tp-a1">{kicker}</p>
-          <h1 className="pp-hero-h tp-a2">
-            {title[0]}
-            <br />
-            <span className="tp-mark pp-fill">{title[1]}</span>
-          </h1>
+          {kickerInH1 ? (
+            <h1 className="pp-hero-h1">
+              <span className="pp-hero-k tp-a1">{kicker}</span>
+              <span className="pp-hero-h tp-a2">{heading}</span>
+            </h1>
+          ) : (
+            <>
+              <p className="pp-hero-k tp-a1">{kicker}</p>
+              <h1 className="pp-hero-h tp-a2">{heading}</h1>
+            </>
+          )}
           <p className="pp-hero-lead tp-a3">
             {lead[0]}
             {lead[1] ? (
