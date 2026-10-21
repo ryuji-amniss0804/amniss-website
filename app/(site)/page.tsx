@@ -12,6 +12,8 @@ import { AREA, COMPANY, HOURS, LICENSES, LINE_URL, TEL, TEL_HREF, WASTE_NOTICE }
 // lib/pc.ts はデータだけで CSS もコンポーネントも持たないので、(site) から読んでよい。
 // yen は lib/pricing にも同名の別物（あちらは「円」まで付ける）があるので必ず別名で入れる。
 import { DIAGNOSIS_FEE, yen as pcYen } from "@/lib/pc";
+// 「できること」の下の便利屋の案内に出す1時間の金額。/benriya のページとフォームと同じ出どころ。**書き写さないこと。**
+import { HOURLY_FEE } from "./benriya/_benriya";
 import {
   CAP,
   COEF,
@@ -376,6 +378,23 @@ export default function TopPage() {
                 </span>
               </Link>
             ))}
+          </div>
+
+          {/* 便利屋（/benriya）の案内。89 で /pc に置いたのと同じ形（見出し＋1文＋ボタン）。
+              **カードにはしない。**6枚で3列×2段が埋まっていて、7枚目は1枚だけ段が余る。
+              **新しい節も作らない。**下の黄色・生成りの並びがずれる。
+              ヘッダーのナビには出さない（項目が多く、960px以下で隠れるため）。入口はこことフッター。
+              ⚠ 金額は _benriya.ts の HOURLY_FEE から組む。**直書きしないこと。**pcYen は「円」を付けないので文の側で付ける */}
+          <div className="tp-svc-more">
+            <h3>ちょっとした困りごとも、お受けしています</h3>
+            <p>{`家具の組み立て、重い物の移動、パソコンの設定、雪かきまで。組み立て・片付けなどは1時間${pcYen(
+              HOURLY_FEE,
+            )}円からです。`}</p>
+            <div>
+              <Link className="tp-btn tp-btn-nw" href="/benriya">
+                便利屋のページを見る
+              </Link>
+            </div>
           </div>
         </div>
       </section>
