@@ -541,7 +541,10 @@ export default function MovingPage() {
         <div className="tw tp-sec-in">
           <div className="tp-sec-hd">
             <p className="tp-eyebrow tp-num">FAQ</p>
-            <h2 className="tp-h2">単身引越しのよくあるご質問</h2>
+            {/* スマホでは「単身引越しの／よくあるご質問」と折る。「よくあるご質問」は途中で切らない */}
+            <h2 className="tp-h2">
+              単身引越しの<span className="nw">よくあるご質問</span>
+            </h2>
           </div>
           <FaqTop items={FAQ} />
         </div>
