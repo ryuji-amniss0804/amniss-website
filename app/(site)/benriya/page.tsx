@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { SITE_URL } from "@/app/components/JsonLd";
 import { images, type SiteImage } from "@/lib/images";
 import { COMPANY, LICENSES, TEL, TEL_HREF } from "@/lib/site";
 import { TIER, plainTotal, yen as yenWithUnit } from "@/lib/pricing";
@@ -24,6 +25,14 @@ import { FEE_ROWS, HOURLY_FEE, MONTHLY_FEE } from "./_benriya";
 const TITLE = `便利屋 re'vive 富山｜組み立て・片付け・パソコン設定・買取 1時間${yen(HOURLY_FEE)}円〜`;
 const DESCRIPTION = `富山県の便利屋 re'vive 富山。家具の組み立て、片付け、パソコン・スマホの設定、出張買取、雪かきまで。作業の前に金額をお出しします。富山市内は出張費0円。`;
 
+/** SNS で共有されたときの画像。ヒーロー画像（hero-living.jpg）を 1200×630 に切り出したもの */
+const OG_IMAGE = {
+  url: "/images/benriya/og.jpg",
+  width: 1200,
+  height: 630,
+  alt: images.benriyaHero.alt,
+};
+
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
@@ -35,6 +44,37 @@ export const metadata: Metadata = {
     siteName: "re'vive 富山",
     locale: "ja_JP",
     type: "website",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+};
+
+/**
+ * このページの構造化データ。提供元はサイト共通の #business（app/components/JsonLd.tsx）を @id で参照する。
+ * 金額は ./_benriya.ts の HOURLY_FEE から引く。
+ */
+const serviceJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": `${SITE_URL}/benriya#service`,
+  name: "便利屋（暮らしのお手伝い）",
+  url: `${SITE_URL}/benriya`,
+  provider: { "@id": `${SITE_URL}/#business` },
+  areaServed: {
+    "@type": "AdministrativeArea",
+    name: "富山県",
+  },
+  serviceType: ["家具の組み立て", "家具・家電の移動", "パソコン・スマホの設定", "出張買取", "雪かき・草むしり"],
+  offers: {
+    "@type": "Offer",
+    price: String(HOURLY_FEE),
+    priceCurrency: "JPY",
+    description: "1時間あたり（税込・作業員1名・出張費別）",
   },
 };
 
@@ -182,6 +222,11 @@ const DEKINAI: { title: string; body: string }[] = [
 export default function BenriyaPage() {
   return (
     <div className="bn">
+      {/* JSON の中の `<` は `<` に逃がす（Next.js の JSON-LD ガイドの指示） */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd).replace(/</g, "<") }}
+      />
       {/* ---------- ヒーロー ---------- */}
       <section id="top" className="bn-hero">
         <div className="bn-in bn-hero-in">
@@ -258,7 +303,7 @@ export default function BenriyaPage() {
       <section id="rei" className="bn-sec bn-white">
         <div className="bn-in">
           <h2 className="bn-zen bn-sec-h bn-h-36">たとえば、こんなご相談も。</h2>
-          <p className="bn-sec-lead">ここにないことも、お気軽にご相談ください。</p>
+          <p className="bn-sec-lead">富山の便利屋として、ここにないことも、お気軽にご相談ください。</p>
           <div className="bn-rei">
             {REI.map((r) => (
               <div key={r.title} className="bn-rei-c">
@@ -440,6 +485,7 @@ export default function BenriyaPage() {
       <section className="bn-sec bn-sec-s bn-last">
         <div className="bn-last-in">
           <h2 className="bn-zen bn-sec-h bn-h-36">まずは、気軽にご相談ください。</h2>
+          <p className="bn-last-sub">富山県全域の便利屋 re&apos;vive 富山</p>
           <div className="bn-last-btns">
             <a href="#soudan" className="bn-zen bn-btn-ink">
               お困りごとを書く
