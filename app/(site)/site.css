@@ -3884,6 +3884,7 @@ body.rv,
 .rv .bn .bn-last { background: var(--bn-accent); }
 .rv .bn .bn-last-in { max-width: 880px; margin: 0 auto; text-align: center; }
 .rv .bn .bn-last .bn-sec-h { color: var(--bn-ink); margin-bottom: 28px; }
+.rv .bn .bn-last-sub { margin: -18px 0 24px; font-size: 14px; color: var(--bn-ink); }
 .rv .bn .bn-last-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
 .rv .bn .bn-btn-ink { background: var(--bn-ink); color: #fff; font-weight: 900; padding: 16px 32px; border-radius: 999px; box-shadow: 0 4px 0 #0e171f; }
 .rv .bn .bn-btn-tel {
